@@ -123,7 +123,7 @@ $(function() {
             else{
                 $.ajax({
                     type: "POST",
-                    url: "https://localhost:8000",
+                    url: "http://94jzlodc.apps.lair.io:8000",
                     data: {
                         action: 'signup',
                         username: $("#username_signup").val(),
@@ -149,8 +149,8 @@ $(function() {
                             WIN_SIGNUP.close();
                             WIN_LOGIN.show();
                         },
-                        202: function() { //name taken. make sure the fucker knows
-                            console.log('server - name taken')
+                        202: function() { //username taken. make sure the fucker knows
+                            console.log('server - name taken');
                             $('#username_signup').parent().addClass('taken');
                             $('#username_signup').val($('#username_signup').val() + ' is taken');
                             $(register).parent().addClass('taken');
@@ -196,7 +196,7 @@ $(function() {
         // }
         $.ajax({
             type: "POST",
-            url: "https://localhost:8000",
+            url: "http://94jzlodc.apps.lair.io:8000",
             data: {
                 action: 'login',
                 username: $("#username").val(),
@@ -219,11 +219,11 @@ $(function() {
             },
             success: function(data) {
                 token = data;
-                SOCKET = GAME.socket = io.connect('https://localhost:8000', {
+                SOCKET = GAME.socket = io.connect('http://94jzlodc.apps.lair.io:8000', {
                 });
                 SOCKET.on('connect', function() {
-                    console.log('connected to socket.')
-                })
+                    console.log('connected to socket.');
+                });
                 SOCKET.on('token-request', function(data) {
                     SOCKET.emit('send-token', token);
                 });

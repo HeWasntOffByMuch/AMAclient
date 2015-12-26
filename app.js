@@ -56,5 +56,13 @@ app.use(function(err, req, res, next) {
   });
 });
 
+app.get('/', function(req, res, next) {
+  // Handle the get for this route
+});
+
+app.post('/', function(req, res, next) {
+ // Handle the post for this route
+});
+
 
 module.exports = app;
