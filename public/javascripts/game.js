@@ -15,12 +15,12 @@ function Game(playerData, map_size, chunkSize) {
 
     /* GAME OBJECTS */
     var mobs_data = {};
+    this.getMobsData = function() {
+        return mobs_data;
+    };
     var players_data = {};
     // var entities = new EntityManager();
 
-    this.logger = function() {
-        return movementCheck;
-    };
     var popups = [];
     // var missiles = new Missiles();
 
@@ -77,15 +77,15 @@ function Game(playerData, map_size, chunkSize) {
         var gameY = Math.floor((mousepos.y / gh) + map.y - 8);
         player.moveQ.findPath(player.tx, player.ty, gameX, gameY);
 
-        // for (var i in mobs_data) {
-        //     var enemy = mobs_data[i];
-        //     if (gameX == enemy.tx && gameY == enemy.ty) {
-        //         if (targetedUnit && targetedUnit != enemy) targetedUnit.isTargeted = false;
-        //         (targetedUnit = enemy).isTargeted = !(targetedUnit.isTargeted);
-        //         player.moveQ.currentPath = [];
-        //         return;
-        //     }
-        // }
+        for (var i in mobs_data) {
+            var enemy = mobs_data[i];
+            if (gameX == enemy.tx && gameY == enemy.ty) {
+                if (targetedUnit && targetedUnit != enemy) targetedUnit.isTargeted = false;
+                (targetedUnit = enemy).isTargeted = !(targetedUnit.isTargeted);
+                player.moveQ.currentPath = [];
+                return;
+            }
+        }
         // for (var i in players_data) {
         //     if (players_data[i].id == player.id) continue;
         //     var enemy = players_data[i];
@@ -97,7 +97,9 @@ function Game(playerData, map_size, chunkSize) {
         //     }
         // }
     }
-
+    function drawChunks(ctx){
+        var player = GAME.player;
+    }
     /* DRAW OBJECTS */
     function draw(ctx) {
         ctx.clearRect(0, 0, GAME.canvas.width, GAME.canvas.height);
@@ -107,10 +109,15 @@ function Game(playerData, map_size, chunkSize) {
         for(var i in players_data){
             players_data[i].draw(ctx);
         }
+        for(var i in mobs_data){
+            mobs_data[i].draw(ctx);
+        }
         
         ctx.fillStyle = "rgba(0,0,0,0.1)";
         ctx.fillRect(Math.floor(mousepos.x / gh) * gh, Math.floor(mousepos.y / gh) * gh, gh, gh);
-        // ctx.translate(map.x, map.y);
+        
+        //DEBUG
+        drawChunks(ctx);
 
     }
 
@@ -127,6 +134,9 @@ function Game(playerData, map_size, chunkSize) {
         }
         for(var i in players_data){
             players_data[i].update();
+        }
+        for(var i in mobs_data){
+            mobs_data[i].update();
         }
         movementCheck.update();
 
@@ -168,6 +178,10 @@ function Game(playerData, map_size, chunkSize) {
         if (key == "117") {
             var a = prompt();
              socket.emit('ping', a);
+             console.log(mobs_data);
+        }
+        if (key == "49") {
+             GAME.player.attack(targetedUnit);
         }
 
         lastKeyEvent = null;
@@ -184,19 +198,39 @@ function Game(playerData, map_size, chunkSize) {
     socket.on('player-data-update', function(data) {
         for(var p in data){
             var id = data[p]._id;
-            if(id == player.id){
-                // movementCheck.addClientMove(player.tx, player.ty);
-                // movementCheck.addServerMove(data[p].tx, data[p].ty);
-                // movementCheck.check(data[p].tx, data[p].ty)
-                // continue; // that means dont create nor update otherPlayer for GAME.player
-            }
-            if(!players_data.hasOwnProperty(id)){
-                players_data[id] = new OtherPlayer(gameState, data[p]);
-            }
-            else{
-                players_data[id].tx = data[p].tx;p
-                players_data[id].ty = data[p].ty;
+            if(data[p].type === enums.objType.PLAYER){
+                if(id == player.id){
+                    // movementCheck.addClientMove(player.tx, player.ty);
+                    // movementCheck.addServerMove(data[p].tx, data[p].ty);
+                    // movementCheck.check(data[p].tx, data[p].ty)
+                    player.healthCur = data[p].healthCur;
+                    player.healthMax = data[p].healthMax;
+                    // continue; // that means dont create nor update otherPlayer for GAME.player
+                }
+                if(!players_data.hasOwnProperty(id)){
+                    players_data[id] = new OtherPlayer(gameState, data[p]);
+                    console.log('added player from server');
+                } else {
+                    if(players_data[id].tx != data[p].tx || players_data[id].ty != data[p].ty)
+                        players_data[id].move(data[p].tx, data[p].ty);
+                    players_data[id].healthCur = data[p].healthCur;
+                }
+            } else if(data[p].type === enums.objType.MOB) {
+                if(!mobs_data.hasOwnProperty(id)){
+                    mobs_data[id] = new Mob(gameState, data[p]);
+                    console.log('added mob from server');
+                } else {
+                    if(mobs_data[id].tx != data[p].tx || mobs_data[id].ty != data[p].ty)
+                        mobs_data[id].move(data[p].tx, data[p].ty);
+                    mobs_data[id].healthCur = data[p].healthCur;
+                }
             }
         }
+    });
+    socket.on('mob-death', function(data) { //primitive for now.
+        mobs_data[data.id].die();
+    });
+    socket.on('player-disconnected', function(data) {
+        
     });
 }

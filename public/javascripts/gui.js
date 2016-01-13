@@ -40,7 +40,7 @@
     
     var header = $(document.createElement("div")).addClass("gui-window-header").appendTo(div);
     var icon = $(document.createElement("div")).addClass("gui-window-header-icon").appendTo(header);
-    if (options.icon) icon.css("background-image","url(./images/"+options.icon+")");
+    if (options.icon) icon.css("background-image","url(./img/"+options.icon+")");
     var title = $(document.createElement("div")).addClass("gui-window-header-text").appendTo(header);
     title.html(options.title);
     var buttons = $(document.createElement("div")).addClass("gui-window-header-buttons").appendTo(header);

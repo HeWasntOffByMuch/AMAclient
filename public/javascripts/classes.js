@@ -14,14 +14,14 @@ function Map(x, y, gameState){
 	var chunkSize = gameState.chunkSize || {x: 32, y: 16};
 	this.x = x;
 	this.y = y;
-	this.appendTiles = function() { //can't call this without a player
+	this.appendTiles = function() { //can't call this without a player. deprecated.
 		var x = this.x;
 		var y = this.y;
 		console.log(x, y)
 		for(var i = -2; i < 34; i++){
 			for(var j = -2; j < 18; j++){
 				var sprite = mapForeground[y - 8 + j][x-16+i];
-				if(sprite == 0) continue;
+				if(sprite === 0) continue;
 				new Tile(null, i, j, sprite -1);
 			}
 		}
@@ -31,12 +31,12 @@ function Map(x, y, gameState){
 		this.y = GAME.player.y + GAME.player.ay;
 	};
 	this.draw = function(ctx) {
-		if(mapForeground[0].length == 0) return;
+		if(mapForeground[0].length === 0) return;
 		for(var i = -1; i < 33; i++){
 			for(var j = -1; j < 17; j++){
 				var sprite = mapForeground[GAME.player.y - 8 + j][GAME.player.x - 16 + i];
 				// if(sprite == 0) continue; //if not many empty spaces on the map are used this is practically useless;
-				if(sprite !=0) sprite--;
+				if(sprite !=0) sprite--; //adjust sprite position
 				var x_pos = (sprite % tilesSprite.tilesW);
 				var y_pos = (Math.floor(sprite / tilesSprite.tilesW) % tilesSprite.tilesH);
 				var ax = GAME.player.ax;
@@ -52,11 +52,13 @@ function Map(x, y, gameState){
 			var y = map_part.pos.y;
 			var w = chunkSize.x;
 			var h = chunkSize.y;
-			for(var i=0; i<map_part.tile_data.length; i++){//initialise map_partForeground somehow
-				for(var j=0; j<map_part.tile_data[i].length; j++){
+			// console.log('populating tiles for chunk', x, y, w, h);
+			for(var i = 0; i < map_part.tile_data.length; i++){
+				for(var j = 0; j < map_part.tile_data[i].length; j++){
 					mapForeground[x*w + i][y*h + j] = map_part.tile_data[i][j];
 				}
 			}
+			// console.log('loaded chunk ', x, y);
 		}
 	};
 	this.populateCollisions = function(map) {
@@ -82,23 +84,29 @@ function Map(x, y, gameState){
 	this.isValid = function(x, y) {
 		return !mapCollisions[x][y];
 	};
+	this.occupySpot = function(x, y) {
+		mapCollisions[x][y] = 1;
+	};
+	this.freeSpot = function(x, y) {
+		mapCollisions[x][y] = 0;
+	};
 }
-function repositionTile() {
+function repositionTile() { // deprecated
 	if(!this) return;
 	this.style.left = this.x + 'px';
 	this.style.top = this.y + 'px';
 }
-function changeTileFrame(num) {
+function changeTileFrame(num) { // deprecated
     if (!this) return;
     this.style.backgroundPosition =
         (-1 * (num % tilesSprite.tilesW) * tilesSprite.spriteX + 'px ') +
         (-1 * (Math.floor(num / tilesSprite.tilesW) % tilesSprite.tilesH)) * tilesSprite.spriteY + 'px ';
 }
-function destroyTile() {
+function destroyTile() { // deprecated
     if (!this) return;
     this.parent.removeChild(this.element);
 }
-function Tile(parentElement, x, y, sprite) {
+function Tile(parentElement, x, y, sprite) { // deprecated
     // function references
     this.reposition = repositionTile;
     this.frame = changeTileFrame;
@@ -123,6 +131,7 @@ function Tile(parentElement, x, y, sprite) {
 function Player(parentElement, gameState, playerData){
 	var socket = GAME.socket;
 	var map = GAME.map;
+	var gh = gameState.tileSize;
 	// this.reposition = repositionTile;
  //    this.frame = changeTileFrame;
  //    this.destroy = destroyTile;
@@ -134,6 +143,7 @@ function Player(parentElement, gameState, playerData){
 	// this.frame(0);
  //    this.parent.appendChild(this.element);
  	this.id = playerData._id;
+ 	this.type = enums.objType.PLAYER;
 	this.x = playerData.x;
 	this.y = playerData.y;
 	this.tx = this.x;
@@ -142,9 +152,27 @@ function Player(parentElement, gameState, playerData){
 	this.ay = 0;
     this.moveTime = false;
     this.moving = false;
-    this.speedCur = playerData.speedCur; // + 30 for now to make movement sort of smooth. overall retarded. to be fixed
+    this.speedCur = playerData.speedCur;
   	this.moveQ = new MovementQueue(map.getCollisions());
 
+  	this.healthCur = playerData.healthCur;
+  	this.healthMax = playerData.healthMax;
+  	this.isDead = false;
+
+  	this.lastAttack = gameState.frameTime;
+  	this.attackCooldown = 2000;
+  	this.attackSpeed = 1;
+
+
+  	this.equipment = {
+        primary: {type: 'sword', range: 1.5},
+        secondary: 0,
+        body: 0,
+        legs: 0,
+        boots: 0,
+        head: 0,
+        backpack: 0
+    };
     this.move = function(dx, dy) {
         if (map.isValid(this.tx + dx, this.ty + dy)) {
             this.moveQ.queueMove(this.tx + dx, this.ty + dy);
@@ -189,32 +217,62 @@ function Player(parentElement, gameState, playerData){
     };
     this.draw = function(ctx) {
     	ctx.drawImage(GAME.allImages['Rayman_down'], 512, 240, 32, 48);
+    	if(!this.isDead){ //draw healthbar
+			ctx.fillStyle = '#FF371D';
+			ctx.fillRect(512 + 2, 240 -2, 24, 3);
+			ctx.fillStyle = '#87E82B';
+			ctx.fillRect(512 + 2, 240 -2, 24 * (this.healthCur/this.healthMax), 3);
+			ctx.strokeStyle = '#000';
+			ctx.strokeRect(512 + 2, 240 -2, 24, 3);
+    	}
+    };
+    this.attack = function(target) {
+    	if(!this.isDead){
+            if(gameState.frameTime - this.lastAttack > this.attackCooldown/this.attackSpeed && dist(this, target) < this.equipment.primary.range){
+                this.lastAttack = gameState.frameTime;
+
+                if(this.equipment.primary.type == 'bow'){
+                    // do bow stuff and possibly return here.
+                }
+                socket.emit('player-attack', {id: target.id, type: target.type});
+                console.log('player attacking', target.id)
+            }
+        }
     };
 }
 function OtherPlayer(gameState, data){
 	console.log(data)
 	var gh = gameState.tileSize;
+	var map = GAME.map;
 	this.id = data.id;
- 	// this.type = enums.objType.PLAYER;
+ 	this.type = enums.objType.PLAYER;
 	// this.name = name;
 	// this.level = level;
 	this.x = data.x;
 	this.y = data.y;
 	this.tx = data.tx;
 	this.ty = data.ty;
+	if(this.id != GAME.player.id)
+		map.occupySpot(this.tx, this.ty);
 	// this.direction = 0;
 	// this.moving = false;
 	this.speedCur = data.speedCur;
+	this.healthCur = data.healthCur;
+	this.healthMax = data.healthMax;
+	this.isDead = false;
 	// this.healthMax = healthMax;
 	// this.healthCur = healthCur;
 	// this.isDead = false;
 	// this.isVisible = true;
 	// this.isTargeted = false;
 	this.lastTime = gameState.frameTime;
-	this.serverDataUpdate = function(data) {
-		this.tx = data.tx;
-		this.ty = data.ty;
-		this.speedCur = data.speedCur;
+	this.move = function(tx, ty) { //gets new tx/ty position and starts moving in update.
+		if(this.id != GAME.player.id)
+			map.freeSpot(this.tx, this.ty);
+		this.tx = tx;
+		this.ty = ty;
+		if(this.id != GAME.player.id)
+			map.occupySpot(this.tx, this.ty);
 	};
 	this.update = function(){
 		this.x += Math.sign(this.tx-this.x) * Math.min((gameState.frameTime - this.lastTime)/this.speedCur, Math.abs(this.tx-this.x));
@@ -227,18 +285,15 @@ function OtherPlayer(gameState, data){
     this.lastTime = gameState.frameTime;
 	}
 	this.draw = function(ctx){
-	    // if (this.x < this.tx)
-	    //     this.direction = 3;
-	    // else if (this.x > this.tx)
-	    //     this.direction = 2;
-	    // else if (this.y < this.ty)
-	    //     this.direction = 0;
-	    // else if (this.y > this.ty)
-	    //     this.direction = 1;
-	    // if(this.isVisible && this.id != player1.id){
-	    	ctx.drawImage(GAME.allImages['Rayman_down'], (this.x-GAME.player.x-GAME.player.ax+16)*gh, (this.y-GAME.player.y-GAME.player.ay+8)*gh-16, 32, 48);
-	      // drawHealthBar(this);
-	    // }
+	    ctx.drawImage(GAME.allImages['Rayman_down'], (this.x-GAME.player.x-GAME.player.ax+16)*gh, (this.y-GAME.player.y-GAME.player.ay+8)*gh-16, 32, 48);
+	    if(!this.isDead){ //draw healthbar
+			ctx.fillStyle = '#FF371D';
+			ctx.fillRect(512 + 2, 240 -2, 24, 3);
+			ctx.fillStyle = '#87E82B';
+			ctx.fillRect(512 + 2, 240 -2, 24 * (this.healthCur/this.healthMax), 3);
+			ctx.strokeStyle = '#000';
+			ctx.strokeRect(512 + 2, 240 -2, 24, 3);
+    	}
 	    // if(this.isTargeted){
 	    //   ctx.strokeStyle = "rgba(255, 0, 0, 1)";
 	    //   ctx.strokeRect((this.x)*gh, (this.y)*gh, gh, gh);
@@ -250,8 +305,64 @@ function OtherPlayer(gameState, data){
     // popups.push(new numberPopup(this.tx, this.ty, damage, 'damage', 1200));
   }
   this.die = function(){
-    // delete GAME.otherPlayers[this.id];
+	if(this.id != GAME.player.id)
+		map.freeSpot(this.tx, this.ty)
+    delete GAME.instance.player_data[this.id];
   }
+}
+function Mob(gameState, data){
+	var gh = gameState.tileSize;
+	var map = GAME.map;
+	this.id = data._id;
+	this.type = enums.objType.MOB;
+	this.x = data.x;
+	this.y = data.y;
+	this.tx = data.tx;
+	this.ty = data.ty;
+	map.occupySpot(this.tx, this.ty); //occupy on creation.
+	// this.direction = 0;
+	this.speedCur = data.speedCur;
+	this.healthCur = data.healthCur;
+	this.healthMax = data.healthMax;
+	this.isDead = false;
+	this.lastTime = gameState.frameTime;
+
+	this.isTargeted = false;
+	this.update = function() {
+		this.x += Math.sign(this.tx-this.x) * Math.min((gameState.frameTime - this.lastTime)/this.speedCur, Math.abs(this.tx-this.x));
+    	this.y += Math.sign(this.ty-this.y) * Math.min((gameState.frameTime - this.lastTime)/this.speedCur, Math.abs(this.ty-this.y));
+
+    	this.lastTime = gameState.frameTime;
+    	// if(this.healthCur <= 0)
+    	// 	this.die();
+	};
+	this.move = function(tx, ty) { //gets new tx/ty position and starts moving in update.
+		map.freeSpot(this.tx, this.ty);
+		this.tx = tx;
+		this.ty = ty;
+		map.occupySpot(this.tx, this.ty);
+	};
+	this.draw = function(ctx) {
+		ctx.drawImage(GAME.allImages['Bat'], 0, 0, 32, 32, (this.x-GAME.player.x-GAME.player.ax+16)*gh, (this.y-GAME.player.y-GAME.player.ay+8)*gh, 32, 32);
+		if(!this.isDead){ //draw healthbar
+			ctx.fillStyle = '#FF371D';
+			ctx.fillRect((this.x-GAME.player.x-GAME.player.ax+16)*gh + 4, (this.y-GAME.player.y-GAME.player.ay+8)*gh - 4, 24, 3);
+			ctx.fillStyle = '#87E82B';
+			ctx.fillRect((this.x-GAME.player.x-GAME.player.ax+16)*gh + 4, (this.y-GAME.player.y-GAME.player.ay+8)*gh - 4, 24 * (this.healthCur/this.healthMax), 3);
+			ctx.strokeStyle = '#000';
+			ctx.strokeRect((this.x-GAME.player.x-GAME.player.ax+16)*gh + 4, (this.y-GAME.player.y-GAME.player.ay+8)*gh - 4, 24, 3);
+    	}
+    	if(this.isTargeted){
+	      ctx.strokeStyle = "rgba(255, 0, 0, 1)";
+	      ctx.strokeRect((this.x-GAME.player.x-GAME.player.ax+16)*gh, (this.y-GAME.player.y-GAME.player.ay+8)*gh, gh, gh);
+	    }
+	};
+	this.die = function() { //doesnt go off. dead mob is never sent from server. need dying emit?
+		this.isDead = true;
+		this.isTargeted = false;
+		map.freeSpot(this.tx, this.ty)
+		delete GAME.instance.getMobsData()[data._id];
+	};
 }
 function MovementCheck(player){
 	var serverMoves = [];
@@ -261,7 +372,7 @@ function MovementCheck(player){
 		console.log(clientMoves)
 	};
 	this.addServerMove = function(_x, _y) {
-		if(serverMoves.length == 0){
+		if(serverMoves.length === 0){
 			serverMoves.unshift({x: _x, y: _y});
 		}
 		if(serverMoves[0].x != _x || serverMoves[0].y != _y) {
@@ -269,7 +380,7 @@ function MovementCheck(player){
 		}
 	};
 	this.addClientMove = function(_x, _y) {
-		if(clientMoves.length == 0){
+		if(clientMoves.length === 0){
 			clientMoves.unshift({x: _x, y: _y});
 		}
 		if(clientMoves[0].x != _x || clientMoves[0].y != _y) {
@@ -277,6 +388,8 @@ function MovementCheck(player){
 		}
 	};
 	this.snapPlayerBack = function(_tx, _ty) {
+		player.x = _tx;
+		player.y = _ty;
 		player.tx = _tx;
 		player.ty = _ty;
 		serverMoves = [];

@@ -22,7 +22,7 @@ $(function() {
     // F.className = 'foreground';
     // gameContainer.appendChild(F);
 
-    gameContainer.appendChild((t = document.createElement("img"), t.src = "./images/gradient_border.png", t.className = 'game-container-filter', t));
+    gameContainer.appendChild((t = document.createElement("img"), t.src = "./img/gradient_border.png", t.className = 'game-container-filter', t));
 
 
     // 2. login screen and logic
@@ -121,67 +121,54 @@ $(function() {
                 });
             }
             else{
-                $.ajax({
-                    type: "POST",
-                    url: "http://94jzlodc.apps.lair.io:8000",
-                    data: {
-                        action: 'signup',
-                        username: $("#username_signup").val(),
-                        password: $("#password_signup").val(),
-                        password_repeat: $("#password_repeat").val()
-                    },
-                    statusCode: {
-                        201: function() { //success
-                            var WIN_YES = new guiWindow({
-                                width: 200,
-                                height: 75,
-                                title: "Account created.",
-                                onclose: function() {
-                                    this.close();
-                                }
-                            });
-                            WIN_YES.center();
+                SOCKET = GAME.socket = io(server_address, {secure: true});
+                SOCKET.emit('sign-up', {user: $("#username_signup").val(), pass1: $("#password_signup").val(), pass2: $("#password_repeat").val()});
+                SOCKET.on('sign-up-success', function() {
+                    var WIN_YES = new guiWindow({
+                            width: 200,
+                            height: 75,
+                            title: "Account created.",
+                            onclose: function() {
+                                this.close();
+                            }
+                        });
+                    WIN_YES.center();
 
-                            WIN_YES.appendHTML("<div class='gui-clist-footer'><center><button type='button' id='ok_button'>OK</button></center></div>");
-                            $("#ok_button").click(function() {
-                                WIN_YES.close()
-                            });
-                            WIN_SIGNUP.close();
-                            WIN_LOGIN.show();
-                        },
-                        202: function() { //username taken. make sure the fucker knows
-                            console.log('server - name taken');
-                            $('#username_signup').parent().addClass('taken');
-                            $('#username_signup').val($('#username_signup').val() + ' is taken');
-                            $(register).parent().addClass('taken');
-                            register.disabled = true;
-                            $('#username_signup').focus(function() {
-                                $(this).parent().removeClass('taken');
-                                $(this).val('');
-                                $(register).removeClass('taken');
-                                register.disabled = false;
-                            });
-                        },
-                        500: function() { 
-                            var WIN_NO = new guiWindow({
-                                width: 200,
-                                height: 75,
-                                title: "SERVER ERROR",
-                                onclose: function() {
-                                    this.close();
-                                }
-                            });
-                            WIN_NO.center();
-
-                            WIN_NO.appendHTML("<div class='gui-clist-footer'><center><button type='button' id='ok_button'>OK</button></center></div>");
-                            $("#ok_button").click(function() {
-                                WIN_NO.close()
-                            });
+                    WIN_YES.appendHTML("<div class='gui-clist-footer'><center><button type='button' id='ok_button'>OK</button></center></div>");
+                    $("#ok_button").click(function() {
+                        WIN_YES.close()
+                    });
+                    WIN_SIGNUP.close();
+                    WIN_LOGIN.show();
+                });
+                SOCKET.on('sign-up-taken', function() {
+                    console.log('server - name taken');
+                    $('#username_signup').parent().addClass('taken');
+                    $('#username_signup').val($('#username_signup').val() + ' is taken');
+                    $(register).parent().addClass('taken');
+                    register.disabled = true;
+                    $('#username_signup').focus(function() {
+                        $(this).parent().removeClass('taken');
+                        $(this).val('');
+                        $(register).removeClass('taken');
+                        register.disabled = false;
+                    });
+                });
+                SOCKET.on('sign-up-error', function() {
+                    var WIN_NO = new guiWindow({
+                        width: 200,
+                        height: 75,
+                        title: "SERVER ERROR",
+                        onclose: function() {
+                            this.close();
                         }
-                    },
-                    error: function(q, w, e) {
-                        console.log(q, w, e)
-                    }
+                    });
+                    WIN_NO.center();
+
+                    WIN_NO.appendHTML("<div class='gui-clist-footer'><center><button type='button' id='ok_button'>OK</button></center></div>");
+                    $("#ok_button").click(function() {
+                    WIN_NO.close()
+                    });
                 });
             }
         });
@@ -194,135 +181,133 @@ $(function() {
         // if($("#password").val().length < 6){ //append red message
         //     return;
         // }
-        $.ajax({
-            type: "POST",
-            url: "http://94jzlodc.apps.lair.io:8000",
-            data: {
-                action: 'login',
-                username: $("#username").val(),
-                password: $("#password").val()
-            },
-            statusCode: {
-                401: function() {
-                        var WIN_NO = new guiWindow({
-                            width: 200,
-                            height: 75,
-                            title: "INVALID CREDENTIALS"
-                        });
-                        WIN_NO.center();
+        WIN_LOGIN.appendHTML("<table class='loading-table'><tr><td style='text-align:center'><img src='./img/loading.gif'><br><b>PLEASE WAIT</b></td></tr></table>");
+        if(!SOCKET)
+            SOCKET = GAME.socket = io(server_address, {secure: true, forceNew: true});
+        else
+            SOCKET.connect();
+        SOCKET.on('connect', function() {
+            console.log('connected to socket.');
+            SOCKET.emit('login-info', {user: $("#username").val(), pass: $("#password").val()})
+        });
+        SOCKET.on('connect_error', function(err) {
+            SOCKET.disconnect();
+            $(".loading-table").remove();
+        });
+        SOCKET.on('disconnect', function() {
+            SOCKET = null;
+            console.log('disconnected from socket');
+        })
+        SOCKET.on('login-failed', function() {
+            var WIN_NO = new guiWindow({
+                width: 200,
+                height: 75,
+                title: "INVALID CREDENTIALS"
+                });
+                WIN_NO.center();
 
-                        WIN_NO.appendHTML("<div class='gui-clist-footer'><center><button type='button' id='ok_button'>OK</button></center></div>");
-                        $("#ok_button").click(function(){
-                            WIN_NO.close();
-                        });
-                }
-            },
-            success: function(data) {
-                token = data;
-                SOCKET = GAME.socket = io.connect('http://94jzlodc.apps.lair.io:8000', {
-                });
-                SOCKET.on('connect', function() {
-                    console.log('connected to socket.');
-                });
-                SOCKET.on('token-request', function(data) {
-                    SOCKET.emit('send-token', token);
-                });
-                SOCKET.on('connect_error', function(err) {
-                    SOCKET.disconnect();
+                WIN_NO.appendHTML("<div class='gui-clist-footer'><center><button type='button' id='ok_button'>OK</button></center></div>");
+                $("#ok_button").click(function(){
+                    WIN_NO.close();
                     $(".loading-table").remove();
                 });
-                SOCKET.on('server-message', function(data) {
-                    console.log(data.message);
+        })
+        SOCKET.on('server-message', function(data) {
+            console.log(data.message);
+        });
+        SOCKET.on('login-success', function(data) {
+            console.log(data)
+            WIN_LOGIN.close();
+            $(".modal-cover").fadeOut().fadeIn(function() {
+                var WIN_PICK = new guiWindow({
+                    width: 300,
+                    height: 400,
+                    title: "SELECT CHARACTER",
+                    icon: "wizard_hat.png"
                 });
-                SOCKET.on('player-created', function(data) {
-                    if(data){//player created successfully
-                        $(".gui-clist-container").append("<div class='gui-clist-item' idd='" + data.id + "'><div class='avatar'></div><div style='padding:4px;'>" + data.name + "<div style='font-size:11px;line-height:11px;'>Level " + data.level + " Human<br>total time online: " + Math.floor(data.timePlayed/1000) + "s</div></div></div>");
-                        $(".gui-clist-item").click(function() {
-                            $(".gui-clist-item").removeClass("pressed");
-                            $(this).addClass("pressed");
+                WIN_PICK.center();
+
+                WIN_PICK.appendHTML("<div class='gui-clist'><div class='gui-clist-container' id='gcc'></div><div class='gui-clist-footer'><div class='form-field'><button type='button' id='new_char' class='anim-alt'>NEW CHAR</button><button id='play' type='button'>PLAY</button></div></div></div>");
+                for (var i = 0; i < data.length; i++) {
+                    $(".gui-clist-container").append("<div class='gui-clist-item' idd='" + data[i].id + "'><div class='avatar'></div><div style='padding:4px;'>" + data[i].name + "<div style='font-size:11px;line-height:11px;'>Level " + data[i].level + " Human<br>total time online: " + Math.floor(data[i].timePlayed/1000) + "s</div></div></div>");
+                }
+                SOCKET.on('map-update', function(data) {
+                    console.log(data)
+                    build();
+                    function build(){
+                        if(!GAME.instance || !GAME.map){
+                            setTimeout(function(){ build(); }, 100)
+                        }
+                        else{
+                            GAME.map.populateTiles(data.tiles);
+                            GAME.map.populateCollisions(data.tiles);
+                            // GAME.map.appendTiles();
+                        }
+                    }
+                    
+                    //window.localStorage format the data and put it there.
+                });
+
+                // $(".gui-clist-container").first().addClass("pressed");
+
+                $(".gui-clist-item").click(function() {
+                    $(".gui-clist-item").removeClass("pressed");
+                    $(this).addClass("pressed");
+                });
+
+                $("#play").click(function() {
+                    if($(".gui-clist-item.pressed").attr("idd")){
+                        SOCKET.emit('start-game-request', {
+                            id: $(".gui-clist-item.pressed").attr("idd")
                         });
                     }
-                    else{ //flash the new_char button
-                        $('#new_char')[0].disabled = true;
+                    else{
+                        $('#play')[0].disabled = true;
                         setTimeout(function() {
-                            $('#new_char')[0].disabled = false;
+                            $('#play')[0].disabled = false;
                         }, 300)
                     }
+                    SOCKET.on('start-game-ok', function(data) {
+                        WIN_PICK.close();
+                        GAME.instance = new Game(data.playerData, data.mapSize, data.chunkSize);
+                        $(".game-container").css('background-color', '#000');
+                        $(".modal-cover").fadeOut();
+                    });
                 });
-                
+                $('#new_char').click(function() {
+                    var WIN_NEWCHAR = new guiWindow({
+                        width: 300,
+                        height: 100,
+                        title: "CREATE PLAYER",
+                        icon: "newchar.png"
+                    });
+                    WIN_NEWCHAR.center();
 
-                WIN_LOGIN.appendHTML("<table class='loading-table'><tr><td style='text-align:center'><img src='./images/loading.gif'><br><b>PLEASE WAIT</b></td></tr></table>");
-
-                SOCKET.on('send-players', function(data) {
-                    console.log(data)
-                    WIN_LOGIN.close();
-                    $(".modal-cover").fadeOut().fadeIn(function() {
-                        var WIN_PICK = new guiWindow({
-                            width: 300,
-                            height: 400,
-                            title: "SELECT CHARACTER",
-                            icon: "wizard_hat.png"
-                        });
-                        WIN_PICK.center();
-
-                        WIN_PICK.appendHTML("<div class='gui-clist'><div class='gui-clist-container' id='gcc'></div><div class='gui-clist-footer'><div class='form-field'><button type='button' id='new_char' class='anim-alt'>NEW CHAR</button><button id='play' type='button'>PLAY</button></div></div></div>");
-                        SOCKET.on('map-update', function(data) {
-                            console.log(data)
-                            build();
-                            function build(){
-                                if(!GAME.instance || !GAME.map){
-                                    setTimeout(function(){ build(); }, 100)
-                                }
-                                else{
-                                    GAME.map.populateTiles(data.tiles);
-                                    GAME.map.populateCollisions(data.tiles);
-                                    // GAME.map.appendTiles();
-                                }
-                            }
-                            
-                            //window.localStorage format the data and put it there.
-                        });
-                        for (var i = 0; i < data.length; i++) {
-                            $(".gui-clist-container").append("<div class='gui-clist-item' idd='" + data[i].id + "'><div class='avatar'></div><div style='padding:4px;'>" + data[i].name + "<div style='font-size:11px;line-height:11px;'>Level " + data[i].level + " Human<br>total time online: " + Math.floor(data[i].timePlayed/1000) + "s</div></div></div>");
-                        }
-
-                        // $(".gui-clist-container").first().addClass("pressed");
-
-                        $(".gui-clist-item").click(function() {
-                            $(".gui-clist-item").removeClass("pressed");
-                            $(this).addClass("pressed");
-                        });
-
-                        $("#play").click(function() {
-                            if($(".gui-clist-item.pressed").attr("idd")){
-                                SOCKET.emit('start-game', {
-                                    id: $(".gui-clist-item.pressed").attr("idd")
-                                });
-                            }
-                            else{
-                                $('#play')[0].disabled = true;
-                                setTimeout(function() {
-                                    $('#play')[0].disabled = false;
-                                }, 300)
-                            }
-                            SOCKET.on('start-game-ok', function(data) {
-                                WIN_PICK.close();
-                                GAME.instance = new Game(data.playerData, data.mapSize, data.chunkSize);
-                                $(".game-container").css('background-color', '#000');
-                                $(".modal-cover").fadeOut();
-                            });
-                        });
-                        $('#new_char').click(function() {
-                            var name = prompt('gif name');
-                            SOCKET.emit('create-player', {name: name})
+                    WIN_NEWCHAR.appendHTML("<form><div class='form-field'><label for='username'>USERNAME</label><input id='newchar' name='newchar' placeholder='PLAYER NAME' type='text'></div><div class='form-field'><button type='button' id='button_create' class='anim-alt'>CREATE</button><button id='button_back' type='button'>BACK</button></div></form>");
+                    $('#button_create').click(function() {
+                        SOCKET.emit('create-player', {name: $("#newchar").val()});
+                    });
+                    SOCKET.on('player-created', function(data) {
+                        WIN_NEWCHAR.close();
+                        $(".gui-clist-container").append("<div class='gui-clist-item' idd='" + data.id + "'><div class='avatar'></div><div style='padding:4px;'>" + data.name + "<div style='font-size:11px;line-height:11px;'>Level " + data.level + " Human<br>total time online: " + Math.floor(data.timePlayed/1000) + "s</div></div></div>");
+                        $('#new_char').addClass('green');
+                        setTimeout(function() {
+                            $('#new_char').removeClass('green');
+                        }, 300)
+                    });
+                    SOCKET.on('player-name-taken', function() {
+                        $("#newchar").val('');
+                        $("#newchar").attr('placeholder', 'name taken');
+                        $("#newchar").addClass('taken');
+                        $('#button_create')[0].disabled = true;
+                        $("#newchar").focus(function() {
+                            $("#newchar").attr('placeholder', 'PLAYER NAME');
+                            $("#newchar").removeClass('taken');
+                            $('#button_create')[0].disabled = false;
                         });
                     });
-
                 });
-            },
-            error : function(q, w, e) {
-                console.log(q, w, e)
-            }
+            });
 
         });
     });
