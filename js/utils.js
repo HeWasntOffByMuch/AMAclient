@@ -55,21 +55,27 @@ CanvasRenderingContext2D.prototype.drawRotatedAnim = function(image, partX, part
 	this.restore();
 }
 
-function MovementQueue(map){
-	this.currentPath = [];
-  this.findPath = function(x, y, x_dest, y_dest){
-		this.currentPath = findPath(map, [x, y], [x_dest, y_dest]);
-		this.currentPath.shift();
-  }
-  this.queueMove = function(x, y){
-  	this.currentPath = [[x, y]];
-  }
-  this.getLength = function(){
-  	return this.currentPath.length;
-	}
-	this.getMove = function(){
-		return this.currentPath.shift();
-	}
+function MovementQueue(map) {
+    this.currentPath = [];
+    this.findPath = function(x, y, x_dest, y_dest) {
+        this.currentPath = findPath(map, [x, y], [x_dest, y_dest]);
+        this.currentPath.shift();
+    }
+    this.findPathToDist = function(x, y, x_dest, y_dest, dist) {
+        this.currentPath = findPathToDist(map, [x, y], [x_dest, y_dest], dist);
+        this.currentPath.shift();
+    };
+    this.queueMove = function(x, y) {
+        this.currentPath = [
+            [x, y]
+        ];
+    }
+    this.getLength = function() {
+        return this.currentPath.length;
+    }
+    this.getMove = function() {
+        return this.currentPath.shift();
+    }
 }
 function calcLineOfSight (start_x, start_y, end_x, end_y) {
   var coordinatesArray = [];

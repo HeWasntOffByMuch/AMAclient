@@ -3,7 +3,7 @@ GAME.urlDict = {
   'Bat': { src: 'img/mobs/bat_sprite.png', spriteX: 32, spriteY: 32, spriteN: 8 },
   'BatDead': { src: 'img/mobs/bat_sprite_dead.png', spriteX: 32, spriteY: 32, spriteN: 1 },
   'BigBat': { src: 'img/mobs/bat_sprite_big.png', spriteX: 32, spriteY: 21, spriteN: 8 },
-  'Dummy': {src: 'img/mobs/training_dummy.png', spriteX: 64, spriteY: 77, spriteN: 1},
+  'Dummy': {src: 'img/mobs/target_dummy.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Fly_right': {src: 'img/mobs/fly_run_right.png', spriteX: 32, spriteY: 32, spriteN: 4},
   'Fly_left': {src: 'img/mobs/fly_run_left.png', spriteX: 32, spriteY: 32, spriteN: 4},
   'PlayerDead': {src: 'img/player/player_rayman_dead.png', spriteX: 32, spriteY: 48, spriteN: 1, offsetY: 16},
@@ -22,9 +22,9 @@ GAME.urlDict = {
   'blood_small': { src: 'img/blood_spatter_small.png', spriteX: 32, spriteY: 32, spriteN: 8},
   'green_player': {src: 'img/knight_green.png'},
   'red_player': {src: 'img/knight.png', spriteX: 16, spriteY: 16, spriteN: 1},
-  'sword_slash': {src: 'img/slash_sword.png', spriteX: 25, spriteY: 18, spriteN: 3},
-  'big_sword_slash': {src: 'img/slash_big_sword.png', spriteX: 24, spriteY: 72, spriteN: 3},
-  'big_sword_bloody_slash': {src: 'img/slash_big_sword_bloody.png', spriteX: 24, spriteY: 72, spriteN: 3},
+  'melee_slash': {src: 'img/slash_sword.png', spriteX: 25, spriteY: 18, spriteN: 3},
+  'big_melee_slash': {src: 'img/slash_big_sword.png', spriteX: 24, spriteY: 72, spriteN: 3},
+  'big_melee_bloody_slash': {src: 'img/slash_big_sword_bloody.png', spriteX: 24, spriteY: 72, spriteN: 3},
   'arrow': {src: 'img/items/arrow.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'explosion': {src: 'img/explo.png', spriteX: 84, spriteY: 84, spriteN: 7},
   'arrow_hit': {src: 'img/arrow_hit.png', spriteX: 32, spriteY: 32, spriteN: 7},
@@ -44,6 +44,9 @@ GAME.urlDict = {
   'hp_full': {src: 'img/actionbar/hp_bar_full.png', spriteX: 130, spriteY: 16, spriteN: 1},
   'mana_full': {src: 'img/actionbar/mana_bar_full.png', spriteX: 130, spriteY: 16, spriteN: 1},
 
+  //LAYOUT
+  'combat_icon': {src: 'img/combat_icon.png', spriteX: 32, spriteY: 32, spriteN: 1},
+
   //ITEMS
   'sword' : {src: 'img/items/epee.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'armor' : {src: 'img/items/armor.png', spriteX: 32, spriteY: 32, spriteN: 1},
@@ -56,6 +59,7 @@ GAME.urlDict = {
   'Shortbow' : {src: 'img/items/bow.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Composite Bow' : {src: 'img/items/bow_composite.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Pinaka' : {src: 'img/items/bow_crystal.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Sawed-Off Shotgun' : {src: 'img/items/sawed_off.png', spriteX: 32, spriteY: 32, spriteN: 1},
 
   //SKILLS
   'skill_sword': {src: 'img/skills/skill_tiles/skill_sword.png', spriteX: 32, spriteY: 32, spriteN: 1},

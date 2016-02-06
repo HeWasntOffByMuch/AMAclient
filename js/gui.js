@@ -9,7 +9,7 @@
   var _globalFakeItem = $(document.createElement("div")).addClass("globalFakeItem");
   var _globalItemAnchor = null;
   var _globalTooltip = $(document.createElement("div")).addClass("globalTooltip").appendTo(document.body).hide();
-  var _globalTooptipTO;
+  var _globalTooltipTO;
   var _globalWindows = [];
 
   var windowDefaults = {
@@ -206,9 +206,9 @@
         if (pos.left < 0 || pos.top < 0) valid = 0;
         else for(var i = 0; i < size.x; i ++) for(var j = 0; j < size.y; j ++) {
           if (pos.left+i >= size_x || pos.top+j >= size_y || div[0].data[pos.left+i][pos.top+j]) valid = 0;
-        }        
+        }
         if (valid) {
-
+          
           $("#"+data).appendTo(div).css({
             left: pos.left*32,
             top: pos.top*32
@@ -254,7 +254,7 @@
   var itemDefaults = {
     name: 'Default Name',
     rarity: 'common',
-    description: 'default description descriptively describing undescribable item',
+    desc: 'default description descriptively describing undescribable item',
     damage: '4-7',
     defense: '5',
     atkspeed: 400
@@ -291,7 +291,7 @@
 
         ev.dataTransfer.setDragImage(div[0], ev.offsetX, ev.offsetY);
         ev.dataTransfer.effectAllowed = "move";
-        clearTimeout(_globalTooptipTO);
+        clearTimeout(_globalTooltipTO);
         _globalTooltip.hide();
       }
       div[0].ondragend = function(ev) {
@@ -302,24 +302,24 @@
         }
       }
       div.mouseover(function(ev){
-        clearTimeout(_globalTooptipTO);
+        clearTimeout(_globalTooltipTO);
         _globalTooltip.hide();     
       });
       div.mousemove(function(ev){
-        clearTimeout(_globalTooptipTO);
+        clearTimeout(_globalTooltipTO);
         _globalTooltip.hide();
-         _globalTooptipTO = setTimeout(function(){
+         _globalTooltipTO = setTimeout(function(){
           _globalTooltip.css({
             width: 200,
             height: 100,
             left: ev.clientX + 10,
             top: ev.clientY + 10
           }).show();
-          _globalTooltip.html("<div style='color:gold; border-bottom: 1px solid #676a5a;font-weight:bold;'>"+ options.name +"<span style='float:right'>"+ options.rarity +"</span></div><div style='color:#676a5a; border-bottom: 1px solid #676a5a;font-style:italic;font-size:9px;'>"+ options.description +"</div><table><tr><td align=left width=130>Armor</td><td align=right style='color:#00ff00;font-weight:bold;'>+ " + options.defense + "</td></tr><tr><td align=left width=130>atk speed</td><td align=right style='color:#ff0000;font-weight:bold;'>"+ 1000/options.atkspeed +"/s</td></tr></table>");
+          _globalTooltip.html("<div style='color:gold; border-bottom: 1px solid #676a5a;font-weight:bold;'>"+ options.name +"<span style='float:right'>"+ options.rarity +"</span></div><div style='color:#676a5a; border-bottom: 1px solid #676a5a;font-style:italic;font-size:9px;'>"+ options.desc +"</div><table><tr><td align=left width=130>Damage</td><td align=right style='color:#00ff00;font-weight:bold;'>+ " + options.damageMin + "-" + options.damageMax + "</td></tr><tr><td align=left width=130>atk speed</td><td align=right style='color:#ff0000;font-weight:bold;'>"+ 1000/options.atkspeed +"/s</td></tr><tr><td align=left width=130>range</td><td align=right style='color:#ff0000;font-weight:bold;'>"+ Math.floor(options.range) +"</td></tr></table>");
         },500);
       });
       div.mouseout(function(){
-          clearTimeout(_globalTooptipTO);
+          clearTimeout(_globalTooltipTO);
         _globalTooltip.hide();
       });
       for(var i = 0; i < size_x; i ++) for(var j = 0; j < size_y; j ++) {
@@ -330,43 +330,6 @@
 
   window.itemElement = itemElement;  // ?? really?
 
-  $.fn.makeProgressBar = function(pos_x, pos_y, size_x, size_y){
-    this.each(function() {
-      var div = $(this);
-      div.prop("draggable", false);
-      div.css({
-        width: (size_x || 100),
-        height: (size_y || 10),
-        left: (pos_x || 0),
-        top: (pos_y || 0)
-      });
-
-      div.addClass("bar");
-      div.mouseover(function(ev){
-        clearTimeout(_globalTooptipTO);
-        _globalTooltip.hide();     
-      });
-      div.mousemove(function(ev){
-        clearTimeout(_globalTooptipTO);
-        _globalTooltip.hide();
-         _globalTooptipTO = setTimeout(function(){
-          _globalTooltip.css({
-            width: 80,
-            height: 8,
-            left: ev.clientX + 10,
-            top: ev.clientY + 10
-          }).show();
-          _globalTooltip.html("<div style='font-weight:bold'>" + (experienceBar.expPercent*100).toFixed(2) + "%</div>");
-        },500);
-      });
-      div.mouseout(function(){
-          clearTimeout(_globalTooptipTO);
-        _globalTooltip.hide();
-      });
-    });
-    return this;
-  };
-  
   $(document).ready(function(){
     $(document.body).mousemove(function(e) {
       if(_globalWindowDragged){
@@ -412,10 +375,10 @@
       }
     });
     _globalTooltip.mousemove(function(ev){
-      clearTimeout(_globalTooptipTO);       
+      clearTimeout(_globalTooltipTO);       
     });
     _globalTooltip.mouseout(function(){
-      _globalTooptipTO = setTimeout(function(){
+      _globalTooltipTO = setTimeout(function(){
         _globalTooltip.hide();
       },200);
     });
@@ -427,7 +390,7 @@
 
       ev.dataTransfer.setDragImage($("#item1")[0], 16, 16);
       ev.dataTransfer.effectAllowed = "move";
-      clearTimeout(_globalTooptipTO);
+      clearTimeout(_globalTooltipTO);
       _globalTooltip.hide();
     }
     $("#c1 img")[0].ondragend = function(ev) {

@@ -40,7 +40,6 @@ function Map(x, y, gameState){
 		this.y = GAME.player.y + GAME.player.ay;
 	};
 	this.draw = function(ctx) {
-		if(mapForeground[0].length === 0) return;
 		for(var i = -1; i < 33; i++){
 			for(var j = -1; j < 17; j++){
 				var sprite = mapForeground[GAME.player.x - 16 + i][GAME.player.y - 8 + j];
@@ -51,6 +50,16 @@ function Map(x, y, gameState){
 				var ax = GAME.player.ax;
 				var ay = GAME.player.ay;
 				ctx.drawImage(tilesSprite, x_pos*32, y_pos*32, 32, 32, Math.floor((i-ax)*32), Math.floor((j-ay)*32), 32, 32);
+
+				// DRAW COLLIDING TILES BLUEISH
+				if(mapCollisions[GAME.player.x - 16 + i][GAME.player.y - 8 + j] === 0.5){
+					ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+					ctx.fillRect(Math.floor((i-ax)*32), Math.floor((j-ay)*32), 32, 32);
+				}
+				else if(mapCollisions[GAME.player.x - 16 + i][GAME.player.y - 8 + j] === 1){
+					ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+					ctx.fillRect(Math.floor((i-ax)*32), Math.floor((j-ay)*32), 32, 32);
+				}
 			}
 		}
 	};

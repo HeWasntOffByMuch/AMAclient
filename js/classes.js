@@ -72,6 +72,9 @@ function EntityManager() {
         	ctx.drawImage(img, (allEntities[i].x-GAME.player.x-GAME.player.ax+16)*gh, (allEntities[i].y-GAME.player.y-GAME.player.ay+8)*gh, img.spriteX, img.spriteY);
         }
 	};
+	this.getEntities = function() {
+		return allEntities;
+	};
 }
 
 function PopupManager() {
@@ -86,13 +89,20 @@ function PopupManager() {
 			x: x,
 			y: y,
 			type: 'health',
-			number: number,
+			value: number,
 			creationTime: new Date().getTime(),
 			decayTime: decay_time || defaultDecayTime
 		}
 	};
-	this.newExpPopup = function() {
-
+	this.newExpPopup = function(x, y, number, decay_time) {
+		allPopups[curId++] = {
+			x: x,
+			y: y,
+			type: 'exp',
+			value: number,
+			creationTime: new Date().getTime(),
+			decayTime: decay_time || defaultDecayTime
+		}
 	};
 	this.update = function() {
 		for(var i in allPopups){
@@ -104,6 +114,9 @@ function PopupManager() {
             		case 'health':
 	            		p.y -= 0.01;
 	            		break;
+	        		case 'exp':
+	        		p.y -= 0.01;
+	        		break;
             	}
             }
 		}
@@ -111,22 +124,19 @@ function PopupManager() {
 	this.draw = function(ctx) {
 		for(var i in allPopups){
 			var p = allPopups[i];
-			offsetX = 11;
             switch (p.type) {
                 case 'health':
                     ctx.font = "12px Tibia Font";
-	                if (p.number >= 100) {
+	                if (p.value >= 100) {
 	                    ctx.font = "14px Tibia Font";
-	                    offsetX = 2;
-	                } else if (p.number >= 10) {
+	                } else if (p.value >= 10) {
 	                    ctx.font = "13px Tibia Font";
-	                    offsetX = 7;
 	                }
                 	ctx.strokeStyle = '#000';
 					ctx.lineWidth = 0.5;
                     ctx.fillStyle = 'rgba(210, 0, 0, 1)';
-                    ctx.fillText(p.number, (p.x - GAME.player.x - GAME.player.ax+16) * gh + offsetX, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 12);
-                    ctx.strokeText(p.number, (p.x - GAME.player.x - GAME.player.ax+16) * gh + offsetX, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 12);
+                    ctx.fillText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 12);
+                    ctx.strokeText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 12);
                     ctx.lineWidth = 1;
                     break;
                 case 'heal':
@@ -134,11 +144,13 @@ function PopupManager() {
                     ctx.fillText(this.content, (this.x) * gh + 14, this.susp)
                     break;
                 case 'exp':
-                    ctx.font = "12px Tibia Font";
-                    ctx.fillStyle = 'rgba(255, 255, 255, ' + (this.messageTime - frameTime) / duration + ')';
-                    // ctx.strokeStyle = 'rgba(55, 55, 55, 1)';
-                    // ctx.strokeText(this.content, (this.x)*gh +10, this.susp - 4);
-                    ctx.fillText(this.content, (this.x) * gh + 14, this.susp - 4);
+                	ctx.font = "12px Tibia Font";
+                    ctx.strokeStyle = '#000';
+					ctx.lineWidth = 0.5;
+                    ctx.fillStyle = '#fff';
+                    ctx.fillText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 24);
+                    ctx.strokeText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 24);
+                    ctx.lineWidth = 1;
                     break;
             }
 		}

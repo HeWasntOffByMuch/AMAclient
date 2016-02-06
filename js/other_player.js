@@ -4,12 +4,11 @@ function OtherPlayer(gameState, data) {
     this.id = data._id;
     this.name = data.name;
     this.type = enums.objType.PLAYER;
-    // this.name = name;
-    // this.level = level;
     this.x = data.x;
     this.y = data.y;
     this.tx = data.tx;
     this.ty = data.ty;
+    console.log('player', this.name, 'created')
     map.occupySpot(this.tx, this.ty);
     // this.direction = 0;
     // this.moving = false;
@@ -17,8 +16,6 @@ function OtherPlayer(gameState, data) {
     this.healthCur = data.healthCur;
     this.healthMax = data.healthMax;
     this.isDead = false;
-    // this.healthMax = healthMax;
-    // this.healthCur = healthCur;
     // this.isDead = false;
     // this.isVisible = true;
     // this.isTargeted = false;
@@ -30,6 +27,7 @@ function OtherPlayer(gameState, data) {
         map.occupySpot(this.tx, this.ty);
     };
     this.update = function() {
+        map.occupySpot(this.tx, this.ty)
         this.x += Math.sign(this.tx - this.x) * Math.min((gameState.frameTime - this.lastTime) / this.speedCur, Math.abs(this.tx - this.x));
         this.y += Math.sign(this.ty - this.y) * Math.min((gameState.frameTime - this.lastTime) / this.speedCur, Math.abs(this.ty - this.y));
 
@@ -57,12 +55,30 @@ function OtherPlayer(gameState, data) {
         ctx.save();
         ctx.font = "12px Tibia Font";
         ctx.fillStyle = 'rgba(29, 110, 22, 1)';
-        ctx.fillText(this.name, (this.x-GAME.player.x-GAME.player.ax+16)*gh + /*this.name.length */-9, (this.y-GAME.player.y-GAME.player.ay+8)*gh - 21);
+        ctx.fillText(this.name, (this.x-GAME.player.x-GAME.player.ax+16)*gh - ctx.measureText(this.name).width/2 + 16, (this.y-GAME.player.y-GAME.player.ay+8)*gh - 21);
         // ctx.lineWidth = 0.5;
         // ctx.strokeStyle = '#000';
         // ctx.strokeText(this.name, 512 - 9, 240 - 5);
         ctx.restore();
     }
+    this.attack = function(target, type, isClear) {
+        var type_ammo = 'arrow_new',
+            type_hit = 'blood_hit',
+            type_miss = 'arrow_hit';
+        if(!isClear)
+            type_hit = type_miss;
+        switch(type){
+            case 'melee':
+                // melee animation
+                console.log('222')
+                GAME.anims.push(new AttackAnimation(this, target, type));
+                break;
+            case 'ranged':
+                //something
+                GAME.anims.push(new ProjectileAnimation(this.tx, this.ty, target.x, target.y, type_ammo, type_hit));
+                break;
+        }
+    };
     this.takeDamage = function(damage) {
         GAME.popupManager.newHealthPopup(this.tx, this.ty, damage, 1000);
     }

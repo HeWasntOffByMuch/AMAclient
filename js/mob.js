@@ -1,6 +1,9 @@
 function Mob(gameState, data){
     var gh = gameState.tileSize;
     var map = GAME.map;
+    
+    var img = GAME.allImages[data.name] || GAME.allImages['placeholder'];
+
     this.id = data._id;
     this.type = enums.objType.MOB;
     this.name = data.name;
@@ -18,6 +21,7 @@ function Mob(gameState, data){
 
     this.isTargeted = false;
     this.update = function() {
+        map.occupySpot(this.tx, this.ty)
         this.x += Math.sign(this.tx-this.x) * Math.min((gameState.frameTime - this.lastTime)/this.speedCur, Math.abs(this.tx-this.x));
         this.y += Math.sign(this.ty-this.y) * Math.min((gameState.frameTime - this.lastTime)/this.speedCur, Math.abs(this.ty-this.y));
 
@@ -36,7 +40,7 @@ function Mob(gameState, data){
           ctx.strokeStyle = "rgba(255, 0, 0, 1)";
           ctx.strokeRect((this.x-GAME.player.x-GAME.player.ax+16)*gh, (this.y-GAME.player.y-GAME.player.ay+8)*gh, gh, gh);
         }
-        ctx.drawImage(GAME.allImages['Bat'], 0, 0, 32, 32, (this.x-GAME.player.x-GAME.player.ax+16)*gh, (this.y-GAME.player.y-GAME.player.ay+8)*gh, 32, 32);
+        ctx.drawImage(img, 0, 0, 32, 32, (this.x-GAME.player.x-GAME.player.ax+16)*gh, (this.y-GAME.player.y-GAME.player.ay+8)*gh, 32, 32);
         if(!this.isDead){
             // draw healthbar
             ctx.fillStyle = '#FF371D';
@@ -49,7 +53,7 @@ function Mob(gameState, data){
             ctx.save();
             ctx.font = "12px Tibia Font";
             ctx.fillStyle = 'rgba(29, 110, 22, 1)';
-            ctx.fillText(this.name, (this.x-GAME.player.x-GAME.player.ax+16)*gh + this.name.length + 3, (this.y-GAME.player.y-GAME.player.ay+8)*gh - 7);
+            ctx.fillText(this.name, (this.x-GAME.player.x-GAME.player.ax+16)*gh - ctx.measureText(this.name).width/2 + 16, (this.y-GAME.player.y-GAME.player.ay+8)*gh - 7);
             // ctx.lineWidth = 0.5;
             // ctx.strokeStyle = '#000';
             // ctx.strokeText(this.name, 512 - 9, 240 - 5);

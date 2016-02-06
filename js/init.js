@@ -43,11 +43,6 @@ $(function() {
             event.stopPropagation();
         }
     });
-    $("input:password").chromaHash({
-        bars: 4,
-        salt: "7be82b35cb0199120eea35a4507c9acf",
-        minimum: 6
-    });
     $("#button_login").click(function() {
         WIN_LOGIN.appendHTML("<table class='loading-table'><tr><td style='text-align:center'><img src='./img/loading.gif'><br><b>PLEASE WAIT</b></td></tr></table>");
         SOCKET.emit('login-info', {user: $("#username").val(), pass: $("#password").val()});
@@ -123,7 +118,12 @@ $(function() {
                             "</form>");
     WIN_SIGNUP.hide();
 
-
+    
+    $("input:password").chromaHash({
+        bars: 4,
+        salt: "7be82b35cb0199120eea35a4507c9acf",
+        minimum: 6
+    });
 
     //LOGIN WINDOW
 
@@ -170,11 +170,6 @@ $(function() {
         $("#password_repeat").keyup(function(event) {
             if (event.keyCode == 13)
                 $("#button_register").click();
-        });
-        $("input:password").chromaHash({
-            bars: 4,
-            salt: "7be82b35cb0199120eea35a4507c9acf",
-            minimum: 6
         });
 
         $('#button_register').click(function() {

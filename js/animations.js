@@ -30,29 +30,17 @@ function ProjectileAnimation(caller_x, caller_y, target_x, target_y, type1, type
     }
   }
   this.draw = function(ctx){
-    if(state)
+    if(state){
       ctx.drawRotatedImage(GAME.allImages[type1], (x + ax - GAME.player.x - GAME.player.ax + 16)*gh+gh/2, (y + ay - GAME.player.y - GAME.player.ay + 8)*gh+gh/2, gh, gh, angle);
-    else
+    }
+    else{
       ctx.drawImage(GAME.allImages[type2], this.animationFrame*GAME.allImages[type2].spriteX, 0, GAME.allImages[type2].spriteX, GAME.allImages[type2].spriteY, (tx - GAME.player.x - GAME.player.ax + 16) * gh, (ty - GAME.player.y - GAME.player.ay + 8) * gh, gh, gh);
+    }
   }
   this.hit = function(){
     // target.takeDamage(player1.data, this.damage);
   }
 }
-function ShortAnimation(x, y, name) {
-    this.x = x;
-    this.y = y;
-    this.animStart = frameTime;
-    this.animationSpeed = 90;
-    this.update = function() {
-        this.animationFrame = Math.floor((frameTime - this.animStart) / this.animationSpeed);
-        if (this.animationFrame > allImages[name].spriteN) delete missiles[this.id];
-    }
-    this.draw = function(ctx) {
-        ctx.drawImage(allImages[name], this.animationFrame * allImages[name].spriteX, 0, allImages[name].spriteX, allImages[name].spriteY, this.x * gh, this.y * gh, gh, gh);
-    }
-}
-
 function ShortAnimation(x, y, img_name) {
     var img = GAME.allImages[img_name];
     var gh = gameState.tileSize;
@@ -68,12 +56,32 @@ function ShortAnimation(x, y, img_name) {
         ctx.drawImage(img, animationFrame * img.spriteX, 0, img.spriteX, img.spriteY, (x - GAME.player.x - GAME.player.ax + 16) * gh, (y - GAME.player.y - GAME.player.ay + 8) * gh, gh, gh)
     };
 }
-
-
-
-
-
-
+function AttackAnimation(caller, target, type) {
+    var gh = gameState.tileSize;
+    var x = (target.x - caller.x)/2 + 0.5;
+    var y = (target.y - caller.y)/2 + 0.5;
+    var angle = Math.atan2(target.y - caller.y, target.x - caller.x);
+    var animStart = gameState.frameTime;
+    var animationSpeed = 60;
+    var type = type + '_slash';
+    var img = GAME.allImages[type]
+    var animationFrame = 0;
+    this.update = function() {
+        animationFrame = Math.floor((gameState.frameTime - animStart) / animationSpeed);
+        if (animationFrame > img.spriteN)
+            delete GAME.anims[this.id];
+    }
+    this.draw = function(ctx) {
+        switch (type) {
+            case 'melee_slash':
+                ctx.drawRotatedAnim(img, animationFrame * img.spriteX, 0, img.spriteX, img.spriteY, (caller.x - GAME.player.x + x + 16)*gh, (caller.y - GAME.player.y + y + 8)*gh, angle, 1.6);
+                break;
+            case 'big_melee_slash':
+                ctx.drawRotatedAnim(img, animationFrame * img.spriteX, 0, img.spriteX, img.spriteY, (caller.x - GAME.player.x + x + 16)*gh, (caller.y - GAME.player.y + y + 8)*gh, angle, 0.7);
+                break;
+        }
+    }
+}
 function AnimationManager(){
   var id = 0;
   this.push = function(projectile){

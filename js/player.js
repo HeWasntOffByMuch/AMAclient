@@ -1,113 +1,32 @@
 function Player(parentElement, gameState, playerData){
-    var serverBackpack = playerData.equipment.backpack;
-	GAME.WIN_BP = new guiWindow({
-		width: 140,
-        height: 165,
-        title: "BACKPACK",
-        icon: "bp.gif",
-        onclose: function() {
-            this.hide();
-        },
-        position: { y: 20, x: 20 },
-        content: ['<div id=' + serverBackpack.name + ' class="slot bp" size_x=' + serverBackpack.w + ' size_y=' + serverBackpack.h + '></div>']
-    }).setId('backpack');
-    // function itemElement(size_x, size_y, parent, pos_x, pos_y, id, src)
-    // var item = new itemElement(1, 1, bp, 0, 0, 1, 'item1.gif');
-    var testid = 0;
-    var bp = $('#backpack .bp').makeContainer();
-    for(var i = 0; i < serverBackpack.w; i++){
-    	for(var j = 0; j < serverBackpack.h; j++){
-    		if(serverBackpack.contents[i][j]){
-    			var itemName = serverBackpack.contents[i][j].name;
-    			var img = GAME.allImages[itemName] || GAME.allImages['placeholder'];
-	    		var item = new itemElement(1, 1, bp, i, j, testid++, img.src, {
-	    			name: itemName
-	    		});
-	    	}
-    	}
-    }
-	WIN_EQ = new guiWindow({
-		width: 140,
-        height: 165,
-        title: "EQ",
-        icon: "items/phantom_ganon.gif",
-        onclose: function() {
-            this.hide();
-        },
-        position: { y: 20, x: 182 },
-        content: [
-        			'<div id="head" class="slot head" size_x=1 size_y=1 pos_x="50px" pos_y="5px" ></div>',
-        			'<div id="primary" class="slot primary" size_x=1 size_y=1 pos_x="10px" pos_y="45px" ></div>',
-        			'<div id="secondary" class="slot secondary" size_x=1 size_y=1 pos_x="90px" pos_y="45px" ></div>',
-        			'<div id="body" class="slot body" size_x=1 size_y=1 pos_x="50px" pos_y="45px" ></div>',
-        			'<div id="legs" class="slot legs" size_x=1 size_y=1 pos_x="50px" pos_y="85px" ></div>',
-        			'<div id="boots" class="slot boots" size_x=1 size_y=1 pos_x="50px" pos_y="125px" ></div>'
-        		]
-    }).setId('equipment');
-	var eq = $('#equipment .slot').makeContainer(1, 1);
-	$('#equipment .gui-window-content').children().each(function() {
-		var div = $( this );
-		var item = playerData.equipment[div.attr('id')];
-		if(item){
-			var img = GAME.allImages[item.name] || GAME.allImages['placeholder'];
-			item = new itemElement(1, 1, div, 0, 0, testid++, img.src, {
-				name: item.name
-			});
-		}
-	});
-
-
-    WIN_DEATH = new guiWindow({
-		width: 250,
-        height: 100,
-        title: "YOU ARE DEAD.",
-        icon: "tombstone-icon.png"
-    });
-    WIN_DEATH.appendHTML("<div class='gui-clist-footer'><center><div class='form-field'><button type='button' id='button_respawn' class='anim-alt'>RESPAWN</button><button id='button_logout' type='button'>LOGOUT</button></div></center></div>");
-    WIN_DEATH.center();
-    WIN_DEATH.hide();
-    $('#button_respawn').click(function() {
-    	socket.emit('player-respawn-request', {});
-    });
-    $('#button_logout').click(function() {
-    	socket.emit('player-logout-request', {});
-    });
-	var socket = GAME.socket;
-	var map = GAME.map;
+    console.log(playerData)
 	var gh = gameState.tileSize;
-	// this.reposition = repositionTile;
- //    this.frame = changeTileFrame;
- //    this.destroy = destroyTile;
- //    this.parent = parentElement ? parentElement : GAME.gameContainer;
-	// this.element = document.createElement("div");
-	// this.element.className = 'player';
-	// this.style = this.element.style;
-	// //starting pos from server
-	// this.frame(0);
- //    this.parent.appendChild(this.element);
- 	this.id = playerData._id;
- 	this.name = playerData.name;
- 	this.type = enums.objType.PLAYER;
-	this.x = playerData.x;
-	this.y = playerData.y;
-	this.tx = this.x;
-	this.ty = this.y;
+    var map = GAME.map;
+    var socket = GAME.socket;
+
+ 	this.id = playerData._id; // +
+ 	this.name = playerData.name; // +
+ 	this.type = enums.objType.PLAYER; // +
+	this.x = playerData.x; // +
+	this.y = playerData.y; // +
+	this.tx = this.x; // +
+	this.ty = this.y; // +
 	this.ax = 0;
 	this.ay = 0;
     this.moveTime = false;
     this.moving = false;
-    this.speedCur = playerData.speedCur;
+    this.speedCur = playerData.speedCur; // +
   	this.moveQ = new MovementQueue(map.getCollisions());
-
-  	this.healthCur = playerData.healthCur;
-  	this.healthMax = playerData.healthMax;
+    this.movingToTarget = false;
+  	this.healthCur = playerData.healthCur; // +
+  	this.healthMax = playerData.healthMax; // +
   	this.isDead = false;
 
   	this.lastAttack = gameState.frameTime;
-  	this.attackSpeed = playerData.attackSpeed || 1;
+  	this.attackSpeed = playerData.attackSpeed || 1; // +
+    this.inCombat = playerData.inCombat || false;
 
-
-  	this.equipment = playerData.equipment || {
+  	this.equipment = playerData.equipment || { // +
         primary: {type: 'sword', range: 1.5},
         secondary: 0,
         body: 0,
@@ -138,7 +57,10 @@ function Player(parentElement, gameState, playerData){
     			this.moveTime = false;
     		}
     	}
-
+        if(this.movingToTarget && this.moveQ.getLength() == 0){
+            this.movingToTarget = false;
+            this.openEntity();
+        }
         if (!this.moving) {
             var nextMove = this.moveQ.getMove();
             if (nextMove) {
@@ -160,22 +82,31 @@ function Player(parentElement, gameState, playerData){
             }
         }
     };
+    this.openEntity = function() {
+        // console.log('about to open', GAME.targetedEntity);
+        if(GAME.targetedEntity)
+            socket.emit('player-loot-request', GAME.targetedEntity.id);
+        //new window
+        //emit content request
+        //display content
+        //profit
+    };
     this.draw = function(ctx) {
         if(!this.isDead){
             //draw player
             ctx.drawImage(GAME.allImages['Rayman_down'], 512, 240, 32, 48);
             // draw healthbar
 			ctx.fillStyle = '#FF371D'; // red
-			ctx.fillRect(512 + 2, 240 -2, 24, 3);
+			ctx.fillRect(512 + 4, 240 -2, 24, 3);
 			ctx.fillStyle = '#87E82B'; // green
-			ctx.fillRect(512 + 2, 240 -2, 24 * (this.healthCur/this.healthMax), 3);
+			ctx.fillRect(512 + 4, 240 -2, 24 * (this.healthCur/this.healthMax), 3);
 			ctx.strokeStyle = '#000';
-			ctx.strokeRect(512 + 2, 240 -2, 24, 3);
+			ctx.strokeRect(512 + 4, 240 -2, 24, 3);
             // draw name
             ctx.save();
             ctx.font = "12px Tibia Font";
             ctx.fillStyle = 'rgba(29, 110, 22, 1)';
-            ctx.fillText(this.name, 512 - this.name.length*2 - 9, 240 - 5);
+            ctx.fillText(this.name, 512 - ctx.measureText(this.name).width/2 + 16, 240 - 5);
             // ctx.lineWidth = 0.5;
             // ctx.strokeStyle = '#000';
             // ctx.strokeText(this.name, 512 - 9, 240 - 5);
@@ -187,7 +118,7 @@ function Player(parentElement, gameState, playerData){
             if(gameState.frameTime - this.lastAttack > this.equipment.primary.attackCooldown/this.attackSpeed && dist(this, target) < this.equipment.primary.range){
                 this.lastAttack = gameState.frameTime;
 
-                if(this.equipment.primary.type == 'bow'){
+                if(this.equipment.primary.type == 'ranged'){
                     var los = calcLineOfSight(this.tx, this.ty, target.tx, target.ty);
                     var target_x = target.tx,
                         target_y = target.ty;
@@ -200,6 +131,9 @@ function Player(parentElement, gameState, playerData){
                         type_hit = type_miss;
                     }
                     GAME.anims.push(new ProjectileAnimation(this.tx, this.ty, target_x, target_y, type_ammo, type_hit));
+                }
+                if(this.equipment.primary.type == 'melee'){
+                    GAME.anims.push(new AttackAnimation(this, target, this.equipment.primary.type));
                 }
                 socket.emit('player-attack', {id: target.id, type: target.type});
                 // console.log('player attacking', target.id);
@@ -231,8 +165,15 @@ function Player(parentElement, gameState, playerData){
             this.healthCur = healthCurUpdate;
         }
     };
+    this.gainExperience = function(exp) {
+        GAME.popupManager.newExpPopup(this.tx, this.ty, exp, 1000);
+    };
+    this.levelUp = function() {
+
+    };
     this.die = function(){
     	this.isDead = true;
+        this.inCombat = false;
     	$('.canvas').addClass('grayscale');
     	setTimeout(function() {
     		WIN_DEATH.show();
