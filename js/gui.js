@@ -48,11 +48,7 @@
     var border = $(document.createElement("div")).addClass("gui-window-border").appendTo(div);
     var content = $(document.createElement("div")).addClass("gui-window-content").appendTo(div);
     
-    //this is important
-    options.content && content.append(options.content);  // works on arrays
-    // if(options.content)
-    //   for(var i = 0; i < options.content; i++)
-    //     content.append(options.content[i]);
+    options.content && content.append(options.content);
 
     header.mousedown(function(e){
       _globalWindowDragged = div;
@@ -60,8 +56,6 @@
       findGluedWindows(div);
       div.css("z-index",++_globalZIndex);
       _globalDragAnchor = [e.clientX-div.position().left, e.clientY-div.position().top];
-      
-             
       e.preventDefault();
       return false;
     });
@@ -69,79 +63,87 @@
       div.css("z-index",++_globalZIndex);
     })
       
-      div.find(".button_close").click(options.onclose.bind(this));
+    div.find(".button_close").click(options.onclose.bind(this));
       
-      if(options.resizable) {
-        border.mousemove(function(e){
-          var left = e.clientX - div.position().left + document.body.scrollLeft;
-          var right = div.position().left + div.outerWidth() - e.clientX - document.body.scrollLeft;
-          var bottom = div.position().top + div.outerHeight() - e.clientY - document.body.scrollTop;        
-          if (left < 10) {
-            if(bottom < 10) {
-              $(this).css("cursor","sw-resize");
-            } else {
-              $(this).css("cursor","w-resize");
-            }
-          } else if (right < 10) {
-            if(bottom < 10) {
-              $(this).css("cursor","se-resize");
-            } else {
-              $(this).css("cursor","e-resize");
-            }
+    if(options.resizable) {
+      border.mousemove(function(e){
+        var left = e.clientX - div.position().left + document.body.scrollLeft;
+        var right = div.position().left + div.outerWidth() - e.clientX - document.body.scrollLeft;
+        var bottom = div.position().top + div.outerHeight() - e.clientY - document.body.scrollTop;        
+        if (left < 10) {
+          if(bottom < 10) {
+            $(this).css("cursor","sw-resize");
           } else {
-            $(this).css("cursor","s-resize");
+            $(this).css("cursor","w-resize");
           }
-        });
-        
-        border.mousedown(function(e){
-          var left = e.clientX - div.position().left + document.body.scrollLeft;
-          var right = div.position().left + div.outerWidth() - e.clientX - document.body.scrollLeft;
-          var bottom = div.position().top + div.outerHeight() - e.clientY - document.body.scrollTop;        
-          if (left < 10) {
-            if(bottom < 10) {
-              _globalResizeDir = "sw";
-            } else {
-              _globalResizeDir = "w";
-            }
-          } else if (right < 10) {
-            if(bottom < 10) {
-              _globalResizeDir = "se";
-            } else {
-              _globalResizeDir = "e";
-            }
+        } else if (right < 10) {
+          if(bottom < 10) {
+            $(this).css("cursor","se-resize");
           } else {
-            _globalResizeDir = "s";
+            $(this).css("cursor","e-resize");
           }
-          _globalResizedWindow = div;
-          e.preventDefault();
-          return 0;
-        });
-      }
+        } else {
+          $(this).css("cursor","s-resize");
+        }
+      });
+      
+      border.mousedown(function(e){
+        var left = e.clientX - div.position().left + document.body.scrollLeft;
+        var right = div.position().left + div.outerWidth() - e.clientX - document.body.scrollLeft;
+        var bottom = div.position().top + div.outerHeight() - e.clientY - document.body.scrollTop;        
+        if (left < 10) {
+          if(bottom < 10) {
+            _globalResizeDir = "sw";
+          } else {
+            _globalResizeDir = "w";
+          }
+        } else if (right < 10) {
+          if(bottom < 10) {
+            _globalResizeDir = "se";
+          } else {
+            _globalResizeDir = "e";
+          }
+        } else {
+          _globalResizeDir = "s";
+        }
+        _globalResizedWindow = div;
+        e.preventDefault();
+        return 0;
+      });
+    }
+
     this.center = function(){
       div.css({
         top: Math.max(0, (($(window).height() - div.outerHeight()) / 2) + $(window).scrollTop()),
         left: Math.max(0, (($(window).width() - div.outerWidth()) / 2) + $(window).scrollLeft())
       });
     };
+
     this.close = function(){
       div.remove();
     };
+
     this.show = function(){
       div.show();
       div.css("z-index",++_globalZIndex);
     };
+
     this.hide = function(){
       div.hide();
     };
+
     this.appendHTML = function(){
       content.append($(arguments[0]));
     };
+
     this.changeTitle = function(t) {
       title.html(t);
     };
+
     this.setId = function(id) {
       div.attr('id', id);
     };
+
     return this;
   };
   
@@ -149,6 +151,7 @@
   
   function findGluedWindows(div){
     for(var i = 0; i < _globalWindows.length; i++) {
+      if(_globalWindows[i].is(':hidden')) continue;
       var epos = _globalWindows[i].position();
       var goodrect = div.position();
       goodrect.top += div.outerHeight();
@@ -361,8 +364,9 @@
           _globalResizedWindow.css({height: Math.max(e.clientY - _globalResizedWindow.position().top + document.body.scrollTop + 3, 80)});
         if (_globalResizeDir.indexOf("e") != -1)
           _globalResizedWindow.css({width: Math.max(e.clientX - _globalResizedWindow.position().left + document.body.scrollLeft + 3, 100)});
-        if (_globalResizeDir.indexOf("w") != -1)
-          _globalResizedWindow.css({width: Math.max(_globalResizedWindow.outerWidth() + _globalResizedWindow.position().left - e.clientX -document.body.scrollLeft + 1, 100), left: Math.min(e.clientX + document.body.scrollLeft -3, _globalResizedWindow.outerWidth() + _globalResizedWindow.position().left +  -102)});
+        if (_globalResizeDir.indexOf("w") != -1) {
+          _globalResizedWindow.css({width: Math.max(_globalResizedWindow.outerWidth() + _globalResizedWindow.position().left - e.clientX -document.body.scrollLeft + 3, 100), left: Math.min(e.clientX + document.body.scrollLeft -3, _globalResizedWindow.outerWidth() + _globalResizedWindow.position().left +  -102)});
+        }
       }
     });
     $(document.body).mouseup(function(e) {
