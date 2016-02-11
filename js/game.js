@@ -115,7 +115,23 @@ function Game(playerData, map_size, chunkSize) {
             }
         }
     }
+    function ctxInspectHandler() {
+        console.log('inspect function')
+    }
+    function ctxAttackHandler() {
+        console.log('attack function')
+    }
+    function ctxGotoHandler() {
+        destX = GAME.destX = Math.floor((mousepos.x / gh) + map.x - 16);
+        destY = GAME.destY = Math.floor((mousepos.y / gh) + map.y - 8);
+
+        if(!player.isDead){
+            player.moveQ.findPath(player.tx, player.ty, destX, destY);
+            player.movingToTarget = false;
+        }
+    }
     function ctxOpenHandler() {
+        console.log('open function')
         GAME.targetedEntity = null;
         destX = GAME.destX = Math.floor((mousepos.x / gh) + map.x - 16);
         destY = GAME.destY = Math.floor((mousepos.y / gh) + map.y - 8);
@@ -129,8 +145,10 @@ function Game(playerData, map_size, chunkSize) {
         if(dist(player, {tx: destX, ty: destY}) > 1.5){
 
         }
-        player.moveQ.findPathToDist(player.tx, player.ty, destX, destY, 1.5);
-        player.movingToTarget = true;
+        if(!player.isDead){
+            player.moveQ.findPathToDist(player.tx, player.ty, destX, destY, 1.5);
+            player.movingToTarget = true;
+        }
         // for (var i in mobs_data) {
         //     var enemy = mobs_data[i];
         //     if (destX == enemy.tx && destY == enemy.ty) {
@@ -187,6 +205,7 @@ function Game(playerData, map_size, chunkSize) {
         movementCheck.update();
         popupManager.update();
         anims.update();
+        entityManager.update();
         // map.update(player);
         // entities.update();
         // actionBar.update();
@@ -258,26 +277,65 @@ function Game(playerData, map_size, chunkSize) {
             mousepos = {x: (e.clientX - canvas.getBoundingClientRect().left)*canvasX, y:(e.clientY - canvas.getBoundingClientRect().top)*canvasY};
         });
         $('.game-container-filter').on('dragstart', function(event) { event.preventDefault(); });
-        $('.game-container-filter').mousedown(handleLeftClick);
+        $('.game-container-filter').mouseup(handleLeftClick);
         $(".game-container-filter")[0].oncontextmenu = function(e){
-            $(".ctx_menu").css({left: e.clientX, top: e.clientY}).show();
             e.preventDefault();
+            $('.ctx_menu').hide();
+
+            var tileX = Math.floor((mousepos.x / gh) + map.x - 16);
+            var tileY = Math.floor((mousepos.y / gh) + map.y - 8);
+            // if entity clicked
+            var allEnt = entityManager.getEntities(); //optimize
+            for(var i in allEnt){
+                if(allEnt[i].x == tileX && allEnt[i].y == tileY){
+                    $("#ctx_menu_entity").css({left: e.clientX, top: e.clientY}).show();
+                    return false;
+                }
+            }
+
+            //if mob clicked
+            for(var i in mobs_data){
+                if(mobs_data[i].tx == tileX && mobs_data[i].ty == tileY){
+                    $("#ctx_menu_mob").css({left: e.clientX, top: e.clientY}).show();
+                    return false;
+                }
+            }
+
+            //if player clicked
+            for(var i in players_data){
+                if(players_data[i].tx == tileX && players_data[i].ty == tileY){
+                    $("#ctx_menu_player").css({left: e.clientX, top: e.clientY}).show();
+                    return false;
+                }
+            }
+
+             $("#ctx_menu_default").css({left: e.clientX, top: e.clientY}).show();
             return false;
         };
-        $('.ctx_menu')[0].oncontextmenu = function(e) {
-            e.preventDefault();
-        };
+        $('.ctx_menu').each(function() {
+            $(this)[0].oncontextmenu = function(e) { //disable contextmenu on custom rightclick element
+                // save mouse position for later use?
+                e.preventDefault();
+            };
+        });
         $('#ctx_attack').click(function() {
+            // console.log( $( this ).parent()[0].mousepos_x);
             //dist based pathfinding
+            ctxAttackHandler();
+            $('.ctx_menu').hide();
         });
         $('#ctx_open').click(function() {
             ctxOpenHandler();
             $('.ctx_menu').hide();
-            // if dist > 1.5
-            // dist based patfinding - when moveQ.length == 0 -> do action
         });
-        $('#ctx_look').click(function() {
-            //normal pathfinding - probably make it just on regular click
+        $('#ctx_inspect').click(function() {
+            // if dist > defaultInspectDistance
+            ctxInspectHandler();
+            $('.ctx_menu').hide();
+        });
+        $('#ctx_goto').click(function() {
+            ctxGotoHandler();
+            $('.ctx_menu').hide();
         });
     });
     socket.on('player-data-update', function(data) {
@@ -348,11 +406,9 @@ function Game(playerData, map_size, chunkSize) {
             players_data[data.id].die();
     });
     socket.on('player-logged-out', function(_id) {
-        // console.log(_id)
         if(players_data.hasOwnProperty(_id)){
             GAME.map.freeSpot(players_data[_id].tx, players_data[_id].ty)
             delete players_data[_id];
-            console.log('has player')
         }
     });
     socket.on('player-combat-start', function() {
@@ -368,7 +424,6 @@ function Game(playerData, map_size, chunkSize) {
         player.levelUp();
     });
     socket.on('player-attack-melee', function(data) {
-        console.log('melee atk from serve')
         if(players_data.hasOwnProperty(data.id)){
             players_data[data.id].attack(data.target, 'melee');
         }

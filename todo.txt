@@ -14,6 +14,7 @@ TO DO:
 [ !BUG ] - tiles arent being loaded when you log in on farther chunks(x > 1) - DONE
 - port range combat - DONE
 - fix astar on player conrners. - DONE
+- drop loot - DONE
 
 
 
@@ -21,10 +22,9 @@ TO DO:
 - start thinking about characted progression
 
 
-! IMPORTANT - clean up all the getData()'s
+! IMPORTANT - clean up all the getData()'s - this is touched in a couple of places like entities/
 
 
-- drop loot
 
 - lose xp on death? lose eq on death?
 
@@ -33,6 +33,8 @@ TO DO:
 - some bug remaining with lingering collisions on server
 
 - repopulate equipment properly (recreate objects to at least use instanceof)
+
+- loot with quantity > 1
 
 CLIENTSIDE:
 
@@ -45,12 +47,14 @@ CLIENTSIDE:
 - write exp popups +  broadcasts - DONE
 - add entity handlers onclick etc. - DONE
 - unknown issue with number popup spam - DONE (peristent keys in server chunks)
-
+- clean up ctx menu code - DONE
+- global tooltip flashes/resets timeout - FIXED ITSELF
+- right click context menu - DONE
+- close loot windows when players moves from the vicinity - DONE
 
 
 
 - draw xp bar
-- right click context menu
 - write animations
 	- unit
 	- entity
@@ -65,4 +69,15 @@ CLIENTSIDE:
 
 - window sticks to nothing
 
-- global tooltip flashes/resets timeout
+
+- get rid of DOM/JS redundancies such as items in 2 places ?????????
+
+- client loot windows are really messy, consider using just one window and updating it.
+
+- rewrite client eq? consider rewriting server containers/ equipment (there isnt much in it after all) 
+
+- not putting items into entities restriction feels really limiting
+
+- loot with quantity > 1
+
+- add stacking items to match the server logic

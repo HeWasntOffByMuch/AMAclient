@@ -34,7 +34,7 @@ function makeAllOfThemWindowsNow(playerData) {
     		if(serverBackpack.contents[i][j]){
     			var item = serverBackpack.contents[i][j];
     			var img = GAME.allImages[item.name] || GAME.allImages['placeholder'];
-	    		var itemEl = new itemElement(1, 1, bp, i, j, testid++, img.src, {
+	    		var itemEl = new itemElement(1, 1, bp, i, j, item.id, img.src, {
 	    			name: item.name,
                     desc: item.desc,
                     attackCooldown: item.attackCooldown,
@@ -69,7 +69,7 @@ function makeAllOfThemWindowsNow(playerData) {
 		var item = playerData.equipment[div.attr('id')];
 		if(item){
 			var img = GAME.allImages[item.name] || GAME.allImages['placeholder'];
-			itemEl = new itemElement(1, 1, div, 0, 0, testid++, img.src, {
+			itemEl = new itemElement(1, 1, div, 0, 0, item.id, img.src, {
 				name: item.name,
                 desc: item.desc,
                 attackCooldown: item.attackCooldown,
@@ -108,23 +108,36 @@ function makeAllOfThemWindowsNow(playerData) {
         height: 512 - 37,
         title: 'YO STATS NIGGA',
         icon: "player_icon.png",
-        position: { y: 20, x: 1224 }
+        position: { y: 20, x: 1224 },
+        onclose: function() {
+            this.hide();
+        }
     });
     WIN_STATS.setId('stats');
 
 
-    WIN_STATS.appendHTML("<div style='position: absolute; top: 20px; font-size: 15px; font-weight:bold; border-bottom: 1px solid #676a5a;'><p>  LEVEL</p></div>");
+    WIN_STATS.appendHTML("<div style='position: absolute; top: 20px; font-size: 15px; font-weight:bold; margin-left: 6px;'><p>  LEVEL</p></div>");
 
 
-    var ctxMenu = $( document.createElement("ul") ).addClass("ctx_menu").appendTo(document.body).hide();
-    $(".ctx_menu").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_attack').text('attack'));
-    $(".ctx_menu").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_open').text('open')).addClass("ctx_item");
-    $(".ctx_menu").append($( document.createElement("li") ).addClass("ctx_sep"));
-    $(".ctx_menu").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_look').text('look')).addClass("ctx_item");
+    // MAKE RIGHT CLICK CONTEXT MENUS
+    var ctxMenuEntity = $( document.createElement("ul") ).addClass("ctx_menu").appendTo(document.body).attr('id', 'ctx_menu_entity').hide();
+        $("#ctx_menu_entity").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_open').text('open'));
+    var ctxMenuMob = $( document.createElement("ul") ).addClass("ctx_menu").appendTo(document.body).attr('id', 'ctx_menu_mob').hide();
+        $("#ctx_menu_mob").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_attack').text('attack'));
+    var ctxMenuPlayer = $( document.createElement("ul") ).addClass("ctx_menu").appendTo(document.body).attr('id', 'ctx_menu_player').hide();
+        $("#ctx_menu_player").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_attack').text('attack'));
+
+
+    var ctxMenuDefault = $( document.createElement("ul") ).addClass("ctx_menu").appendTo(document.body).attr('id', 'ctx_menu_default').hide();
+        $("#ctx_menu_default").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_goto').text('move here'));
+        // all context menus will have that
+        $(".ctx_menu").append($( document.createElement("li") ).addClass("ctx_sep"));
+        $(".ctx_menu").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_inspect').text('inspect'));
 }
 
-function newLootWindow(loot) {
-    var size = Object.keys(loot).length || 1;
+function newLootWindow(entity) {
+    console.log(entity);
+    var size = Object.keys(entity.loot).length || 1;
     console.log('loot size', size);
     var WIN_LOOT = new guiWindow({
         width: 250,
@@ -132,8 +145,26 @@ function newLootWindow(loot) {
         title: 'LOOT',
         icon: "player_icon.png",
         position: { y: 400, x: 20 },
-        content: ['<div id=' + 0 + ' class="slot bp" size_x=' + 4 + ' size_y=' + Math.ceil(size/4) + '></div>']
+        content: ['<div id=' + entity.id + ' class="slot entity" size_x=' + 4 + ' size_y=' + Math.ceil(size/4) + '></div>']
     });
     WIN_LOOT.setId('loot');
-    var eq = $('#loot .slot').makeContainer();
+    var eq = $('#' + entity.id + '.slot').makeContainer();
+
+    GAME.entityManager.getEntities()[entity.id].contents = entity.loot;
+    //add client side entity/contents
+
+    for(var i in entity.loot){
+            if(entity.loot[i]){
+                var item = entity.loot[i];
+                var img = GAME.allImages[item.name] || GAME.allImages['placeholder'];
+                var itemEl = new itemElement(1, 1, eq, i % 4, Math.floor(i/4), item.id, img.src, {
+                    name: item.name,
+                    desc: item.desc,
+                    attackCooldown: item.attackCooldown,
+                    damageMin: item.damageMin,
+                    damageMax: item.damageMax,
+                    range: item.range
+                });
+            }
+        }
 }

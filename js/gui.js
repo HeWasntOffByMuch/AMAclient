@@ -199,16 +199,27 @@
         var pos = {left: Math.floor((position.left-_globalItemAnchor.left) / 32), top: Math.floor((position.top-_globalItemAnchor.top) / 32)};
         var valid = 1;
 
-        var data = ev.dataTransfer.getData("text");
+        var data = ev.dataTransfer.getData("text"); //item id apparently
         var parentId = ev.dataTransfer.getData("parent_id"); // items previous parent element id
-        $('#' + parentId).addClass(parentId);
-        $(this).removeClass(div[0].id);
-        // console.log('parentId', parentId)
+
+        // dont remember what that was for, commented it and things still work.
+        // $('#' + parentId).addClass(parentId);
+        // $(this).removeClass(div[0].id);
+
         var size = {x: $("#"+data).attr("size_x"), y: $("#"+data).attr("size_y")};
         var pos_old = $("#"+data).position();
-        if (pos.left < 0 || pos.top < 0) valid = 0;
-        else for(var i = 0; i < size.x; i ++) for(var j = 0; j < size.y; j ++) {
-          if (pos.left+i >= size_x || pos.top+j >= size_y || div[0].data[pos.left+i][pos.top+j]) valid = 0;
+        // dont allow putting things into entities - makes sense?
+        if ($('#' + div[0].id).hasClass('entity')) valid = 0;
+        if (pos.left < 0 || pos.top < 0){
+          valid = 0;
+        }
+        else{
+          for(var i = 0; i < size.x; i ++){
+            for(var j = 0; j < size.y; j ++) {
+              if (pos.left+i >= size_x || pos.top+j >= size_y || div[0].data[pos.left+i][pos.top+j])
+                valid = 0;
+            }
+          }
         }
         if (valid) {
           
@@ -217,10 +228,26 @@
             top: pos.top*32
           });
           // console.log($("#"+data).parent().attr('id'));
-          var from = {id: parentId, x: pos_old.left / 32, y: pos_old.top / 32};
-          var to = {id: div[0].id, x: pos.left, y: pos.top};
-          GAME.socket.emit('player-moved-item', {from: from, to: to});
-          GAME.player.moveInventoryItem(from, to);
+
+          if($('#' + parentId).hasClass('entity')){
+            //items inside entityies are indexed from 0. no [][].
+            var x = pos_old.left / 32;
+            var y = pos_old.top / 32;
+            var obj_pos = (y*4) + x;
+            var from = {id: parentId, pos: obj_pos};
+            // this is player inventory - atandard array
+            var to = {id: div[0].id, x: pos.left, y: pos.top};
+            GAME.socket.emit('player-loot-entity', {from: from, to: to});
+            GAME.player.lootEntity(from, to);
+          }
+          else{
+            var from = {id: parentId, x: pos_old.left / 32, y: pos_old.top / 32};
+            var to = {id: div[0].id, x: pos.left, y: pos.top};
+            GAME.socket.emit('player-moved-item', {from: from, to: to});
+            GAME.player.moveInventoryItem(from, to);
+          }
+
+
           for(var i = 0; i < size.x; i ++) for(var j = 0; j < size.y; j ++) {
             div[0].data[pos.left+i][pos.top+j] = 1;
           }     

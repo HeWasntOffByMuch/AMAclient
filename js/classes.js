@@ -54,6 +54,8 @@ function EntityManager() {
 	};
 	this.removeEntity = function(id) {
 		delete allEntities[id];
+		// remove loot window
+		$('#' + id).parent().parent().remove();
 	};
 	this.populateEntities = function(map_data) {
 		var id, name, x, y;
@@ -74,6 +76,12 @@ function EntityManager() {
 	};
 	this.getEntities = function() {
 		return allEntities;
+	};
+	this.update = function() {
+		for(var i in allEntities){
+			if(Math.max(Math.abs(allEntities[i].x - GAME.player.tx), Math.abs(allEntities[i].y - GAME.player.ty)) > 1)
+				$('#' + allEntities[i].id).parent().parent().remove();
+		}
 	};
 }
 
@@ -145,11 +153,11 @@ function PopupManager() {
                     break;
                 case 'exp':
                 	ctx.font = "12px Tibia Font";
-                    ctx.strokeStyle = '#000';
-					ctx.lineWidth = 0.5;
+                    // ctx.strokeStyle = '#000';
+					// ctx.lineWidth = 0.5;
                     ctx.fillStyle = '#fff';
                     ctx.fillText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 24);
-                    ctx.strokeText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 24);
+                    // ctx.strokeText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 24);
                     ctx.lineWidth = 1;
                     break;
             }
@@ -157,6 +165,10 @@ function PopupManager() {
 	};
 
 }
+
+
+// GAME ON DIVS. MAYBE USE SOME OF IT FOR CERTAIN ELEMENTS. NOT NOW THO.
+
 // function repositionTile() { // deprecated
 //     if(!this) return;
 //     this.style.left = this.x + 'px';

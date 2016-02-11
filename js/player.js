@@ -158,6 +158,19 @@ function Player(parentElement, gameState, playerData){
             this.equipment[to.id] = item;
         }
     };
+    this.lootEntity = function(from, to) {
+        var item = GAME.entityManager.getEntities()[from.id].contents[from.pos];  // wow
+
+        if(to.id == 'backpack'){
+            this.equipment.backpack.contents[to.x][to.y] = item;
+        } else {
+            this.equipment[to.id] = item;
+        }
+
+        //do checks if objects exist
+        delete GAME.entityManager.getEntities()[from.id].contents[from.pos];
+
+    };
     this.updateHealth = function(healthCurUpdate) {
         if (this.healthCur != healthCurUpdate) {
         	if(this.healthCur > healthCurUpdate)
