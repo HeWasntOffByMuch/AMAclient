@@ -66,7 +66,7 @@ function makeAllOfThemWindowsNow(playerData) {
 	var eq = $('#equipment .slot').makeContainer(1, 1);
 	$('#equipment .gui-window-content').children().each(function() {
 		var div = $( this );
-		var item = playerData.equipment[div.attr('id')];
+		var item = playerData.equipment[div.attr('id')].contents[0][0];
 		if(item){
 			var img = GAME.allImages[item.name] || GAME.allImages['placeholder'];
 			itemEl = new itemElement(1, 1, div, 0, 0, item.id, img.src, {
@@ -126,7 +126,8 @@ function makeAllOfThemWindowsNow(playerData) {
         $("#ctx_menu_mob").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_attack').text('attack'));
     var ctxMenuPlayer = $( document.createElement("ul") ).addClass("ctx_menu").appendTo(document.body).attr('id', 'ctx_menu_player').hide();
         $("#ctx_menu_player").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_attack').text('attack'));
-
+    var ctxMenuItem = $( document.createElement("ul") ).addClass("ctx_menu").appendTo(document.body).attr('id', 'ctx_menu_item').hide();
+        $("#ctx_menu_item").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_use').text('use'));
 
     var ctxMenuDefault = $( document.createElement("ul") ).addClass("ctx_menu").appendTo(document.body).attr('id', 'ctx_menu_default').hide();
         $("#ctx_menu_default").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_goto').text('move here'));
@@ -140,11 +141,11 @@ function newLootWindow(entity) {
     var size = Object.keys(entity.loot).length || 1;
     console.log('loot size', size);
     var WIN_LOOT = new guiWindow({
-        width: 250,
-        height: 80,
+        width: 130,
+        height: 45,
         title: 'LOOT',
         icon: "player_icon.png",
-        position: { y: 400, x: 20 },
+        position: { y: 220, x: 20 },
         content: ['<div id=' + entity.id + ' class="slot entity" size_x=' + 4 + ' size_y=' + Math.ceil(size/4) + '></div>']
     });
     WIN_LOOT.setId('loot');

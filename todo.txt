@@ -75,9 +75,14 @@ CLIENTSIDE:
 - client loot windows are really messy, consider using just one window and updating it.
 
 - rewrite client eq? consider rewriting server containers/ equipment (there isnt much in it after all) 
+	right now you have to synch client in 2 places and then synch server
 
 - not putting items into entities restriction feels really limiting
 
 - loot with quantity > 1
 
 - add stacking items to match the server logic
+
+- need a way to use items on client
+
+- 

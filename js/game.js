@@ -29,18 +29,12 @@ function Game(playerData, map_size, chunkSize) {
     this.getPlayersData = function() {
         return players_data;
     };
-    // var entities = new EntityManager();
 
+    // this is basically a queue object updating popups until they're removed
     var popups = [];
-    // var missiles = new Missiles();
 
-    /* GUI */
-    // var actionBar = new ActionBar();
-    // var experienceBar = new ExperienceBar();  
-    // var audio = new AudioManager();
-    // var statusMessage = new StatusMessage(canvas);
-
-    // socket.emit('request-map-world', {});  
+    var globalRightClickedItem = null;
+    
 
     /* FRAME HANDLING */
     var lastKeyEvent;
@@ -121,7 +115,7 @@ function Game(playerData, map_size, chunkSize) {
     function ctxAttackHandler() {
         console.log('attack function')
     }
-    function ctxGotoHandler() {
+    function ctxGoToHandler() {
         destX = GAME.destX = Math.floor((mousepos.x / gh) + map.x - 16);
         destY = GAME.destY = Math.floor((mousepos.y / gh) + map.y - 8);
 
@@ -130,6 +124,15 @@ function Game(playerData, map_size, chunkSize) {
             player.movingToTarget = false;
         }
     }
+    function ctxUseHandler() {
+        var itemElement = $('#' + globalRightClickedItem.id );
+        var itemData = {
+            x: itemElement.attr('left'),
+            y: itemElement.attr('top'),
+            parentId: itemElement.parent().attr('id')
+        };
+        player.UseItem(itemData);
+    };
     function ctxOpenHandler() {
         console.log('open function')
         GAME.targetedEntity = null;
@@ -141,9 +144,6 @@ function Game(playerData, map_size, chunkSize) {
             if(e[i].x == destX && e[i].y == destY){
                 GAME.targetedEntity = e[i];
             }
-        }
-        if(dist(player, {tx: destX, ty: destY}) > 1.5){
-
         }
         if(!player.isDead){
             player.moveQ.findPathToDist(player.tx, player.ty, destX, destY, 1.5);
@@ -278,6 +278,22 @@ function Game(playerData, map_size, chunkSize) {
         });
         $('.game-container-filter').on('dragstart', function(event) { event.preventDefault(); });
         $('.game-container-filter').mouseup(handleLeftClick);
+        
+        //disable context menu on all gui windows.
+        $(document).on('contextmenu', '.gui-window', function(e) {
+            e.preventDefault();
+            //set up custom ctx menu for items.
+        });
+        $(document).on('contextmenu', '.item', function(e) {
+            $('.ctx_menu').hide();
+            console.log('item', this);
+            globalRightClickedItem = this;
+            $('#ctx_menu_item').css({left: e.clientX, top: e.clientY}).show();
+            //set up custom ctx menu for items.
+        });
+        $('.gui-window').click(function(e) {
+            $('.ctx_menu').hide();
+        })
         $(".game-container-filter")[0].oncontextmenu = function(e){
             e.preventDefault();
             $('.ctx_menu').hide();
@@ -334,7 +350,11 @@ function Game(playerData, map_size, chunkSize) {
             $('.ctx_menu').hide();
         });
         $('#ctx_goto').click(function() {
-            ctxGotoHandler();
+            ctxGoToHandler();
+            $('.ctx_menu').hide();
+        });
+        $('#ctx_use').click(function() {
+            ctxUseHandler();
             $('.ctx_menu').hide();
         });
     });

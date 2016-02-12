@@ -115,10 +115,10 @@ function Player(parentElement, gameState, playerData){
     };
     this.attack = function(target) {
     	if(!this.isDead || !this.equipment.primary){
-            if(gameState.frameTime - this.lastAttack > this.equipment.primary.attackCooldown/this.attackSpeed && dist(this, target) < this.equipment.primary.range){
+            if(gameState.frameTime - this.lastAttack > this.equipment.primary.contents[0][0].attackCooldown/this.attackSpeed && dist(this, target) < this.equipment.primary.contents[0][0].range){
                 this.lastAttack = gameState.frameTime;
 
-                if(this.equipment.primary.type == 'ranged'){
+                if(this.equipment.primary.contents[0][0].type == 'ranged'){
                     var los = calcLineOfSight(this.tx, this.ty, target.tx, target.ty);
                     var target_x = target.tx,
                         target_y = target.ty;
@@ -132,7 +132,7 @@ function Player(parentElement, gameState, playerData){
                     }
                     GAME.anims.push(new ProjectileAnimation(this.tx, this.ty, target_x, target_y, type_ammo, type_hit));
                 }
-                if(this.equipment.primary.type == 'melee'){
+                if(this.equipment.primary.contents[0][0].type == 'melee'){
                     GAME.anims.push(new AttackAnimation(this, target, this.equipment.primary.type));
                 }
                 socket.emit('player-attack', {id: target.id, type: target.type});
@@ -144,29 +144,16 @@ function Player(parentElement, gameState, playerData){
     	GAME.popupManager.newHealthPopup(this.tx, this.ty, damage, 1000);
     };
     this.moveInventoryItem = function(from, to) { // retarded but works for now.
-        var item;
-        if(from.id == 'backpack'){
-            item = this.equipment.backpack.contents[from.x][from.y];
-            this.equipment.backpack.contents[from.x][from.y] = 0;
-        } else {
-             item = this.equipment[from.id];
-             this.equipment[from.id] = 0;
-        }
-        if(to.id == 'backpack'){
-            this.equipment.backpack.contents[to.x][to.y] = item;
-        } else {
-            this.equipment[to.id] = item;
-        }
+        GAME.socket.emit('player-moved-item', {from: from, to: to});
+        var item = this.equipment[from.id].contents[from.x][from.y];
+        this.equipment[from.id].contents[from.x][from.y] = 0;
+        
+        this.equipment[to.id].contents[to.x][to.y] = item;
     };
     this.lootEntity = function(from, to) {
+        GAME.socket.emit('player-loot-entity', {from: from, to: to});
         var item = GAME.entityManager.getEntities()[from.id].contents[from.pos];  // wow
-
-        if(to.id == 'backpack'){
-            this.equipment.backpack.contents[to.x][to.y] = item;
-        } else {
-            this.equipment[to.id] = item;
-        }
-
+        this.equipment[to.id].contents[to.x][to.y] = item;
         //do checks if objects exist
         delete GAME.entityManager.getEntities()[from.id].contents[from.pos];
 

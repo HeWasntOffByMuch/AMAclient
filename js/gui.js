@@ -237,13 +237,12 @@
             var from = {id: parentId, pos: obj_pos};
             // this is player inventory - atandard array
             var to = {id: div[0].id, x: pos.left, y: pos.top};
-            GAME.socket.emit('player-loot-entity', {from: from, to: to});
+            
             GAME.player.lootEntity(from, to);
           }
           else{
             var from = {id: parentId, x: pos_old.left / 32, y: pos_old.top / 32};
             var to = {id: div[0].id, x: pos.left, y: pos.top};
-            GAME.socket.emit('player-moved-item', {from: from, to: to});
             GAME.player.moveInventoryItem(from, to);
           }
 
