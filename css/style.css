@@ -417,17 +417,17 @@ button.anim-alt:hover {
   font-weight: bold;
   font-family: verdana;
   padding: 1px;
-  z-index: 11;
+  z-index: 99999;
 }
 
 .ctx_menu li {
   list-style-type: none;
   cursor: pointer;
   padding: 1px;
-  padding-left: 10px;
+  padding-left: 3px;
 }
 
-.ctx_item li:hover {
+.ctx_menu li:hover {
   color: #676a5a;
   background-color: #272822;
 }

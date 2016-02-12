@@ -158,6 +158,13 @@ function Player(parentElement, gameState, playerData){
         delete GAME.entityManager.getEntities()[from.id].contents[from.pos];
 
     };
+    this.useItem = function(item_data) {
+        var item = this.equipment[item_data.parentId].contents[item_data.x][item_data.y];
+        GAME.socket.emit('player-use-item', {id: item_data.parentId, x: item_data.x, y: item_data.y});
+        if(item.type == 'consumable' && --item.usesLeft === 0){  
+            //remove that item
+        }
+    };
     this.updateHealth = function(healthCurUpdate) {
         if (this.healthCur != healthCurUpdate) {
         	if(this.healthCur > healthCurUpdate)

@@ -7,7 +7,7 @@ function Game(playerData, map_size, chunkSize) {
         mapSize: map_size
     }
     var canvas = GAME.canvas;
-    var gh = 32;
+    var gh = gameState.tileSize;
     var ctx = GAME.ctx;
     var socket = GAME.socket;
     var map = GAME.map = new Map(playerData.x, playerData.y, gameState);
@@ -70,7 +70,7 @@ function Game(playerData, map_size, chunkSize) {
             return Math.pow((e.x - player.x), 2) + Math.pow((e.y - player.y), 2);
         });
         GAME.targetedUnit && (GAME.targetedUnit.isTargeted = true);
-    }
+    };
 
     /* CLICK EVENT HANDLER */
     function handleLeftClick(e) {
@@ -108,13 +108,13 @@ function Game(playerData, map_size, chunkSize) {
                 return;
             }
         }
-    }
+    };
     function ctxInspectHandler() {
         console.log('inspect function')
-    }
+    };
     function ctxAttackHandler() {
         console.log('attack function')
-    }
+    };
     function ctxGoToHandler() {
         destX = GAME.destX = Math.floor((mousepos.x / gh) + map.x - 16);
         destY = GAME.destY = Math.floor((mousepos.y / gh) + map.y - 8);
@@ -123,15 +123,16 @@ function Game(playerData, map_size, chunkSize) {
             player.moveQ.findPath(player.tx, player.ty, destX, destY);
             player.movingToTarget = false;
         }
-    }
+    };
     function ctxUseHandler() {
         var itemElement = $('#' + globalRightClickedItem.id );
         var itemData = {
-            x: itemElement.attr('left'),
-            y: itemElement.attr('top'),
+            x: parseInt(itemElement.css('left'), 10)/gh,
+            y: parseInt(itemElement.css('top'), 10)/gh,
             parentId: itemElement.parent().attr('id')
         };
-        player.UseItem(itemData);
+        console.log('item data in handler', itemData)
+        player.useItem(itemData);
     };
     function ctxOpenHandler() {
         console.log('open function')
