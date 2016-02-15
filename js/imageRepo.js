@@ -60,6 +60,10 @@ GAME.urlDict = {
   'Composite Bow' : {src: 'img/items/bow_composite.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Pinaka' : {src: 'img/items/bow_crystal.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Sawed-Off Shotgun' : {src: 'img/items/sawed_off.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Health Potion' : {src: 'img/items/potion_full.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Gold' : {src: 'img/items/cursed_gold.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Resurrection Scroll' : {src: 'img/items/scroll.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Heal Stick' : {src: 'img/items/heal_stick.gif', spriteX: 32, spriteY: 32, spriteN: 1},
 
   //SKILLS
   'skill_sword': {src: 'img/skills/skill_tiles/skill_sword.png', spriteX: 32, spriteY: 32, spriteN: 1},

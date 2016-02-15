@@ -18,7 +18,7 @@
 html, body {
   height: 100%;
   background-image: url(../img/bg.png);
-} 
+}
 .foreground {
   position: absolute;
   width: 1024px;
@@ -27,7 +27,7 @@ html, body {
 .canvas {
   width: 1024px;
   transition-delay: 3s;
-  transition: -webkit-filter 4s, width 1s;
+  transition: -webkit-filter 1s, width 1s;
 }
 .grayscale {
   -webkit-filter: grayscale(1) brightness(0.4);

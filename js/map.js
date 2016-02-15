@@ -11,14 +11,6 @@ function Map(x, y, gameState){
 	for(var i=0; i<gameState.mapSize.x; i++){ //get map size from server later
 		mapCollisions[i] = [];
 	}
-	//finish drawing loaded chunk representation
-	// this.chunksLoaded;
-	// for(var i =0; i < gameState.mapSize.x/chunkSize.x){
-	// 	this.chunksLoaded[i] = [];
-	// 	for (var j = 0; j < gameState.mapSize.y/chunkSize.x; j++) {
-	// 		Thjngs[j]
-	// 	};
-	// }
 	f = $('.foreground')[0];
 	this.chunksLoaded = [];
 	this.x = x;
@@ -51,15 +43,15 @@ function Map(x, y, gameState){
 				var ay = GAME.player.ay;
 				ctx.drawImage(tilesSprite, x_pos*32, y_pos*32, 32, 32, Math.floor((i-ax)*32), Math.floor((j-ay)*32), 32, 32);
 
-				// DRAW COLLIDING TILES BLUEISH
-				if(mapCollisions[GAME.player.x - 16 + i][GAME.player.y - 8 + j] === 0.5){
-					ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-					ctx.fillRect(Math.floor((i-ax)*32), Math.floor((j-ay)*32), 32, 32);
-				}
-				else if(mapCollisions[GAME.player.x - 16 + i][GAME.player.y - 8 + j] === 1){
-					ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-					ctx.fillRect(Math.floor((i-ax)*32), Math.floor((j-ay)*32), 32, 32);
-				}
+				// DRAW COLLIDING TILES GRAYISH
+				// if(mapCollisions[GAME.player.x - 16 + i][GAME.player.y - 8 + j] === 0.5){
+				// 	ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+				// 	ctx.fillRect(Math.floor((i-ax)*32), Math.floor((j-ay)*32), 32, 32);
+				// }
+				// else if(mapCollisions[GAME.player.x - 16 + i][GAME.player.y - 8 + j] === 1){
+				// 	ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+				// 	ctx.fillRect(Math.floor((i-ax)*32), Math.floor((j-ay)*32), 32, 32);
+				// }
 			}
 		}
 	};

@@ -133,7 +133,7 @@ function Player(parentElement, gameState, playerData){
                     GAME.anims.push(new ProjectileAnimation(this.tx, this.ty, target_x, target_y, type_ammo, type_hit));
                 }
                 if(this.equipment.primary.contents[0][0].type == 'melee'){
-                    GAME.anims.push(new AttackAnimation(this, target, this.equipment.primary.type));
+                    GAME.anims.push(new AttackAnimation(this, target, this.equipment.primary.contents[0][0].type));
                 }
                 socket.emit('player-attack', {id: target.id, type: target.type});
                 // console.log('player attacking', target.id);
@@ -158,11 +158,35 @@ function Player(parentElement, gameState, playerData){
         delete GAME.entityManager.getEntities()[from.id].contents[from.pos];
 
     };
-    this.useItem = function(item_data) {
+    this.useItemOnSelf = function(item_data) {
         var item = this.equipment[item_data.parentId].contents[item_data.x][item_data.y];
-        GAME.socket.emit('player-use-item', {id: item_data.parentId, x: item_data.x, y: item_data.y});
+        GAME.socket.emit('player-use-item-on-self', {id: item_data.parentId, x: item_data.x, y: item_data.y});
         if(item.type == 'consumable' && --item.usesLeft === 0){  
             //remove that item
+            //nevermind that is actually handled by server response
+        }
+    };
+    this.useItemOnPlayer = function(item_data, other_player) {
+        var item = this.equipment[item_data.parentId].contents[item_data.x][item_data.y];
+        GAME.socket.emit('player-use-item-on-player', {id: item_data.parentId, x: item_data.x, y: item_data.y, targetId: other_player.id});
+
+    };
+    this.useItemOnMob = function(item_data, mob) {
+        var item = this.equipment[item_data.parentId].contents[item_data.x][item_data.y];
+        GAME.socket.emit('player-use-item-on-mob', {id: item_data.parentId, x: item_data.x, y: item_data.y, targetId: mob.id});
+    };
+    this.removeItem = function(data) {
+        var parentID = data.parentId;
+        var id = data.id;
+        var container = this.equipment[parentID];
+        for(var i = 0; i < container.w; i++){
+            for(var j = 0; j < container.h; j++){
+                if(container.contents[i][j].id == id){
+                    container.contents[i][j] = 0;
+                    $('#' + parentID + ' .slot')[0].data[i][j] = 0;
+                    $('#' + id).remove();
+                }
+            }
         }
     };
     this.updateHealth = function(healthCurUpdate) {

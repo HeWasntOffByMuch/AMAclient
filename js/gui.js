@@ -202,13 +202,16 @@
         var data = ev.dataTransfer.getData("text"); //item id apparently
         var parentId = ev.dataTransfer.getData("parent_id"); // items previous parent element id
 
-        // dont remember what that was for, commented it and things still work.
-        // $('#' + parentId).addClass(parentId);
-        // $(this).removeClass(div[0].id);
+        // adding and removing slot image
+        $('#' + parentId).addClass(parentId);
+        $(this).removeClass(div[0].id);
 
         var size = {x: $("#"+data).attr("size_x"), y: $("#"+data).attr("size_y")};
         var pos_old = $("#"+data).position();
-        // dont allow putting things into entities - makes sense?
+
+        if(GAME.player.isDead) valid = 0; //cant move items when you're dead
+
+        // dont allow putting things into entities - makes sense? prebably not
         if ($('#' + div[0].id).hasClass('entity')) valid = 0;
         if (pos.left < 0 || pos.top < 0){
           valid = 0;
@@ -286,7 +289,7 @@
     desc: 'default description descriptively describing undescribable item',
     damage: '4-7',
     defense: '5',
-    atkspeed: 400
+    attackCooldown: 400
   };
   function itemElement(size_x, size_y, parent, pos_x, pos_y, id, src, options) {
     var options = $.extend({}, itemDefaults, options);
@@ -344,7 +347,7 @@
             left: ev.clientX + 10,
             top: ev.clientY + 10
           }).show();
-          _globalTooltip.html("<div style='color:gold; border-bottom: 1px solid #676a5a;font-weight:bold;'>"+ options.name +"<span style='float:right'>"+ options.rarity +"</span></div><div style='color:#676a5a; border-bottom: 1px solid #676a5a;font-style:italic;font-size:9px;'>"+ options.desc +"</div><table><tr><td align=left width=130>Damage</td><td align=right style='color:#00ff00;font-weight:bold;'>+ " + options.damageMin + "-" + options.damageMax + "</td></tr><tr><td align=left width=130>atk speed</td><td align=right style='color:#ff0000;font-weight:bold;'>"+ 1000/options.atkspeed +"/s</td></tr><tr><td align=left width=130>range</td><td align=right style='color:#ff0000;font-weight:bold;'>"+ Math.floor(options.range) +"</td></tr></table>");
+          _globalTooltip.html("<div style='color:gold; border-bottom: 1px solid #676a5a;font-weight:bold;'>"+ options.name +"<span style='float:right'>"+ options.rarity +"</span></div><div style='color:#676a5a; border-bottom: 1px solid #676a5a;font-style:italic;font-size:9px;'>"+ options.desc +"</div><table><tr><td align=left width=130>Damage</td><td align=right style='color:#00ff00;font-weight:bold;'>" + options.damageMin + "-" + options.damageMax + "</td></tr><tr><td align=left width=130>atk speed</td><td align=right style='color:#ff0000;font-weight:bold;'>"+ (1000/options.attackCooldown).toFixed(3) +"/s</td></tr><tr><td align=left width=130>range</td><td align=right style='color:#ff0000;font-weight:bold;'>"+ Math.floor(options.range) +"</td></tr></table>");
         },500);
       });
       div.mouseout(function(){

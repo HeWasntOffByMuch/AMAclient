@@ -51,6 +51,7 @@ CLIENTSIDE:
 - global tooltip flashes/resets timeout - FIXED ITSELF
 - right click context menu - DONE
 - close loot windows when players moves from the vicinity - DONE
+- need a way to use items on client - DONE
 
 
 
@@ -83,6 +84,10 @@ CLIENTSIDE:
 
 - add stacking items to match the server logic
 
-- need a way to use items on client
+- removing items from client gui-windows
 
-- 
+- loot windows appearing behind previous - thats new!!
+
+- containers you can put stuff in - synch between clients?
+
+- trading 

@@ -3,6 +3,9 @@ function Mob(gameState, data){
     var map = GAME.map;
     
     var img = GAME.allImages[data.name] || GAME.allImages['placeholder'];
+    this.animationFrame = 0;
+    this.animationSpeed = 160;
+    this.animationStart = gameState.frameTime;
 
     this.id = data._id;
     this.type = enums.objType.MOB;
@@ -35,21 +38,28 @@ function Mob(gameState, data){
         this.ty = ty;
         map.occupySpot(this.tx, this.ty);
     };
-    this.draw = function(ctx) {
+    this.drawTargetFrame = function(ctx) {
         if(this.isTargeted){
           ctx.strokeStyle = "rgba(255, 0, 0, 1)";
           ctx.strokeRect((this.x-GAME.player.x-GAME.player.ax+16)*gh, (this.y-GAME.player.y-GAME.player.ay+8)*gh, gh, gh);
         }
-        ctx.drawImage(img, 0, 0, 32, 32, (this.x-GAME.player.x-GAME.player.ax+16)*gh, (this.y-GAME.player.y-GAME.player.ay+8)*gh, 32, 32);
+    };
+    this.drawAnimatedSprite = function(ctx) {
+        this.animationFrame = Math.floor((gameState.frameTime - this.animationStart) / this.animationSpeed) % img.spriteN;;
+        ctx.drawImage(img, this.animationFrame * img.spriteX, 0, gh, gh, (this.x-GAME.player.x-GAME.player.ax+16)*gh, (this.y-GAME.player.y-GAME.player.ay+8)*gh, gh, gh);
+    };
+    this.drawHealthBar = function(ctx) {
         if(!this.isDead){
-            // draw healthbar
             ctx.fillStyle = '#FF371D';
             ctx.fillRect((this.x-GAME.player.x-GAME.player.ax+16)*gh + 4, (this.y-GAME.player.y-GAME.player.ay+8)*gh - 4, 24, 3);
             ctx.fillStyle = '#87E82B';
             ctx.fillRect((this.x-GAME.player.x-GAME.player.ax+16)*gh + 4, (this.y-GAME.player.y-GAME.player.ay+8)*gh - 4, 24 * (this.healthCur/this.healthMax), 3);
             ctx.strokeStyle = '#000';
             ctx.strokeRect((this.x-GAME.player.x-GAME.player.ax+16)*gh + 4, (this.y-GAME.player.y-GAME.player.ay+8)*gh - 4, 24, 3);
-            // draw mob name
+        }
+    };
+    this.drawName = function(ctx) {
+        if(!this.isDead){
             ctx.save();
             ctx.font = "12px Tibia Font";
             ctx.fillStyle = 'rgba(29, 110, 22, 1)';
@@ -59,6 +69,13 @@ function Mob(gameState, data){
             // ctx.strokeText(this.name, 512 - 9, 240 - 5);
             ctx.restore();
         }
+    };
+    this.draw = function(ctx) {
+        this.drawTargetFrame(ctx);
+        this.drawAnimatedSprite(ctx);
+        
+        this.drawHealthBar(ctx);
+        this.drawName(ctx);
     };
     this.takeDamage = function(damage) {
         GAME.popupManager.newHealthPopup(this.tx, this.ty, damage, 1000);

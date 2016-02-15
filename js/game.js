@@ -33,7 +33,10 @@ function Game(playerData, map_size, chunkSize) {
     // this is basically a queue object updating popups until they're removed
     var popups = [];
 
-    var globalRightClickedItem = null;
+    var rightClickedItem = null;
+    var rightClickedGamePosition = null;
+    var rightClickedUnit = null;
+    var targetingWithItem = false;
     
 
     /* FRAME HANDLING */
@@ -75,90 +78,138 @@ function Game(playerData, map_size, chunkSize) {
     /* CLICK EVENT HANDLER */
     function handleLeftClick(e) {
         $('.ctx_menu').hide();
+        
         if (event.which == 2 || event.which == 3) return; //return on middle and right click
+
         // mousepos = {
         //     x: (e.clientX - canvas.getBoundingClientRect().left),
         //     y: (e.clientY - canvas.getBoundingClientRect().top)
         // };
 
-        destX = GAME.destX = Math.floor((mousepos.x / gh) + map.x - 16);
-        destY = GAME.destY = Math.floor((mousepos.y / gh) + map.y - 8);
+        var mpos_x = (mousepos.x / gh) + map.x - 16;
+        var mpos_y = (mousepos.y / gh) + map.y - 8;
+        destX = GAME.destX = Math.floor(mpos_x);
+        destY = GAME.destY = Math.floor(mpos_y);
+
+
 
         if(!player.isDead){
             player.moveQ.findPath(player.tx, player.ty, destX, destY);
             player.movingToTarget = false;
+            if (0 < mpos_x - (player.x + player.ax) && mpos_x - (player.x + player.ax) < 1 && 0 < mpos_y - (player.y + player.ay) && mpos_y - (player.y + player.ay) < 1){
+                if(targetingWithItem){
+                    targetingWithItem = false;
+                    document.body.style.cursor = 'default';
+                    ctxMenuUseHandler();
+                    return;
+                }
+            }
+
         }
 
         for (var i in mobs_data) {
             var enemy = mobs_data[i];
-            if (destX == enemy.tx && destY == enemy.ty) {
+            if (0 < mpos_x - enemy.x && mpos_x - enemy.x < 1 && 0 < mpos_y - enemy.y && mpos_y - enemy.y < 1) {
+                player.moveQ.currentPath = [];
+                //if currently targeting
+                if(targetingWithItem){
+                    targetingWithItem = false;
+                    document.body.style.cursor = 'default';
+                    var itemElement = $('#' + rightClickedItem.id );
+                    var itemData = {
+                        x: parseInt(itemElement.css('left'), 10)/gh,
+                        y: parseInt(itemElement.css('top'), 10)/gh,
+                        parentId: itemElement.parent().attr('id')
+                    };
+                    // use current right clciked item on whatever is clicked
+                    player.useItemOnMob(itemData, enemy);
+                    return;
+                }
                 if (GAME.targetedUnit && GAME.targetedUnit != enemy) GAME.targetedUnit.isTargeted = false;
                 (GAME.targetedUnit = enemy).isTargeted = !(GAME.targetedUnit.isTargeted);
-                player.moveQ.currentPath = [];
                 return;
             }
         }
         for (var i in players_data) {
             if (players_data[i].id == player.id) continue;
             var enemy = players_data[i];
-            if (destX == enemy.tx && destY == enemy.ty) {
+            if (0 < mpos_x - enemy.x && mpos_x - enemy.x < 1 && 0 < mpos_y - enemy.y && mpos_y - enemy.y < 1) {
+                player.moveQ.currentPath = [];
+                //if currently targeting
+                if(targetingWithItem){
+                    targetingWithItem = false;
+                    document.body.style.cursor = 'default';
+                    var itemElement = $('#' + rightClickedItem.id );
+                    var itemData = {
+                        x: parseInt(itemElement.css('left'), 10)/gh,
+                        y: parseInt(itemElement.css('top'), 10)/gh,
+                        parentId: itemElement.parent().attr('id')
+                    };
+                    // use current right clciked item on whatever is clicked
+                    player.useItemOnPlayer(itemData, enemy);
+                    return;
+                }
                 if (GAME.targetedUnit && GAME.targetedUnit != enemy) GAME.targetedUnit.isTargeted = false;
                 (GAME.targetedUnit = enemy).isTargeted = !(GAME.targetedUnit.isTargeted);
-                player.moveQ.currentPath = [];
                 return;
             }
         }
+
+        //if currently targeting and no player nor mob has been selected as target
+        //so those would be using items on ground/entities/water/etc.
+
+        // if(targetingWithItem){
+        //     targetingWithItem = false;
+        //     document.body.style.cursor = 'default';
+        //     // use current right clciked item on whatever is clicked
+        //     player.useItemOnSomethingElse(rightClickedItem, somethingelse);
+        //     return;
+        // }
+
+
     };
-    function ctxInspectHandler() {
+    function ctxMenuInspectHandler() {
         console.log('inspect function')
     };
-    function ctxAttackHandler() {
-        console.log('attack function')
+    function ctxMenuAttackHandler() {
+        if (GAME.targetedUnit && GAME.targetedUnit != rightClickedUnit) GAME.targetedUnit.isTargeted = false;
+        (GAME.targetedUnit = rightClickedUnit).isTargeted = true;
     };
-    function ctxGoToHandler() {
-        destX = GAME.destX = Math.floor((mousepos.x / gh) + map.x - 16);
-        destY = GAME.destY = Math.floor((mousepos.y / gh) + map.y - 8);
+    function ctxMenuGoToHandler() {
 
         if(!player.isDead){
-            player.moveQ.findPath(player.tx, player.ty, destX, destY);
+            player.moveQ.findPath(player.tx, player.ty, rightClickedGamePosition.x, rightClickedGamePosition.y);
             player.movingToTarget = false;
         }
     };
-    function ctxUseHandler() {
-        var itemElement = $('#' + globalRightClickedItem.id );
+    function ctxMenuUseHandler() {
+        var itemElement = $('#' + rightClickedItem.id );
         var itemData = {
             x: parseInt(itemElement.css('left'), 10)/gh,
             y: parseInt(itemElement.css('top'), 10)/gh,
             parentId: itemElement.parent().attr('id')
         };
-        console.log('item data in handler', itemData)
-        player.useItem(itemData);
+        player.useItemOnSelf(itemData);
     };
-    function ctxOpenHandler() {
-        console.log('open function')
+    function CtxMenuUseOnTargetHandler() {
+        targetingWithItem = true;
+        document.body.style.cursor = rightClickedItem.style.backgroundImage + ", auto";
+    };
+    function ctxMenuOpenHandler() {
         GAME.targetedEntity = null;
-        destX = GAME.destX = Math.floor((mousepos.x / gh) + map.x - 16);
-        destY = GAME.destY = Math.floor((mousepos.y / gh) + map.y - 8);
+        var openX = rightClickedGamePosition.x;
+        var openY = rightClickedGamePosition.y;
 
         var e = entityManager.getEntities();
         for(var i in e){
-            if(e[i].x == destX && e[i].y == destY){
+            if(e[i].x == openX && e[i].y == openY){
                 GAME.targetedEntity = e[i];
             }
         }
         if(!player.isDead){
-            player.moveQ.findPathToDist(player.tx, player.ty, destX, destY, 1.5);
+            player.moveQ.findPathToDist(player.tx, player.ty, openX, openY, 1.5);
             player.movingToTarget = true;
         }
-        // for (var i in mobs_data) {
-        //     var enemy = mobs_data[i];
-        //     if (destX == enemy.tx && destY == enemy.ty) {
-        //         if (GAME.targetedUnit && GAME.targetedUnit != enemy) GAME.targetedUnit.isTargeted = false;
-        //         (GAME.targetedUnit = enemy).isTargeted = !(GAME.targetedUnit.isTargeted);
-        //         player.moveQ.currentPath = [];
-        //         return;
-        //     }
-        // }
     }
     function drawChunks(ctx){
         var player = GAME.player;
@@ -287,8 +338,7 @@ function Game(playerData, map_size, chunkSize) {
         });
         $(document).on('contextmenu', '.item', function(e) {
             $('.ctx_menu').hide();
-            console.log('item', this);
-            globalRightClickedItem = this;
+            rightClickedItem = this;
             $('#ctx_menu_item').css({left: e.clientX, top: e.clientY}).show();
             //set up custom ctx menu for items.
         });
@@ -299,8 +349,14 @@ function Game(playerData, map_size, chunkSize) {
             e.preventDefault();
             $('.ctx_menu').hide();
 
-            var tileX = Math.floor((mousepos.x / gh) + map.x - 16);
-            var tileY = Math.floor((mousepos.y / gh) + map.y - 8);
+            targetingWithItem = false;
+            document.body.style.cursor = 'default';
+
+            var mpos_x = (mousepos.x / gh) + map.x - 16;
+            var mpos_y = (mousepos.y / gh) + map.y - 8;
+            var tileX = Math.floor(mpos_x);
+            var tileY = Math.floor(mpos_y);
+            rightClickedGamePosition = {x: tileX, y: tileY};
             // if entity clicked
             var allEnt = entityManager.getEntities(); //optimize
             for(var i in allEnt){
@@ -312,15 +368,15 @@ function Game(playerData, map_size, chunkSize) {
 
             //if mob clicked
             for(var i in mobs_data){
-                if(mobs_data[i].tx == tileX && mobs_data[i].ty == tileY){
+                if(0 < mpos_x - mobs_data[i].x && mpos_x - mobs_data[i].x < 1 && 0 < mpos_y - mobs_data[i].y && mpos_y - mobs_data[i].y < 1){
+                    rightClickedUnit = mobs_data[i];
                     $("#ctx_menu_mob").css({left: e.clientX, top: e.clientY}).show();
                     return false;
                 }
             }
-
-            //if player clicked
             for(var i in players_data){
-                if(players_data[i].tx == tileX && players_data[i].ty == tileY){
+                if(0 < mpos_x - players_data[i].x && mpos_x - players_data[i].x < 1 && 0 < mpos_y - players_data[i].y && mpos_y - players_data[i].y < 1){
+                    rightClickedUnit = players_data[i];
                     $("#ctx_menu_player").css({left: e.clientX, top: e.clientY}).show();
                     return false;
                 }
@@ -338,24 +394,28 @@ function Game(playerData, map_size, chunkSize) {
         $('#ctx_attack').click(function() {
             // console.log( $( this ).parent()[0].mousepos_x);
             //dist based pathfinding
-            ctxAttackHandler();
+            ctxMenuAttackHandler();
             $('.ctx_menu').hide();
         });
         $('#ctx_open').click(function() {
-            ctxOpenHandler();
+            ctxMenuOpenHandler();
             $('.ctx_menu').hide();
         });
         $('#ctx_inspect').click(function() {
             // if dist > defaultInspectDistance
-            ctxInspectHandler();
+            ctxMenuInspectHandler();
             $('.ctx_menu').hide();
         });
         $('#ctx_goto').click(function() {
-            ctxGoToHandler();
+            ctxMenuGoToHandler();
             $('.ctx_menu').hide();
         });
         $('#ctx_use').click(function() {
-            ctxUseHandler();
+            ctxMenuUseHandler();
+            $('.ctx_menu').hide();
+        });
+        $('#ctx_use_with').click(function() {
+            CtxMenuUseOnTargetHandler();
             $('.ctx_menu').hide();
         });
     });
@@ -455,6 +515,9 @@ function Game(playerData, map_size, chunkSize) {
         }
     });
     socket.on('player-loot-response', function(loot) {
-        newLootWindow(loot)
+        newLootWindow(loot);
+    });
+    socket.on('player-used-item', function(data) {
+        player.removeItem(data);
     });
 }

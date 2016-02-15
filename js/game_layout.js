@@ -11,11 +11,18 @@ function GameLayout() {
 function makeAllOfThemWindowsNow(playerData) {
 
 
-    // EQUIPMENT AND BACKPACK WINDOWS
-	var serverBackpack = playerData.equipment.backpack;
+	makeBackpackWindow(playerData);
+	makeEquipmentWindow(playerData);
+    makeCharacterWindow(playerData);
+    makeDeathWindow(playerData);
+    makeRightclickContextMenus(playerData);
+   
+}
+function makeBackpackWindow(playerData) {
+    var serverBackpack = playerData.equipment.backpack;
     // console.log(playerData);
-	GAME.WIN_BP = new guiWindow({
-		width: 140,
+    GAME.WIN_BP = new guiWindow({
+        width: 140,
         height: 165,
         title: "BACKPACK",
         icon: "bp.gif",
@@ -30,23 +37,25 @@ function makeAllOfThemWindowsNow(playerData) {
     var testid = 0;
     var bp = $('#backpack .bp').makeContainer();
     for(var i = 0; i < serverBackpack.w; i++){
-    	for(var j = 0; j < serverBackpack.h; j++){
-    		if(serverBackpack.contents[i][j]){
-    			var item = serverBackpack.contents[i][j];
-    			var img = GAME.allImages[item.name] || GAME.allImages['placeholder'];
-	    		var itemEl = new itemElement(1, 1, bp, i, j, item.id, img.src, {
-	    			name: item.name,
+        for(var j = 0; j < serverBackpack.h; j++){
+            if(serverBackpack.contents[i][j]){
+                var item = serverBackpack.contents[i][j];
+                var img = GAME.allImages[item.name] || GAME.allImages['placeholder'];
+                var itemEl = new itemElement(1, 1, bp, i, j, item.id, img.src, {
+                    name: item.name,
                     desc: item.desc,
                     attackCooldown: item.attackCooldown,
                     damageMin: item.damageMin,
                     damageMax: item.damageMax,
                     range: item.range
-	    		});
-	    	}
-    	}
+                });
+            }
+        }
     }
-	WIN_EQ = new guiWindow({
-		width: 140,
+}
+function makeEquipmentWindow(playerData) {
+    WIN_EQ = new guiWindow({
+        width: 140,
         height: 165,
         title: "EQ",
         icon: "items/phantom_ganon.gif",
@@ -55,54 +64,32 @@ function makeAllOfThemWindowsNow(playerData) {
         },
         position: { y: 20, x: 182 },
         content: [
-        			'<div id="head" class="slot head" size_x=1 size_y=1 pos_x="50px" pos_y="5px" ></div>',
-        			'<div id="primary" class="slot primary" size_x=1 size_y=1 pos_x="10px" pos_y="45px" ></div>',
-        			'<div id="secondary" class="slot secondary" size_x=1 size_y=1 pos_x="90px" pos_y="45px" ></div>',
-        			'<div id="body" class="slot body" size_x=1 size_y=1 pos_x="50px" pos_y="45px" ></div>',
-        			'<div id="legs" class="slot legs" size_x=1 size_y=1 pos_x="50px" pos_y="85px" ></div>',
-        			'<div id="boots" class="slot boots" size_x=1 size_y=1 pos_x="50px" pos_y="125px" ></div>'
-        		]
+                    '<div id="head" class="slot head" size_x=1 size_y=1 pos_x="50px" pos_y="5px" ></div>',
+                    '<div id="primary" class="slot primary" size_x=1 size_y=1 pos_x="10px" pos_y="45px" ></div>',
+                    '<div id="secondary" class="slot secondary" size_x=1 size_y=1 pos_x="90px" pos_y="45px" ></div>',
+                    '<div id="body" class="slot body" size_x=1 size_y=1 pos_x="50px" pos_y="45px" ></div>',
+                    '<div id="legs" class="slot legs" size_x=1 size_y=1 pos_x="50px" pos_y="85px" ></div>',
+                    '<div id="boots" class="slot boots" size_x=1 size_y=1 pos_x="50px" pos_y="125px" ></div>'
+                ]
     }).setId('equipment');
-	var eq = $('#equipment .slot').makeContainer(1, 1);
-	$('#equipment .gui-window-content').children().each(function() {
-		var div = $( this );
-		var item = playerData.equipment[div.attr('id')].contents[0][0];
-		if(item){
-			var img = GAME.allImages[item.name] || GAME.allImages['placeholder'];
-			itemEl = new itemElement(1, 1, div, 0, 0, item.id, img.src, {
-				name: item.name,
+    var eq = $('#equipment .slot').makeContainer(1, 1);
+    $('#equipment .gui-window-content').children().each(function() {
+        var div = $( this );
+        var item = playerData.equipment[div.attr('id')].contents[0][0];
+        if(item){
+            var img = GAME.allImages[item.name] || GAME.allImages['placeholder'];
+            itemEl = new itemElement(1, 1, div, 0, 0, item.id, img.src, {
+                name: item.name,
                 desc: item.desc,
                 attackCooldown: item.attackCooldown,
                 damageMin: item.damageMin,
                 damageMax: item.damageMax,
                 range: item.range
-			});
-		}
-	});
-
-
-
-    // WINDOW THAT APPEARS ON DEATH
-    WIN_DEATH = new guiWindow({
-		width: 250,
-        height: 100,
-        title: "YOU ARE DEAD.",
-        icon: "tombstone-icon.png"
+            });
+        }
     });
-    WIN_DEATH.appendHTML("<div class='gui-clist-footer'><center><div class='form-field'><button type='button' id='button_respawn' class='anim-alt'>RESPAWN</button><button id='button_logout' type='button'>LOGOUT</button></div></center></div>");
-    WIN_DEATH.center();
-    WIN_DEATH.hide();
-    $('#button_respawn').click(function() {
-    	GAME.socket.emit('player-respawn-request', {});
-    });
-    $('#button_logout').click(function() {
-    	GAME.socket.emit('player-logout-request', {});
-    });
-
-
-
-    //CHARACTED PROGRESSION WINDOW
-
+}
+function makeCharacterWindow(playerData) {
     WIN_STATS = new guiWindow({
         width: 350,
         height: 512 - 37,
@@ -118,8 +105,26 @@ function makeAllOfThemWindowsNow(playerData) {
 
     WIN_STATS.appendHTML("<div style='position: absolute; top: 20px; font-size: 15px; font-weight:bold; margin-left: 6px;'><p>  LEVEL</p></div>");
 
-
-    // MAKE RIGHT CLICK CONTEXT MENUS
+}
+function makeDeathWindow() {
+    WIN_DEATH = new guiWindow({
+        width: 255,
+        height: 60,
+        title: "YOU ARE DEAD.",
+        icon: "tombstone-icon.png"
+    });
+    WIN_DEATH.appendHTML("<div class='gui-clist-footer'><center><div class='form-field'><button type='button' id='button_respawn' class='anim-alt'>RESPAWN</button><button id='button_logout' type='button'>LOGOUT</button></div></center></div>");
+    WIN_DEATH.center();
+    WIN_DEATH.hide();
+    $('#button_respawn').click(function() {
+        GAME.socket.emit('player-respawn-request', {});
+    });
+    $('#button_logout').click(function() {
+        GAME.socket.emit('player-logout-request', {});
+    });
+}
+function makeRightclickContextMenus () {
+    
     var ctxMenuEntity = $( document.createElement("ul") ).addClass("ctx_menu").appendTo(document.body).attr('id', 'ctx_menu_entity').hide();
         $("#ctx_menu_entity").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_open').text('open'));
     var ctxMenuMob = $( document.createElement("ul") ).addClass("ctx_menu").appendTo(document.body).attr('id', 'ctx_menu_mob').hide();
@@ -128,6 +133,7 @@ function makeAllOfThemWindowsNow(playerData) {
         $("#ctx_menu_player").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_attack').text('attack'));
     var ctxMenuItem = $( document.createElement("ul") ).addClass("ctx_menu").appendTo(document.body).attr('id', 'ctx_menu_item').hide();
         $("#ctx_menu_item").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_use').text('use'));
+        $("#ctx_menu_item").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_use_with').text('use with...'));
 
     var ctxMenuDefault = $( document.createElement("ul") ).addClass("ctx_menu").appendTo(document.body).attr('id', 'ctx_menu_default').hide();
         $("#ctx_menu_default").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_goto').text('move here'));
@@ -135,11 +141,10 @@ function makeAllOfThemWindowsNow(playerData) {
         $(".ctx_menu").append($( document.createElement("li") ).addClass("ctx_sep"));
         $(".ctx_menu").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_inspect').text('inspect'));
 }
-
 function newLootWindow(entity) {
     console.log(entity);
+    $('#' + entity.id).parent().parent().remove();
     var size = Object.keys(entity.loot).length || 1;
-    console.log('loot size', size);
     var WIN_LOOT = new guiWindow({
         width: 130,
         height: 45,
