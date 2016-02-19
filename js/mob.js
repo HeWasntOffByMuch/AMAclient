@@ -12,6 +12,7 @@ function Mob(gameState, data){
     this.name = data.name;
     this.x = data.x;
     this.y = data.y;
+    GAME.anims.push(new ShortAnimation(this.x, this.y, 'spawn_puff'));
     this.tx = data.tx;
     this.ty = data.ty;
     map.occupySpot(this.tx, this.ty); //occupy on creation.

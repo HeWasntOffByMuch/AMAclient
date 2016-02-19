@@ -18,8 +18,8 @@ function Game(playerData, map_size, chunkSize) {
     var entityManager = GAME.entityManager = new EntityManager();
     var popupManager = GAME.popupManager = new PopupManager();
     var anims = GAME.anims = new AnimationManager();
+        anims.push(new ShortAnimation(player.x, player.y, 'spawn_puff'));
     var gameLayout = new GameLayout();
-
     /* GAME OBJECTS */
     var mobs_data = {};
     var players_data = {};

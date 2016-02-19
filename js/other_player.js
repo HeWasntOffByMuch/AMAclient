@@ -8,6 +8,7 @@ function OtherPlayer(gameState, data) {
     this.y = data.y;
     this.tx = data.tx;
     this.ty = data.ty;
+    GAME.anims.push(new ShortAnimation(this.x, this.y, 'spawn_puff'));
     console.log('player', this.name, 'created')
     map.occupySpot(this.tx, this.ty);
     this.moving = false;
