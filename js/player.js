@@ -26,7 +26,10 @@ function Player(parentElement, gameState, playerData){
   	this.attackSpeed = playerData.attackSpeed || 1; // +
     this.inCombat = playerData.inCombat || false;
 
-  	this.equipment = playerData.equipment || { // +
+    this.direction = 'down';
+    this.animationFrame = 0;
+
+    this.equipment = playerData.equipment || { // +
         primary: {type: 'sword', range: 1.5},
         secondary: 0,
         body: 0,
@@ -76,10 +79,27 @@ function Player(parentElement, gameState, playerData){
                     this.moveTime = gameState.frameTime;
                     // this.animationFrame = 0;
                     this.moving = true;
+                    this.setDirection(nextMove[0] - this.tx, nextMove[1] - this.ty);
                     this.tx = nextMove[0];
                     this.ty = nextMove[1];
                 }
             }
+        }
+    };
+    this.setDirection = function(tx, ty) {
+        switch(tx + '' + ty){
+            case '01':
+                this.direction = 'down';
+                break;
+            case '0-1':
+                this.direction = 'up';
+                break;
+            case '-10':
+                this.direction = 'left';
+                break;
+            case '10':
+                this.direction = 'right';
+                break;
         }
     };
     this.openEntity = function() {
@@ -91,26 +111,44 @@ function Player(parentElement, gameState, playerData){
         //display content
         //profit
     };
+    this.drawPlayerCharacter = function(ctx) {
+        if (this.moving) {
+            this.drawPlayerMoving(ctx);
+        } else {
+            this.drawPlayerStandingStill(ctx);
+        }
+    };
+    this.drawPlayerStandingStill = function(ctx) {
+        ctx.drawImage(GAME.allImages['Rayman_' + this.direction], 512, 240, 32, 48);
+    };
+    this.drawPlayerMoving = function(ctx) {
+        var img = GAME.allImages['Rayman_run_' + this.direction];
+        // var animationSpeed = this.speedCur / img.spriteN;
+        var animationSpeed = this.speedCur/4;
+        this.animationFrame = Math.floor(gameState.frameTime / animationSpeed) % img.spriteN;
+        // this.animationFrame = Math.floor((gameState.frameTime - this.animationStart) / animationSpeed) % img.spriteN;
+        ctx.drawImage(img, this.animationFrame * img.spriteX, 0, img.spriteX, img.spriteY, 512, 240, 32, 48);
+    };
+    this.drawHealthBar = function(ctx) {
+        ctx.fillStyle = '#FF371D'; // red
+        ctx.fillRect(512 + 4, 240 -2, 24, 3);
+        ctx.fillStyle = '#87E82B'; // green
+        ctx.fillRect(512 + 4, 240 -2, 24 * (this.healthCur/this.healthMax), 3);
+        ctx.strokeStyle = '#000';
+        ctx.strokeRect(512 + 4, 240 -2, 24, 3);
+    };
+    this.drawName = function(ctx) {
+        ctx.save();
+        ctx.font = "12px Tibia Font";
+        ctx.fillStyle = 'rgba(29, 110, 22, 1)';
+        ctx.fillText(this.name, 512 - ctx.measureText(this.name).width/2 + 16, 240 - 5);
+        ctx.restore();
+    };
     this.draw = function(ctx) {
         if(!this.isDead){
-            //draw player
-            ctx.drawImage(GAME.allImages['Rayman_down'], 512, 240, 32, 48);
-            // draw healthbar
-			ctx.fillStyle = '#FF371D'; // red
-			ctx.fillRect(512 + 4, 240 -2, 24, 3);
-			ctx.fillStyle = '#87E82B'; // green
-			ctx.fillRect(512 + 4, 240 -2, 24 * (this.healthCur/this.healthMax), 3);
-			ctx.strokeStyle = '#000';
-			ctx.strokeRect(512 + 4, 240 -2, 24, 3);
-            // draw name
-            ctx.save();
-            ctx.font = "12px Tibia Font";
-            ctx.fillStyle = 'rgba(29, 110, 22, 1)';
-            ctx.fillText(this.name, 512 - ctx.measureText(this.name).width/2 + 16, 240 - 5);
-            // ctx.lineWidth = 0.5;
-            // ctx.strokeStyle = '#000';
-            // ctx.strokeText(this.name, 512 - 9, 240 - 5);
-            ctx.restore();
+            this.drawPlayerCharacter(ctx);
+            this.drawHealthBar(ctx);
+            this.drawName(ctx);
     	}
     };
     this.attack = function(target) {
@@ -141,7 +179,10 @@ function Player(parentElement, gameState, playerData){
         }
     };
     this.takeDamage = function(damage) {
-    	GAME.popupManager.newHealthPopup(this.tx, this.ty, damage, 1000);
+    	GAME.popupManager.newDamagePopup(this.tx, this.ty, damage, 1000);
+    };
+    this.showHealAmmount = function(val) {
+        GAME.popupManager.newHealPopup(this.tx, this.ty, val, 1000);
     };
     this.moveInventoryItem = function(from, to) { // retarded but works for now.
         GAME.socket.emit('player-moved-item', {from: from, to: to});
@@ -168,12 +209,12 @@ function Player(parentElement, gameState, playerData){
     };
     this.useItemOnPlayer = function(item_data, other_player) {
         var item = this.equipment[item_data.parentId].contents[item_data.x][item_data.y];
-        GAME.socket.emit('player-use-item-on-player', {id: item_data.parentId, x: item_data.x, y: item_data.y, targetId: other_player.id});
+        GAME.socket.emit('player-use-item-on-target', {id: item_data.parentId, x: item_data.x, y: item_data.y, targetId: other_player.id, targetType: enums.objType.PLAYER});
 
     };
     this.useItemOnMob = function(item_data, mob) {
         var item = this.equipment[item_data.parentId].contents[item_data.x][item_data.y];
-        GAME.socket.emit('player-use-item-on-mob', {id: item_data.parentId, x: item_data.x, y: item_data.y, targetId: mob.id});
+        GAME.socket.emit('player-use-item-on-target', {id: item_data.parentId, x: item_data.x, y: item_data.y, targetId: mob.id, targetType: enums.objType.MOB});
     };
     this.removeItem = function(data) {
         var parentID = data.parentId;
@@ -193,6 +234,8 @@ function Player(parentElement, gameState, playerData){
         if (this.healthCur != healthCurUpdate) {
         	if(this.healthCur > healthCurUpdate)
             	this.takeDamage(this.healthCur - healthCurUpdate);
+            else if(this.healthCur < healthCurUpdate)
+                this.showHealAmmount(healthCurUpdate - this.healthCur);
             this.healthCur = healthCurUpdate;
         }
     };

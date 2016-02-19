@@ -31,7 +31,7 @@
     var options = $.extend({}, windowDefaults, options);
     var div = $( document.createElement("div") ).addClass("gui-window").appendTo(document.body);
     div.css({
-      height: options.height + 37,
+      height: options.height + 38,
       width: options.width + 12,
       top: options.position.y,
       left: options.position.x
@@ -202,17 +202,41 @@
         var data = ev.dataTransfer.getData("text"); //item id apparently
         var parentId = ev.dataTransfer.getData("parent_id"); // items previous parent element id
 
-        // adding and removing slot image
-        $('#' + parentId).addClass(parentId);
-        $(this).removeClass(div[0].id);
 
         var size = {x: $("#"+data).attr("size_x"), y: $("#"+data).attr("size_y")};
         var pos_old = $("#"+data).position();
-
+        var latterSlot = $('#' + div[0].id); //you're dropping an item on it
         if(GAME.player.isDead) valid = 0; //cant move items when you're dead
+        // START SLOT VALIDITY CHECKING
+        var itemDroppedType = $('#' + data).attr('type');
+        
 
+        if(latterSlot.hasClass('primary')){
+          if(itemDroppedType != 'melee' && itemDroppedType != 'ranged') valid = 0;
+        }
+        else if(latterSlot.hasClass('body')){
+          if(itemDroppedType != 'body') valid = 0;
+        }
+        else if(latterSlot.hasClass('head')){
+          if(itemDroppedType != 'helm') valid = 0;
+        }
+        else if(latterSlot.hasClass('boots')){
+          if(itemDroppedType != 'boots') valid = 0;
+        }
+        else if(latterSlot.hasClass('legs')){
+          if(itemDroppedType != 'legs') valid = 0;
+        }
+        else if(latterSlot.hasClass('secondary')){
+          if(itemDroppedType != 'shield') valid = 0;
+        }
+        else if(latterSlot.hasClass('skill')){
+          if(itemDroppedType != 'skill') valid = 0;
+        }
+
+        
         // dont allow putting things into entities - makes sense? prebably not
-        if ($('#' + div[0].id).hasClass('entity')) valid = 0;
+        if (latterSlot.hasClass('entity')) valid = 0;
+
         if (pos.left < 0 || pos.top < 0){
           valid = 0;
         }
@@ -225,7 +249,9 @@
           }
         }
         if (valid) {
-          
+          // adding and removing slot image
+          $('#' + parentId).addClass(parentId);
+          $(this).removeClass(div[0].id);
           $("#"+data).appendTo(div).css({
             left: pos.left*32,
             top: pos.top*32
@@ -291,6 +317,71 @@
     defense: '5',
     attackCooldown: 400
   };
+    function setTooltipAccordingToItemType(type, options) {
+        var divNameAndRarity = "<div style='color:gold; border-bottom: 1px solid #676a5a;font-weight:bold;'>"+ options.name +"<span style='float:right'>"+ options.rarity +"</span></div>";
+        var divDescription = "<div style='color:#676a5a; border-bottom: 1px solid #676a5a;font-style:italic;font-size:9px;'>"+ options.desc +"</div>";
+        var tablePrefix =  "<table>";
+        var tableSuffix = "</table>";
+
+        var tableRowDamage = "<tr><td align=left width=130>Damage</td><td align=right style='color:#00ff00;font-weight:bold;'>" + options.damageMin + "-" + options.damageMax + "</td></tr>";
+        var tableRowAtkSpeed = "<tr><td align=left width=130>Attack speed</td><td align=right style='color:#ff0000;font-weight:bold;'>"+ options.attackCooldown +"</td></tr>";
+        var tableRowRange = "<tr><td align=left width=130>Range</td><td align=right style='color:#ff0000;font-weight:bold;'>"+ Math.floor(options.range) +"</td></tr>";
+
+
+        switch (type) {
+            case 'melee':
+                _globalTooltip.html(    divNameAndRarity +
+                                        divDescription +
+                                        tablePrefix +
+                                            tableRowDamage +
+                                            tableRowAtkSpeed +
+                                        tableSuffix
+                                    );
+                break;
+            case 'ranged':
+                _globalTooltip.html(    divNameAndRarity +
+                                        divDescription +
+                                        tablePrefix +
+                                            tableRowDamage +
+                                            tableRowAtkSpeed +
+                                            tableRowRange + 
+                                        tableSuffix
+                                    );
+                break;
+            case 'consumable':
+                console.log(type + ' not handled');
+                _globalTooltip.html("");
+                break;
+            case 'non-consumable':
+                console.log(type + ' not handled');
+                _globalTooltip.html("");
+                break;
+            case 'skill':
+                _globalTooltip.html(    divNameAndRarity +
+                                        divDescription +
+                                        tablePrefix +
+                                            tableRowRange + 
+                                        tableSuffix
+                                    );
+                break;
+            case 'body':
+                console.log(type + ' not handled');
+                _globalTooltip.html("");
+                break;
+            case 'boots':
+                console.log(type + ' not handled');
+                _globalTooltip.html("");
+                break;
+            case 'legs':
+                console.log(type + ' not handled');
+                _globalTooltip.html("");
+                break;
+            case 'helm':
+                console.log(type + ' not handled');
+                _globalTooltip.html("");
+                break;
+        }
+    }
   function itemElement(size_x, size_y, parent, pos_x, pos_y, id, src, options) {
     var options = $.extend({}, itemDefaults, options);
       var div = $( document.createElement("div") ).addClass("item").appendTo(parent).css({
@@ -306,6 +397,7 @@
       });
       div.css("background-image", 'url(' + src + ')');
       div.attr("id", id);
+      div.attr("type", options.type);
       div.addClass("item");
       div.appendTo(parent).css({
         left: (pos_x||0)*32,
@@ -347,7 +439,9 @@
             left: ev.clientX + 10,
             top: ev.clientY + 10
           }).show();
-          _globalTooltip.html("<div style='color:gold; border-bottom: 1px solid #676a5a;font-weight:bold;'>"+ options.name +"<span style='float:right'>"+ options.rarity +"</span></div><div style='color:#676a5a; border-bottom: 1px solid #676a5a;font-style:italic;font-size:9px;'>"+ options.desc +"</div><table><tr><td align=left width=130>Damage</td><td align=right style='color:#00ff00;font-weight:bold;'>" + options.damageMin + "-" + options.damageMax + "</td></tr><tr><td align=left width=130>atk speed</td><td align=right style='color:#ff0000;font-weight:bold;'>"+ (1000/options.attackCooldown).toFixed(3) +"/s</td></tr><tr><td align=left width=130>range</td><td align=right style='color:#ff0000;font-weight:bold;'>"+ Math.floor(options.range) +"</td></tr></table>");
+
+          setTooltipAccordingToItemType(div.attr('type'), options);
+          
         },500);
       });
       div.mouseout(function(){

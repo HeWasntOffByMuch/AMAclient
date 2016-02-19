@@ -77,13 +77,18 @@ function Mob(gameState, data){
         this.drawHealthBar(ctx);
         this.drawName(ctx);
     };
-    this.takeDamage = function(damage) {
-        GAME.popupManager.newHealthPopup(this.tx, this.ty, damage, 1000);
+    this.showDamageAmmount = function(damage) {
+        GAME.popupManager.newDamagePopup(this.tx, this.ty, damage, 1000);
+    };
+    this.showHealAmmount = function(val) {
+        GAME.popupManager.newHealPopup(this.tx, this.ty, val, 1000);
     };
     this.updateHealth = function(healthCurUpdate) {
         if (this.healthCur != healthCurUpdate) {
             if(this.healthCur > healthCurUpdate)
-                this.takeDamage(this.healthCur - healthCurUpdate);
+                this.showDamageAmmount(this.healthCur - healthCurUpdate);
+            else if(this.healthCur < healthCurUpdate)
+                this.showHealAmmount(healthCurUpdate - this.healthCur);
             this.healthCur = healthCurUpdate;
         }
     };
@@ -92,7 +97,7 @@ function Mob(gameState, data){
         this.isTargeted = false;
         GAME.targetedUnit = null;
         map.freeSpot(this.tx, this.ty);
-        GAME.popupManager.newHealthPopup(this.tx, this.ty, this.healthCur, 1000);
+        GAME.popupManager.newDamagePopup(this.tx, this.ty, this.healthCur, 1000);
         delete GAME.instance.getMobsData()[this.id];
     };
 }

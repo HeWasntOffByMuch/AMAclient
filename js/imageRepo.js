@@ -60,7 +60,8 @@ GAME.urlDict = {
   'Composite Bow' : {src: 'img/items/bow_composite.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Pinaka' : {src: 'img/items/bow_crystal.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Sawed-Off Shotgun' : {src: 'img/items/sawed_off.png', spriteX: 32, spriteY: 32, spriteN: 1},
-  'Health Potion' : {src: 'img/items/potion_full.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Health Potion' : {src: 'img/items/health_potion_full.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Mana Potion' : {src: 'img/items/mana_potion_full.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Gold' : {src: 'img/items/cursed_gold.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Resurrection Scroll' : {src: 'img/items/scroll.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Heal Stick' : {src: 'img/items/heal_stick.gif', spriteX: 32, spriteY: 32, spriteN: 1},
@@ -72,6 +73,7 @@ GAME.urlDict = {
   'skill_bow': {src: 'img/skills/skill_tiles/skill_bow.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'skill_bleeding': {src: 'img/skills/skill_tiles/skill_sword.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'skill_heal': {src: 'img/skills/skill_tiles/skill_sword.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Quick Slashes': {src: 'img/skills/quick_slashes.png', spriteX: 32, spriteY: 32, spriteN: 1},
   //SPRITES
   'base_tiles': {src: 'img/tiles/base_tiles.png', spriteX: 32, spriteY: 32, tilesW: 16, tilesH: 16}
 }

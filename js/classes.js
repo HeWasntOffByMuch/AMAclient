@@ -92,11 +92,11 @@ function PopupManager() {
 	var defaultDecayTime = 3000;
 	var gh = gameState.tileSize;
 
-	this.newHealthPopup = function(x, y, number, decay_time) {
+	this.newDamagePopup = function(x, y, number, decay_time) {
 		allPopups[curId++] = {
 			x: x,
 			y: y,
-			type: 'health',
+			type: 'damage',
 			value: number,
 			creationTime: new Date().getTime(),
 			decayTime: decay_time || defaultDecayTime
@@ -112,6 +112,16 @@ function PopupManager() {
 			decayTime: decay_time || defaultDecayTime
 		}
 	};
+	this.newHealPopup = function(x, y, number, decay_time) {
+		allPopups[curId++] = {
+			x: x,
+			y: y,
+			type: 'heal',
+			value: number,
+			creationTime: new Date().getTime(),
+			decayTime: decay_time || defaultDecayTime
+		}
+	};
 	this.update = function() {
 		for(var i in allPopups){
 			var p = allPopups[i];
@@ -119,12 +129,15 @@ function PopupManager() {
                 delete allPopups[i];
             } else {
             	switch(p.type) {
-            		case 'health':
+            		case 'damage':
 	            		p.y -= 0.01;
 	            		break;
 	        		case 'exp':
-	        		p.y -= 0.01;
-	        		break;
+		        		p.y -= 0.01;
+		        		break;
+	        		case 'heal':
+		        		p.y += 0.01;
+		        		break;
             	}
             }
 		}
@@ -133,7 +146,7 @@ function PopupManager() {
 		for(var i in allPopups){
 			var p = allPopups[i];
             switch (p.type) {
-                case 'health':
+                case 'damage':
                     ctx.font = "12px Tibia Font";
 	                if (p.value >= 100) {
 	                    ctx.font = "14px Tibia Font";
@@ -148,8 +161,18 @@ function PopupManager() {
                     ctx.lineWidth = 1;
                     break;
                 case 'heal':
-                    ctx.fillStyle = 'rgba(0, 210, 0, ' + (this.messageTime - frameTime) / duration + ')';
-                    ctx.fillText(this.content, (this.x) * gh + 14, this.susp)
+                    ctx.font = "12px Tibia Font";
+	                if (p.value >= 100) {
+	                    ctx.font = "14px Tibia Font";
+	                } else if (p.value >= 10) {
+	                    ctx.font = "13px Tibia Font";
+	                }
+                	ctx.strokeStyle = '#000';
+					ctx.lineWidth = 0.5;
+                    ctx.fillStyle = 'rgba(0, 210, 0, 1)';
+                    ctx.fillText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 18);
+                    ctx.strokeText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 18);
+                    ctx.lineWidth = 1;
                     break;
                 case 'exp':
                 	ctx.font = "12px Tibia Font";

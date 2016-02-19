@@ -125,8 +125,15 @@ function Game(playerData, map_size, chunkSize) {
                     player.useItemOnMob(itemData, enemy);
                     return;
                 }
-                if (GAME.targetedUnit && GAME.targetedUnit != enemy) GAME.targetedUnit.isTargeted = false;
-                (GAME.targetedUnit = enemy).isTargeted = !(GAME.targetedUnit.isTargeted);
+                if (GAME.targetedUnit && GAME.targetedUnit != enemy)
+                    GAME.targetedUnit.isTargeted = false;
+                GAME.targetedUnit = enemy;
+                if(GAME.targetedUnit.isTargeted){
+                    GAME.targetedUnit.isTargeted = false;
+                    GAME.targetedUnit = null;
+                } else {
+                    GAME.targetedUnit.isTargeted = true;
+                }
                 return;
             }
         }
@@ -191,7 +198,8 @@ function Game(playerData, map_size, chunkSize) {
         };
         player.useItemOnSelf(itemData);
     };
-    function CtxMenuUseOnTargetHandler() {
+    function ctxMenuUseOnTargetHandler() {
+        if(!rightClickedItem) return;
         targetingWithItem = true;
         document.body.style.cursor = rightClickedItem.style.backgroundImage + ", auto";
     };
@@ -297,9 +305,19 @@ function Game(playerData, map_size, chunkSize) {
             var a = prompt();
              socket.emit('ping', a);
         }
-        if (key == "49") {
+        if (key == "49") { //1
             if(GAME.targetedUnit)
                 GAME.player.attack(GAME.targetedUnit);
+        }
+        if (key == "50") { //2
+            rightClickedItem = $('#skill0')[0].children[0];
+            ctxMenuUseOnTargetHandler();
+            $('.ctx_menu').hide();
+        }
+        if (key == "51") { //3
+            rightClickedItem = $('#skill1')[0].children[0];
+            ctxMenuUseOnTargetHandler();
+            $('.ctx_menu').hide();
         }
         if (key == "67") { // C
             $('#equipment').toggle('show');
@@ -374,6 +392,7 @@ function Game(playerData, map_size, chunkSize) {
                     return false;
                 }
             }
+            //if player clicked
             for(var i in players_data){
                 if(0 < mpos_x - players_data[i].x && mpos_x - players_data[i].x < 1 && 0 < mpos_y - players_data[i].y && mpos_y - players_data[i].y < 1){
                     rightClickedUnit = players_data[i];
@@ -391,9 +410,11 @@ function Game(playerData, map_size, chunkSize) {
                 e.preventDefault();
             };
         });
-        $('#ctx_attack').click(function() {
-            // console.log( $( this ).parent()[0].mousepos_x);
-            //dist based pathfinding
+        $('#ctx_attack_mob').click(function() {
+            ctxMenuAttackHandler();
+            $('.ctx_menu').hide();
+        });
+         $('#ctx_attack_player').click(function() {
             ctxMenuAttackHandler();
             $('.ctx_menu').hide();
         });
@@ -415,7 +436,7 @@ function Game(playerData, map_size, chunkSize) {
             $('.ctx_menu').hide();
         });
         $('#ctx_use_with').click(function() {
-            CtxMenuUseOnTargetHandler();
+            ctxMenuUseOnTargetHandler();
             $('.ctx_menu').hide();
         });
     });

@@ -32,9 +32,16 @@ TO DO:
 
 - some bug remaining with lingering collisions on server
 
-- repopulate equipment properly (recreate objects to at least use instanceof)
+- repopulate equipment properly (recreate objects to at least use instanceof) ?? is that really necessary?
 
 - loot with quantity > 1
+	- proper stacking client/serverside
+
+- typechecking on items serverside
+
+- finish item mana cost & range !
+
+- get rid of usesLeft for quantity to take its place
 
 CLIENTSIDE:
 
@@ -52,6 +59,7 @@ CLIENTSIDE:
 - right click context menu - DONE
 - close loot windows when players moves from the vicinity - DONE
 - need a way to use items on client - DONE
+- removing items from client gui-windows - DONE
 
 
 
@@ -84,10 +92,9 @@ CLIENTSIDE:
 
 - add stacking items to match the server logic
 
-- removing items from client gui-windows
-
 - loot windows appearing behind previous - thats new!!
 
 - containers you can put stuff in - synch between clients?
 
 - trading 
+

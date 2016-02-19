@@ -1,7 +1,14 @@
 @font-face {
-    font-family: 'Tibia Font';
-    src: url('Tibia Font DP.ttf');
-}
+  font-family: 'Tibia Font';
+  src: url('Tibia Font DP.ttf');
+  
+  /*font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Roboto Regular'), local('Roboto-Regular'), url(//fonts.gstatic.com/s/roboto/v15/CWB0XYA8bzo0kSThX0UTuA.woff2)format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+  */
+  }
 * {
   box-sizing: border-box;
   padding: 0;
@@ -334,19 +341,6 @@ button.anim-alt:hover {
   box-shadow: 0 0 3px #000;
   opacity: 0.8;
 }
-.globalTooltip .exp{
-  border: 2px solid #676a5a;
-  background-color: #181913;
-  color: #676a5a;
-  position: absolute;
-  z-index: 9999;
-  font-family: Verdana;
-  font-size: 10px;
-  padding:2px;
-  box-shadow: 0 0 3px #000;
-  opacity: 0.8;
-}
-
 
 .window .win_btns div {
   float:left;
@@ -410,13 +404,16 @@ button.anim-alt:hover {
 }
 
 .ctx_menu {
-  border: 1px solid #181913;
+  border: 1px solid #292929;
+  border-radius: 3px;
+  border-top-left-radius: 0px;
   position: absolute;
-  background-color: #676a5a;
+  background-color: rgba(36, 36, 36, 0.7);
   font-size: 10px;
   font-weight: bold;
   font-family: verdana;
-  padding: 1px;
+  color: #BBBBBB;
+  /*padding: 1px;*/
   z-index: 99999;
 }
 
@@ -425,19 +422,23 @@ button.anim-alt:hover {
   cursor: pointer;
   padding: 1px;
   padding-left: 3px;
+  padding-right: 5px;
 }
 
 .ctx_menu li:hover {
-  color: #676a5a;
-  background-color: #272822;
+  background-color: #292929;
 }
 
 .ctx_menu li.ctx_sep {
-  background-color: #181913;
+  background-color: #4D4D4D;
   padding-bottom: 0;
-  margin: 1px;
 }
-
+.ctx_dark_border {
+  border: 1px solid #0F0F0F;
+}
+.ctx_dark_border li:hover {
+  background-color: #0F0F0F;
+}
 .modal-cover {
   background-image: url(../img/cover.png);
   position: absolute;

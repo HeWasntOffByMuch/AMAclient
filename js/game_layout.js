@@ -22,8 +22,8 @@ function makeBackpackWindow(playerData) {
     var serverBackpack = playerData.equipment.backpack;
     // console.log(playerData);
     GAME.WIN_BP = new guiWindow({
-        width: 140,
-        height: 165,
+        width: 128,
+        height: 160,
         title: "BACKPACK",
         icon: "bp.gif",
         onclose: function() {
@@ -47,7 +47,8 @@ function makeBackpackWindow(playerData) {
                     attackCooldown: item.attackCooldown,
                     damageMin: item.damageMin,
                     damageMax: item.damageMax,
-                    range: item.range
+                    range: item.range,
+                    type: item.type
                 });
             }
         }
@@ -55,8 +56,8 @@ function makeBackpackWindow(playerData) {
 }
 function makeEquipmentWindow(playerData) {
     WIN_EQ = new guiWindow({
-        width: 140,
-        height: 165,
+        width: 141,
+        height: 200,
         title: "EQ",
         icon: "items/phantom_ganon.gif",
         onclose: function() {
@@ -69,7 +70,11 @@ function makeEquipmentWindow(playerData) {
                     '<div id="secondary" class="slot secondary" size_x=1 size_y=1 pos_x="90px" pos_y="45px" ></div>',
                     '<div id="body" class="slot body" size_x=1 size_y=1 pos_x="50px" pos_y="45px" ></div>',
                     '<div id="legs" class="slot legs" size_x=1 size_y=1 pos_x="50px" pos_y="85px" ></div>',
-                    '<div id="boots" class="slot boots" size_x=1 size_y=1 pos_x="50px" pos_y="125px" ></div>'
+                    '<div id="boots" class="slot boots" size_x=1 size_y=1 pos_x="50px" pos_y="125px" ></div>',
+                    '<div id="skill0" class="slot skill" size_x=1 size_y=1 pos_x="2px" pos_y="165px" ></div>',
+                    '<div id="skill1" class="slot skill" size_x=1 size_y=1 pos_x="37px" pos_y="165px" ></div>',
+                    '<div id="skill2" class="slot skill" size_x=1 size_y=1 pos_x="72px" pos_y="165px" ></div>',
+                    '<div id="skill3" class="slot skill" size_x=1 size_y=1 pos_x="107px" pos_y="165px" ></div>'
                 ]
     }).setId('equipment');
     var eq = $('#equipment .slot').makeContainer(1, 1);
@@ -84,18 +89,19 @@ function makeEquipmentWindow(playerData) {
                 attackCooldown: item.attackCooldown,
                 damageMin: item.damageMin,
                 damageMax: item.damageMax,
-                range: item.range
+                range: item.range,
+                type: item.type
             });
         }
     });
 }
 function makeCharacterWindow(playerData) {
     WIN_STATS = new guiWindow({
-        width: 350,
-        height: 512 - 37,
+        width: 200,
+        height: 256 - 37,
         title: 'YO STATS NIGGA',
         icon: "player_icon.png",
-        position: { y: 20, x: 1224 },
+        position: { y: 20, x: 1324 },
         onclose: function() {
             this.hide();
         }
@@ -128,14 +134,14 @@ function makeRightclickContextMenus () {
     var ctxMenuEntity = $( document.createElement("ul") ).addClass("ctx_menu").appendTo(document.body).attr('id', 'ctx_menu_entity').hide();
         $("#ctx_menu_entity").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_open').text('open'));
     var ctxMenuMob = $( document.createElement("ul") ).addClass("ctx_menu").appendTo(document.body).attr('id', 'ctx_menu_mob').hide();
-        $("#ctx_menu_mob").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_attack').text('attack'));
+        $("#ctx_menu_mob").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_attack_mob').text('target'));
     var ctxMenuPlayer = $( document.createElement("ul") ).addClass("ctx_menu").appendTo(document.body).attr('id', 'ctx_menu_player').hide();
-        $("#ctx_menu_player").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_attack').text('attack'));
-    var ctxMenuItem = $( document.createElement("ul") ).addClass("ctx_menu").appendTo(document.body).attr('id', 'ctx_menu_item').hide();
+        $("#ctx_menu_player").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_attack_player').text('target'));
+    var ctxMenuItem = $( document.createElement("ul") ).addClass("ctx_menu").addClass("ctx_dark_border").appendTo(document.body).attr('id', 'ctx_menu_item').hide();
         $("#ctx_menu_item").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_use').text('use'));
         $("#ctx_menu_item").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_use_with').text('use with...'));
 
-    var ctxMenuDefault = $( document.createElement("ul") ).addClass("ctx_menu").appendTo(document.body).attr('id', 'ctx_menu_default').hide();
+    var ctxMenuGround = $( document.createElement("ul") ).addClass("ctx_menu").appendTo(document.body).attr('id', 'ctx_menu_default').hide();
         $("#ctx_menu_default").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_goto').text('move here'));
         // all context menus will have that
         $(".ctx_menu").append($( document.createElement("li") ).addClass("ctx_sep"));
@@ -169,7 +175,8 @@ function newLootWindow(entity) {
                     attackCooldown: item.attackCooldown,
                     damageMin: item.damageMin,
                     damageMax: item.damageMax,
-                    range: item.range
+                    range: item.range,
+                    type: item.type
                 });
             }
         }
