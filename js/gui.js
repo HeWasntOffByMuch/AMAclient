@@ -25,8 +25,145 @@
       this.close();
     }
   };
+  var phoneTabDefaults = {
+    width: 96,
+    height: 32,
+    position: {x:878, y:32},
+    icon: null,
+    text: 'default text'
+  };
   
-  
+  function incomingCallTab(options) {
+    var self = this;
+    var options = $.extend({}, phoneTabDefaults, options);
+    var div = $( document.createElement("div") ).addClass("phone-tab animated bounceInRight").appendTo($('.game-container'));
+    div.attr('id', options.id)
+    div.css({
+      width: options.width,
+      height: options.height,
+      top: options.position.y,
+      left: options.position.x
+    });
+    var iconAccept = $(document.createElement("div")).addClass("phone-tab-icon-accept").appendTo(div);
+    if (options.icon) icon.css("background-image","url(./img/"+options.icon+")");
+    var iconRefuse = $(document.createElement("div")).addClass("phone-tab-icon-refuse").appendTo(div);
+    if (options.icon){
+        icon.css("background-image","url(./img/"+options.icon+")");
+    }
+    var text = $(document.createElement("div")).addClass("phone-tab-text").appendTo(div);
+    if(options.text) {
+        text.html('<p>' + options.text + '</p>');
+    }
+    div.mouseover(function() {
+        iconAccept.css('visibility', 'visible');
+        iconRefuse.css('visibility', 'visible');
+        text.css('visibility', 'hidden');
+    });
+    div.mouseout(function() {
+        iconAccept.css('visibility', 'hidden');
+        iconRefuse.css('visibility', 'hidden');
+        text.css('visibility', 'visible');
+    });
+    iconAccept.click(function() {
+      self.changeIntoActiveCallTab();
+      GAME.instance.acceptConnectionAndCall(options.id, options.peerId);
+    });
+    iconRefuse.click(function() {
+        GAME.instance.refuseCallAndCancel(options.id);
+        self.close();
+    });
+    var borderPulse = setInterval(function() {
+      borderColorChange();
+    }, 1500);
+    var borderColorChange = function() {
+      div.toggleClass('orange-border');
+    }
+    this.changeIntoActiveCallTab = function() {
+      iconAccept.remove();
+      iconRefuse.remove();
+      text.remove();
+      var iconHangup = $(document.createElement("div")).addClass("phone-tab-icon-hangup").appendTo(div);
+      div.mouseover(function() {
+        iconHangup.css('visibility', 'visible');
+        text.css('visibility', 'hidden');
+      });
+      text = $(document.createElement("div")).addClass("phone-tab-text").appendTo(div);
+      if(options.text) {
+          text.html('<p>' + options.text + '</p>');
+      }
+      div.mouseout(function() {
+          iconHangup.css('visibility', 'hidden');
+          text.css('visibility', 'visible');
+      });
+      iconHangup.click(function() {
+        GAME.instance.refuseCallAndCancel(options.id);
+        self.close();
+      });
+      div.removeClass('orange-border');
+      borderColorChange = function() {
+      div.toggleClass('green-border');
+      };
+    };
+    this.close = function() {
+      console.log('in close fun');
+      div.addClass('animated zoomOutUp');
+      // div.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', div.remove());
+    };
+
+
+  }
+
+  window.incomingCallTab = incomingCallTab;
+
+  function callingNowTab(options) {
+    var self = this;
+    var options = $.extend({}, phoneTabDefaults, options);
+    var div = $( document.createElement("div") ).addClass("phone-tab animated bounceInRight").appendTo($('.game-container'));
+    div.attr('id', options.id)
+    div.css({
+      width: options.width,
+      height: options.height,
+      top: options.position.y,
+      left: options.position.x
+    });
+    var iconHangup = $(document.createElement("div")).addClass("phone-tab-icon-hangup").appendTo(div);
+    var text = $(document.createElement("div")).addClass("phone-tab-text").appendTo(div);
+    if(options.text) {
+        text.html('<p>' + options.text + '</p>');
+    }
+    div.mouseover(function() {
+        iconHangup.css('visibility', 'visible');
+        text.css('visibility', 'hidden');
+    });
+    div.mouseout(function() {
+        iconHangup.css('visibility', 'hidden');
+        text.css('visibility', 'visible');
+    });
+    iconHangup.click(function() {
+        GAME.instance.refuseCallAndCancel(options.id);
+        self.close();
+    });
+    var borderPulse = setInterval(function() {
+      borderColorChange();
+    }, 1500);
+    var borderColorChange = function() {
+      div.toggleClass('orange-border');
+    }
+    this.changeIntoActiveCallTab = function() {
+      div.removeClass('orange-border');
+      borderColorChange = function() {
+      div.toggleClass('green-border');
+      };
+    };
+    this.close = function() {
+      div.addClass('animated zoomOutUp');
+      // div.one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend', div.remove());
+    };
+  }
+
+  window.callingNowTab = callingNowTab;
+
+
   function guiWindow(options) {
     var options = $.extend({}, windowDefaults, options);
     var div = $( document.createElement("div") ).addClass("gui-window").appendTo(document.body);
@@ -207,9 +344,9 @@
         var pos_old = $("#"+data).position();
         var latterSlot = $('#' + div[0].id); //you're dropping an item on it
         if(GAME.player.isDead) valid = 0; //cant move items when you're dead
+
         // START SLOT VALIDITY CHECKING
         var itemDroppedType = $('#' + data).attr('type');
-        
 
         if(latterSlot.hasClass('primary')){
           if(itemDroppedType != 'melee' && itemDroppedType != 'ranged') valid = 0;
@@ -227,7 +364,7 @@
           if(itemDroppedType != 'legs') valid = 0;
         }
         else if(latterSlot.hasClass('secondary')){
-          if(itemDroppedType != 'shield') valid = 0;
+          if(itemDroppedType != 'off-hand') valid = 0;
         }
         else if(latterSlot.hasClass('skill')){
           if(itemDroppedType != 'skill') valid = 0;
@@ -235,8 +372,9 @@
 
         
         // dont allow putting things into entities - makes sense? prebably not
-        if (latterSlot.hasClass('entity')) valid = 0;
+        if (latterSlot.hasClass('corpse')) valid = 0;
 
+        // check boundaries of container && if slot is taken
         if (pos.left < 0 || pos.top < 0){
           valid = 0;
         }
@@ -248,6 +386,7 @@
             }
           }
         }
+        // VALIDITY CHECKING DONE
         if (valid) {
           // adding and removing slot image
           $('#' + parentId).addClass(parentId);
@@ -258,8 +397,8 @@
           });
           // console.log($("#"+data).parent().attr('id'));
 
-          if($('#' + parentId).hasClass('entity')){
-            //items inside entityies are indexed from 0. no [][].
+          if($('#' + parentId).hasClass('corpse')){
+            //items inside entities are indexed from 0 in {}. no [][].
             var x = pos_old.left / 32;
             var y = pos_old.top / 32;
             var obj_pos = (y*4) + x;
@@ -269,16 +408,37 @@
             
             GAME.player.lootEntity(from, to);
           }
-          else{
+          else if($('#' + parentId).hasClass('container')){
+            console.log('taking from container', parentId);
+            var x = pos_old.left / 32;
+            var y = pos_old.top / 32;
+            var from = {id: parentId, x: x, y: y};
+            from.type = 'container';
+            var to = {id: div[0].id, x: pos.left, y: pos.top};
+            if($('#' + div[0].id).hasClass('container')){
+              to.type = 'container';
+            }
+            GAME.player.handleContainerItemMoving(from, to);
+          }
+          else{ //if not looting corpse || container
             var from = {id: parentId, x: pos_old.left / 32, y: pos_old.top / 32};
             var to = {id: div[0].id, x: pos.left, y: pos.top};
-            GAME.player.moveInventoryItem(from, to);
+            if($('#' + div[0].id).hasClass('container')){ //if putting item into a container
+              to.type = 'container';
+              GAME.player.handleContainerItemMoving(from, to);
+            }
+            else{
+              GAME.player.moveInventoryItem(from, to);
+            }
           }
 
 
-          for(var i = 0; i < size.x; i ++) for(var j = 0; j < size.y; j ++) {
-            div[0].data[pos.left+i][pos.top+j] = 1;
-          }     
+          for(var i = 0; i < size.x; i ++){ // ok so this is for item sized more than 1x1 apparently
+            for(var j = 0; j < size.y; j ++) {
+              console.log('some weird shit')
+              div[0].data[pos.left+i][pos.top+j] = 1;
+            }
+          }
         }
         ev.preventDefault();
       };
@@ -313,20 +473,50 @@
     name: 'Default Name',
     rarity: 'common',
     desc: 'default description descriptively describing undescribable item',
-    damage: '4-7',
-    defense: '5',
-    attackCooldown: 400
+    damage: 'not provided',
+    defense: 'shouldnt be here?',
+    attackCooldown: 'N/A',
+    range: 'N/A'
   };
+    
+
+    var rarityToColor = {
+      common: '#fff',
+      uncommon: '#60446E',
+      rare: 'purple',
+      legendary: 'gold',
+      set: '#00ff00'
+    };
     function setTooltipAccordingToItemType(type, options) {
-        var divNameAndRarity = "<div style='color:gold; border-bottom: 1px solid #676a5a;font-weight:bold;'>"+ options.name +"<span style='float:right'>"+ options.rarity +"</span></div>";
-        var divDescription = "<div style='color:#676a5a; border-bottom: 1px solid #676a5a;font-style:italic;font-size:9px;'>"+ options.desc +"</div>";
+        var rarityColor = rarityToColor[options.rarity]
+        var divNameAndRarity = "<div style='color:" + rarityColor + "; border-bottom: 1px solid #676a5a;font-weight:bold;'>"+ options.name +"<span style='float:right'>"+ options.rarity +"</span></div>";
+        var divDescription = "<div style='color:#ffffff; border-bottom: 1px solid #676a5a;font-style:italic;font-size:9px;'>"+ options.desc +"</div>";
         var tablePrefix =  "<table>";
         var tableSuffix = "</table>";
 
         var tableRowDamage = "<tr><td align=left width=130>Damage</td><td align=right style='color:#00ff00;font-weight:bold;'>" + options.damageMin + "-" + options.damageMax + "</td></tr>";
         var tableRowAtkSpeed = "<tr><td align=left width=130>Attack speed</td><td align=right style='color:#ff0000;font-weight:bold;'>"+ options.attackCooldown +"</td></tr>";
+        var tableRowWeight = "<tr><td align=left width=130>Weight</td><td align=right style='color:#00ff00;font-weight:bold;'>" + options.weight/1000 + " kg</td></tr>";
         var tableRowRange = "<tr><td align=left width=130>Range</td><td align=right style='color:#ff0000;font-weight:bold;'>"+ Math.floor(options.range) +"</td></tr>";
-
+        var tableRowValue = "<tr><td align=left width=130>Use value</td><td align=right style='color:#ff0000;font-weight:bold;'>"+ options.useValue +"</td></tr>";
+        var rarityColor;
+        switch (options.rarity){
+          case 'common':
+            rarityColor = '#676a5a';
+            break;
+          case 'uncommon':
+            rarityColor = '#60446E';
+            break;
+          case 'rare':
+            rarityColor = 'purple';
+            break;
+          case 'legendary':
+            rarityColor = 'gold';
+            break;
+          case 'set':
+            rarityColor = 'green';
+            break;
+        }
 
         switch (type) {
             case 'melee':
@@ -335,6 +525,7 @@
                                         tablePrefix +
                                             tableRowDamage +
                                             tableRowAtkSpeed +
+                                            tableRowWeight +
                                         tableSuffix
                                     );
                 break;
@@ -344,42 +535,77 @@
                                         tablePrefix +
                                             tableRowDamage +
                                             tableRowAtkSpeed +
-                                            tableRowRange + 
+                                            tableRowRange +
+                                            tableRowWeight +
                                         tableSuffix
                                     );
                 break;
             case 'consumable':
-                console.log(type + ' not handled');
-                _globalTooltip.html("");
+                _globalTooltip.html(    divNameAndRarity +
+                                        divDescription + 
+                                        tablePrefix +
+                                            tableRowValue +
+                                            tableRowWeight +
+                                        tableSuffix
+                                        );
                 break;
             case 'non-consumable':
-                console.log(type + ' not handled');
-                _globalTooltip.html("");
+                _globalTooltip.html(    divNameAndRarity +
+                                        divDescription +
+                                        tablePrefix +
+                                            tableRowValue +
+                                            tableRowWeight +
+                                        tableSuffix);
                 break;
             case 'skill':
                 _globalTooltip.html(    divNameAndRarity +
                                         divDescription +
                                         tablePrefix +
-                                            tableRowRange + 
+                                            tableRowRange +
+                                            tableRowWeight +
                                         tableSuffix
                                     );
                 break;
             case 'body':
-                console.log(type + ' not handled');
-                _globalTooltip.html("");
+                _globalTooltip.html(    divNameAndRarity +
+                                        divDescription +
+                                        tablePrefix +
+
+                                            tableRowWeight +
+                                        tableSuffix);
                 break;
             case 'boots':
-                console.log(type + ' not handled');
-                _globalTooltip.html("");
+                _globalTooltip.html(    divNameAndRarity +
+                                        divDescription +
+                                        tablePrefix +
+
+                                            tableRowWeight +
+                                        tableSuffix);
                 break;
             case 'legs':
-                console.log(type + ' not handled');
-                _globalTooltip.html("");
+                _globalTooltip.html(    divNameAndRarity +
+                                        divDescription +
+                                        tablePrefix +
+
+                                            tableRowWeight +
+                                        tableSuffix);
                 break;
             case 'helm':
-                console.log(type + ' not handled');
-                _globalTooltip.html("");
+                _globalTooltip.html(    divNameAndRarity +
+                                        divDescription +
+                                        tablePrefix +
+
+                                            tableRowWeight +
+                                        tableSuffix);
                 break;
+            default:
+                _globalTooltip.html(    divNameAndRarity +
+                                        divDescription +
+                                        tablePrefix +
+
+                                            tableRowWeight +
+                                        tableSuffix);
+            break;
         }
     }
   function itemElement(size_x, size_y, parent, pos_x, pos_y, id, src, options) {

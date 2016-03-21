@@ -3,29 +3,44 @@ function Game(playerData, map_size, chunkSize) {
     gameState = {
         chunkSize: {x: 32, y: 16},
         frameTime: new Date().getTime(),
+        lastFrameTime: Date.now(),
         tileSize: 32,
         mapSize: map_size
     }
+    
+
+    this.acceptConnectionAndCall = function(id, peerId) {
+        socket.emit('player-call-accept', id);
+        console.log('initiating with peerid:', peerId)
+        peerTools.initiatePeerAudioCall(id, peerId);
+    }
+    this.refuseCallAndCancel = function(id) {
+        console.log('refusecalland cancel');
+        peerTools.endActiveCall(id);
+        socket.emit('player-call-refuse', id);;
+    };
+
     var canvas = GAME.canvas;
     var gh = gameState.tileSize;
     var ctx = GAME.ctx;
     var socket = GAME.socket;
     var map = GAME.map = new Map(playerData.x, playerData.y, gameState);
     var player = GAME.player = new Player(null, gameState, playerData);
-    makeAllOfThemWindowsNow(player);
+    makeAllOfThemWindowsNow(playerData);
 
     var movementCheck = new MovementCheck(playerData);
     var entityManager = GAME.entityManager = new EntityManager();
     var popupManager = GAME.popupManager = new PopupManager();
     var anims = GAME.anims = new AnimationManager();
         anims.push(new ShortAnimation(player.x, player.y, 'spawn_puff'));
-    var gameLayout = new GameLayout();
+    var gameLayout = GAME.layout = new GameLayout(ctx);
+    var peerTools = GAME.peerTools = new peerJsTools();
     /* GAME OBJECTS */
-    var mobs_data = {};
     var players_data = {};
     this.getMobsData = function() {
         return mobs_data;
     };
+    var mobs_data = {};
     this.getPlayersData = function() {
         return players_data;
     };
@@ -189,6 +204,10 @@ function Game(playerData, map_size, chunkSize) {
             player.movingToTarget = false;
         }
     };
+    function ctxTalkToHandler() {
+        GAME.layout.callingNowTab(rightClickedUnit.id, rightClickedUnit.name);
+        socket.emit('player-call-request', {peerId: peerTools.getPeerId(), playerCalled: rightClickedUnit.id});
+    }
     function ctxMenuUseHandler() {
         var itemElement = $('#' + rightClickedItem.id );
         var itemData = {
@@ -222,7 +241,23 @@ function Game(playerData, map_size, chunkSize) {
     function drawChunks(ctx){
         var player = GAME.player;
     }
+    function drawFPS(ctx){
+        ctx.save();
+        if(fps_skipper++ > 20){
+            fps = 1 / ((Date.now() - (gameState.lastFrameTime || gameState.frameTime)) / 1000);
+            fps_skipper = 0;
+        }
+        ctx.font = "12px Tibia Font";
+        if(fps >= 60)
+            ctx.fillStyle = 'rgba(0, 255, 0, 1)';
+        else
+            ctx.fillStyle = 'rgba(255, 0, 0, 1)';
+        ctx.fillText(Math.round(fps), 2, 14);
+        ctx.restore();
+    }
     /* DRAW OBJECTS */
+    var fps = 60;
+    var fps_skipper = 0;
     function draw(ctx) {
         ctx.clearRect(0, 0, GAME.canvas.width, GAME.canvas.height);
 
@@ -238,13 +273,14 @@ function Game(playerData, map_size, chunkSize) {
         
         popupManager.draw(ctx);
         anims.draw(ctx);
-        gameLayout.draw(ctx);
+        gameLayout.draw();
 
         ctx.fillStyle = "rgba(0,0,0,0.1)";
         ctx.fillRect(Math.floor(mousepos.x / gh) * gh, Math.floor(mousepos.y / gh) * gh, gh, gh);
         
         //DEBUG
         drawChunks(ctx);
+        drawFPS(ctx);
 
     }
 
@@ -281,6 +317,9 @@ function Game(playerData, map_size, chunkSize) {
         // statusMessage.update();
         // for(var i = 0; i<popups.length;i++) popups[i].update();
         draw(ctx);
+
+        gameState.lastFrameTime = Date.now();
+
         requestAnimationFrame(update);
     }
 
@@ -319,12 +358,24 @@ function Game(playerData, map_size, chunkSize) {
             ctxMenuUseOnTargetHandler();
             $('.ctx_menu').hide();
         }
+        if (key == "52") { //4
+            rightClickedItem = $('#skill2')[0].children[0];
+            ctxMenuUseOnTargetHandler();
+            $('.ctx_menu').hide();
+        }
+        if (key == "53") { //5
+            rightClickedItem = $('#skill3')[0].children[0];
+            ctxMenuUseOnTargetHandler();
+            $('.ctx_menu').hide();
+        }
         if (key == "67") { // C
-            $('#equipment').toggle('show');
-            $('#stats').toggle('show');
+            $('#equipment').toggle({duration: 150});
         }
         if (key == "73") { // I
-            $('#backpack').toggle('show');
+            $('#backpack').toggle({duration: 150});
+        }
+        if (key == "75") { // K
+            $('#stats').toggleClass('hidden-right');
         }
 
 
@@ -439,6 +490,10 @@ function Game(playerData, map_size, chunkSize) {
             ctxMenuUseOnTargetHandler();
             $('.ctx_menu').hide();
         });
+        $('#ctx_talk_to_player').click(function() {
+            ctxTalkToHandler();
+            $('.ctx_menu').hide();
+        });
     });
     socket.on('player-data-update', function(data) {
         for(var p in data){
@@ -450,6 +505,11 @@ function Game(playerData, map_size, chunkSize) {
                     // movementCheck.check(data[p].tx, data[p].ty)
                     player.updateHealth(data[p].healthCur);
                     player.healthMax = data[p].healthMax;
+                    player.manaCur = data[p].manaCur;
+                    player.manaMax = data[p].manaMax;
+                    player.speedCur = data[p].speedCur;
+                    player.isVisible = data[p].isVisible;
+                    player.attackSpeed = data[p].attackSpeed;
                     continue; // that means dont create nor update otherPlayer for GAME.player
                 }
                 if(!players_data.hasOwnProperty(id)){
@@ -459,6 +519,7 @@ function Game(playerData, map_size, chunkSize) {
                     if(players_data[id].tx != data[p].tx || players_data[id].ty != data[p].ty)
                         players_data[id].move(data[p].tx, data[p].ty);
                     players_data[id].updateHealth(data[p].healthCur);
+                    players_data[id].speedCur = data[p].speedCur;
                 }
             } else if(data[p].type === enums.objType.MOB) {
                 if(!mobs_data.hasOwnProperty(id)){
@@ -535,10 +596,29 @@ function Game(playerData, map_size, chunkSize) {
             players_data[data.id].attack(data.target, 'ranged', data.hit);
         }
     });
-    socket.on('player-loot-response', function(loot) {
-        newLootWindow(loot);
+    socket.on('entity-content-response', function(data) {
+        GAME.layout.openEntity(data);
     });
     socket.on('player-used-item', function(data) {
         player.removeItem(data);
+    });
+    socket.on('player-call-incoming', function(data) {
+        GAME.layout.incomingCallTab(data.callerId, data.callerName, data.peerId);
+    });
+    socket.on('player-call-refuse', function(id) {
+        GAME.layout.removePhoneTabById(id);
+    });
+    socket.on('player-call-accept', function(id) {
+        GAME.layout.changeIntoActiveCallTabById(id);
+    });
+    socket.on('player-skill-response', function(data) {
+        GAME.layout.setSkillLevelAfterLeveling(data.branch, data.name, data.level);
+    });
+    socket.on('you-toggled-invisibility', function(data) {
+        player.toggleInvisibility(data);
+    });
+    socket.on('other-player-toggled-invisibility', function(data) {
+        if(data.id != player.id)
+            players_data[data.id].toggleInvisibility();
     });
 }

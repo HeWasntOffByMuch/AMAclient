@@ -20,10 +20,16 @@ function Player(parentElement, gameState, playerData){
     this.movingToTarget = false;
   	this.healthCur = playerData.healthCur; // +
   	this.healthMax = playerData.healthMax; // +
+    this.manaCur = playerData.manaCur; // +
+    this.manaMax = playerData.manaMax; // +
   	this.isDead = false;
+    this.isVisible = playerData.isVisible;
+
+    this.skillTree = playerData.skillTree.tree;
+    this.unusedSkillPoints = playerData.skillTree.unusedSkillPoints;
 
   	this.lastAttack = gameState.frameTime;
-  	this.attackSpeed = playerData.attackSpeed || 1; // +
+  	this.attackSpeed = playerData.attackSpeed;
     this.inCombat = playerData.inCombat || false;
 
     this.direction = 'down';
@@ -105,18 +111,22 @@ function Player(parentElement, gameState, playerData){
     this.openEntity = function() {
         // console.log('about to open', GAME.targetedEntity);
         if(GAME.targetedEntity)
-            socket.emit('player-loot-request', GAME.targetedEntity.id);
+            socket.emit('entity-content-request', GAME.targetedEntity.id);
         //new window
         //emit content request
         //display content
         //profit
     };
     this.drawPlayerCharacter = function(ctx) {
+        if(!this.isVisible){
+            ctx.globalAlpha = 0.4;
+        }
         if (this.moving) {
             this.drawPlayerMoving(ctx);
         } else {
             this.drawPlayerStandingStill(ctx);
         }
+        ctx.globalAlpha = 1;
     };
     this.drawPlayerStandingStill = function(ctx) {
         ctx.drawImage(GAME.allImages['Rayman_' + this.direction], 512, 240, 32, 48);
@@ -153,7 +163,7 @@ function Player(parentElement, gameState, playerData){
     };
     this.attack = function(target) {
     	if(!this.isDead || !this.equipment.primary){
-            if(gameState.frameTime - this.lastAttack > this.equipment.primary.contents[0][0].attackCooldown/this.attackSpeed && dist(this, target) < this.equipment.primary.contents[0][0].range){
+            if(gameState.frameTime - this.lastAttack > this.equipment.primary.contents[0][0].attackCooldown/ this.attackSpeed && dist(this, target) < this.equipment.primary.contents[0][0].range){
                 this.lastAttack = gameState.frameTime;
 
                 if(this.equipment.primary.contents[0][0].type == 'ranged'){
@@ -180,11 +190,15 @@ function Player(parentElement, gameState, playerData){
     };
     this.takeDamage = function(damage) {
     	GAME.popupManager.newDamagePopup(this.tx, this.ty, damage, 1000);
+        if(damage >= 10)
+            GAME.anims.push(new ShortAnimation(this.tx, this.ty, 'blood_hit'));
+        else
+            GAME.anims.push(new ShortAnimation(this.tx, this.ty, 'blood_hit1'));
     };
     this.showHealAmmount = function(val) {
         GAME.popupManager.newHealPopup(this.tx, this.ty, val, 1000);
     };
-    this.moveInventoryItem = function(from, to) { // retarded but works for now.
+    this.moveInventoryItem = function(from, to) { // retarded but works for now. for moving within own inventory and equipment only
         GAME.socket.emit('player-moved-item', {from: from, to: to});
         var item = this.equipment[from.id].contents[from.x][from.y];
         this.equipment[from.id].contents[from.x][from.y] = 0;
@@ -193,11 +207,35 @@ function Player(parentElement, gameState, playerData){
     };
     this.lootEntity = function(from, to) {
         GAME.socket.emit('player-loot-entity', {from: from, to: to});
-        var item = GAME.entityManager.getEntities()[from.id].contents[from.pos];  // wow
+        var item = GAME.entityManager.getEntities()[from.id].contents[from.pos];  // wow jackass
         this.equipment[to.id].contents[to.x][to.y] = item;
         //do checks if objects exist
-        delete GAME.entityManager.getEntities()[from.id].contents[from.pos];
+        delete GAME.entityManager.getEntities()[from.id].contents[from.pos]; // nice chain nigga
 
+    };
+    this.handleContainerItemMoving = function(from, to) {
+        if(from.type == 'container'){
+            if(to.type == 'container'){
+                this.moveItemInsideContainer(from, to);
+            } else{
+                this.takeItemFromContainer(from, to);
+            }
+        } else{
+            this.putItemIntoContainer(from, to);
+        }
+    };
+    this.takeItemFromContainer = function(from, to) {
+        GAME.socket.emit('container-take-request', {from: from, to: to});
+        var item = GAME.entityManager.getEntities()[from.id].contents[from.x][from.y];
+        this.equipment[to.id].contents[to.x][to.y] = item;
+    };
+    this.putItemIntoContainer = function(from, to) {
+        GAME.socket.emit('container-put-request', {from: from, to: to});
+        this.equipment[from.id].contents[from.x][from.y] = 0;
+    };
+    this.moveItemInsideContainer = function(from, to) {
+        GAME.socket.emit('container-move-inside-request', {from: from, to: to});
+        
     };
     this.useItemOnSelf = function(item_data) {
         var item = this.equipment[item_data.parentId].contents[item_data.x][item_data.y];
@@ -230,6 +268,9 @@ function Player(parentElement, gameState, playerData){
             }
         }
     };
+    this.toggleInvisibility = function(data) {
+        this.isVisible = data.isVisible;
+    };
     this.updateHealth = function(healthCurUpdate) {
         if (this.healthCur != healthCurUpdate) {
         	if(this.healthCur > healthCurUpdate)
@@ -243,7 +284,10 @@ function Player(parentElement, gameState, playerData){
         GAME.popupManager.newExpPopup(this.tx, this.ty, exp, 1000);
     };
     this.levelUp = function() {
-
+        this.level++;
+    };
+    this.requestSkillLevelUp = function(data) {
+        GAME.socket.emit('player-skill-request', data);
     };
     this.die = function(){
     	this.isDead = true;

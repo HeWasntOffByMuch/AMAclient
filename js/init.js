@@ -2,9 +2,10 @@
 var GAME = {}; // all in one
 $(function() {
     var t; // tmp for every fucking thing
-    var token; //stores token to send back after request ahd been made;
 
+    
     var SOCKET = GAME.socket = io(server_address, {secure: true, forceNew: true});
+
 
     var gameContainer = GAME.gameContainer = document.createElement("div");
     gameContainer.className = "game-container";
@@ -311,6 +312,7 @@ $(function() {
     SOCKET.on('server-message', function(data) {
         console.log(data.message);
     });
+    SOCKET.on('');
     SOCKET.on('login-success', function(data) {
         WIN_LOGIN.hide();
         $(".modal-cover").fadeOut().fadeIn(function() {

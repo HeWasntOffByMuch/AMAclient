@@ -130,7 +130,11 @@ function OtherPlayer(gameState, data) {
         }
     };
     this.showDamageAmmount = function(damage) {
-        GAME.popupManager.newDamagePopup(this.tx, this.ty, damage, 1000);
+            GAME.popupManager.newDamagePopup(this.tx, this.ty, damage, 1000);
+        if(damage >= 10)
+            GAME.anims.push(new ShortAnimation(this.tx, this.ty, 'blood_hit'));
+        else
+            GAME.anims.push(new ShortAnimation(this.tx, this.ty, 'blood_hit1'));
     }
     this.showHealAmmount = function(val) {
         GAME.popupManager.newHealPopup(this.tx, this.ty, val, 1000);
@@ -146,10 +150,21 @@ function OtherPlayer(gameState, data) {
     };
     this.die = function() {
         this.isDead = true;
-        this.isTargeted = false;
-        GAME.targetedUnit = null;
+        if(this == GAME.targetedUnit){
+            this.isTargeted = false;
+            GAME.targetedUnit = null;
+        }
         map.freeSpot(this.tx, this.ty);
         GAME.popupManager.newDamagePopup(this.tx, this.ty, this.healthCur, 1500)
         delete GAME.instance.getPlayersData()[this.id];
     }
+    this.toggleInvisibility = function() {
+        this.isVisible = false;
+        if(this == GAME.targetedUnit){
+            this.isTargeted = false;
+            GAME.targetedUnit = null;
+        }
+        GAME.anims.push(new ShortAnimation(this.x, this.y, 'spawn_puff'));
+        delete GAME.instance.getPlayersData()[this.id];
+    };
 }

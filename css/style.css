@@ -25,6 +25,7 @@
 html, body {
   height: 100%;
   background-image: url(../img/bg.png);
+  overflow: hidden;
 }
 .foreground {
   position: absolute;
@@ -78,6 +79,8 @@ html, body {
   box-shadow: 2px 2px 3px #000;
   z-index: 100;
   overflow: hidden;
+  transition-property: margin-left;
+  transition-duration: 0.15s;
 }
 
 .gui-window-header {
@@ -212,7 +215,10 @@ html, body {
   border-top: 1px solid #272822;
   border-bottom: 1px solid #272822;  
 }
-
+.hidden-right {
+  margin-left: 100%;
+  transition: margin-left 0.2s ease-in;
+}
 .loading-table {
   width: 100%;
   height: 100%;
@@ -331,6 +337,7 @@ button.anim-alt:hover {
 
 .globalTooltip {
   border: 2px solid #676a5a;
+  border-radius: 3px;
   background-color: #181913;
   color: #676a5a;
   position: absolute;
@@ -340,6 +347,7 @@ button.anim-alt:hover {
   padding:5px;
   box-shadow: 0 0 3px #000;
   opacity: 0.8;
+  min-height: 60px;
 }
 
 .window .win_btns div {
@@ -370,13 +378,80 @@ button.anim-alt:hover {
 .boots {
   background-image: url(../img/slot_boots.png);
 }
-
+.skill {
+  border: 1px solid;
+  border-color: rgba(255, 200, 0, 0.6);
+}
 .bp {
   background-image: url(../img/slot.png);
   position: absolute;
   overflow: hidden;
 }
-
+.talent-container {
+  width: 64px;
+  height: 64px;
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  margin: 8px 8px 8px 8px;
+}
+.talent-icon {
+  position: relative;
+  overflow: hidden;
+  width: 64px;
+  height: 64px;
+  border: 1px transparent;
+  border-radius: 0%;
+  box-shadow: 1px 1px 4px #000;
+  background-image: url(../img/skills/talents_resized/blocking.jpg);
+  z-index: 101;
+}
+.talent-icon:after {
+  content: "";
+  position: absolute;
+  top: -110%;
+  left: -210%;
+  width: 200%;
+  height: 200%;
+  opacity: 0;
+  transform: rotate(30deg);
+  
+  background: rgba(255, 255, 255, 0.13);
+  background: linear-gradient(
+    to right, 
+    rgba(255, 255, 255, 0.13) 0%,
+    rgba(255, 255, 255, 0.13) 77%,
+    rgba(255, 255, 255, 0.5) 92%,
+    rgba(255, 255, 255, 0.0) 100%
+  );
+}
+.talent-icon:hover:after {
+  opacity: 1;
+  top: -30%;
+  left: -30%;
+  transition-property: left, top, opacity;
+  transition-duration: 0.7s, 0.7s, 0.15s;
+  transition-timing-function: ease;
+}
+.talent-icon:active:after {
+  opacity: 0;
+}
+.talent-icon:active {
+  box-shadow: none;
+}
+.talent-level {
+  position: absolute;
+  font-size: 12px;
+  color: #fff;
+  right: 0px;
+  bottom: 0px;
+  height: 16px;
+  min-width: 16px;
+  width: auto;
+  border-top-left-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.6);
+  text-align: center;
+}
 .button_close {
   width:12px;
   padding-left:2px;
@@ -439,6 +514,98 @@ button.anim-alt:hover {
 .ctx_dark_border li:hover {
   background-color: #0F0F0F;
 }
+
+.phone-tab {
+  position: absolute;
+  top: 32px;
+  left: 878px;
+  display: inline-block;
+  background-color: rgba(36, 36, 36, 0.7);
+  box-shadow: 1px 1px 3px #000;
+  border: 1px solid #292929;
+  border-radius: 3px;
+  z-index: 11;
+  overflow: hidden;
+  transition: border 1s ease-in-out;
+}
+
+.phone-tab-icon-accept {
+  position: absolute;
+  height: 32px;
+  width: 32px;
+  z-index: 12;
+  background-color: #07CC00;
+  border: 0px solid #292929;
+  border-radius: 3px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  /*box-shadow: 1px 1px 3px #000;*/
+  visibility: hidden;
+}
+.phone-tab-icon-accept:hover {
+  background-image: url(../img/phone_logo_up.png)
+}
+.phone-tab-icon-refuse {
+  position: absolute;
+  left: 64px;
+  height: 32px;
+  width: 32px;
+  z-index: 12;
+  background-color: #CC0000;
+  border: 0px solid #292929;
+  border-radius: 3px;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  /*box-shadow: 1px 1px 3px #000;*/
+  visibility: hidden;
+}
+.phone-tab-icon-refuse:hover {
+  background-image: url(../img/phone_logo_down.png)
+}
+.phone-tab-icon-hangup {
+  position: absolute;
+  left: 0px;
+  width: 96px;
+  height: 32px;
+  z-index: 12;
+  background-color: #CC0000;
+  border: 0px solid #292929;
+  border-radius: 3px;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  /*box-shadow: 1px 1px 3px #000;*/
+  visibility: hidden;
+}
+.phone-tab-icon-hangup:hover {
+  background-image: url(../img/phone_logo_down.png);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.phone-tab-text {
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+  font-family: verdana;
+  color: #BBBBBB;
+}
+.orange-border {
+  border: 1px solid #FFB300;
+  transition: 1s ease-in-out;
+}
+.green-border {
+  border: 1px solid #2DFF08;
+  transition: 1s ease-in-out;
+}
+/*.phone-tab-icon:hover {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #292929;
+  border-radius: 3px;
+}*/
+
 .modal-cover {
   background-image: url(../img/cover.png);
   position: absolute;
@@ -452,6 +619,7 @@ button.anim-alt:hover {
 
 
 ::-webkit-scrollbar {
+  display: none;
   width: 14px;
   height: 14px;
 }
