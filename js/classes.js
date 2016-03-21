@@ -251,6 +251,51 @@ function peerJsTools() {
     };
 }
 
+function StatusMessage(canvas) { //client only
+	var defaultOptions = {
+		message: 'unhandled message',
+		time: 3000,
+		color: '#fff'
+	}
+    //initial message
+    this.message = "";
+    this.messageTime = gameState.frameTime + defaultOptions.time;
+    this.active = true;
+
+    this.canvas = canvas;
+    this.elem = document.createElement("div");
+
+    this.elem.style.position = "absolute";
+    this.elem.style.left = "0px";
+    this.elem.style.top = canvas.height - 50 + "px";
+    this.elem.style.height = "20px";
+    this.elem.style.width = canvas.width + "px";
+    this.elem.style.color = defaultOptions.color;
+    this.elem.style.textAlign = "center";
+    this.elem.innerHTML = this.message;
+    this.elem.style.textShadow = "0 0 5px black, 0 0 5px black, 0 0 5px black";
+    $(".game-container")[0].appendChild(this.elem);
+
+
+    this.update = function() {
+        if (gameState.frameTime > this.messageTime && this.active) {
+            $(this.elem).fadeOut();
+            this.active = false;
+        }
+    }
+
+    this.showMessage = function(opts) {
+    	var options = $.extend({}, defaultOptions, opts);
+    	console.log(options);
+        this.message = options.message;
+        this.elem.style.color = options.color
+        this.elem.innerHTML = this.message;
+        this.messageTime = gameState.frameTime + options.time;
+        if (!this.active)
+            $(this.elem).fadeIn();
+        this.active = true;
+    }
+}
 // GAME ON DIVS. MAYBE USE SOME OF IT FOR CERTAIN ELEMENTS. NOT NOW THO.
 
 // function repositionTile() { // deprecated

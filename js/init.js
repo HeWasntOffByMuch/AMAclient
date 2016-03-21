@@ -304,13 +304,10 @@ $(function() {
     SOCKET.on('disconnect', function() {
         SOCKET = null;
         console.log('disconnected from socket');
-    })
+    });
     SOCKET.on('login-failed', function() {
         WIN_NO.show();
         $(".loading-table").remove();
-    })
-    SOCKET.on('server-message', function(data) {
-        console.log(data.message);
     });
     SOCKET.on('');
     SOCKET.on('login-success', function(data) {

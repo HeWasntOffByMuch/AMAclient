@@ -7,7 +7,6 @@ function Game(playerData, map_size, chunkSize) {
         tileSize: 32,
         mapSize: map_size
     }
-    
 
     this.acceptConnectionAndCall = function(id, peerId) {
         socket.emit('player-call-accept', id);
@@ -28,6 +27,11 @@ function Game(playerData, map_size, chunkSize) {
     var player = GAME.player = new Player(null, gameState, playerData);
     makeAllOfThemWindowsNow(playerData);
 
+    this.ping = function(a) {
+        socket.emit('ping', a);
+    }
+
+    var statusMessage = GAME.statusMessage = new StatusMessage(canvas);
     var movementCheck = new MovementCheck(playerData);
     var entityManager = GAME.entityManager = new EntityManager();
     var popupManager = GAME.popupManager = new PopupManager();
@@ -301,6 +305,7 @@ function Game(playerData, map_size, chunkSize) {
         movementCheck.update();
         popupManager.update();
         anims.update();
+        statusMessage.update();
         entityManager.update();
         // map.update(player);
         // entities.update();
@@ -341,8 +346,7 @@ function Game(playerData, map_size, chunkSize) {
              GAME.player.move(-1, 0);
         }
         if (key == "117") {
-            var a = prompt();
-             socket.emit('ping', a);
+            this.ping();
         }
         if (key == "49") { //1
             if(GAME.targetedUnit)
@@ -620,5 +624,8 @@ function Game(playerData, map_size, chunkSize) {
     socket.on('other-player-toggled-invisibility', function(data) {
         if(data.id != player.id)
             players_data[data.id].toggleInvisibility();
+    });
+    socket.on('server-message', function(data) {
+        statusMessage.showMessage(data);
     });
 }
