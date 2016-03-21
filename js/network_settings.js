@@ -2,7 +2,11 @@
 // server_address = 'localhost:8000';
 server_address = '89.75.75.210:8000'; //DMZ BOLESLAWICKA
 // server_address = '192.168.0.5:8000'; //LOCALHOST BOLESLAWICKA
+<<<<<<< HEAD
 // server_address = '192.168.0.10:8000'; //LOCALHOST KAROLINA
+=======
+// server_address = '192.168.0.16:8000'; //LOCALHOST KAROLINA
+>>>>>>> origin/gh-pages
 // server_address = '89.75.61.124:8000'; //DMZ KAROLINA
 connectionOptions =  {
 	// secure: true,
