@@ -164,7 +164,7 @@ function OtherPlayer(gameState, data) {
             this.isTargeted = false;
             GAME.targetedUnit = null;
         }
-        GAME.anims.push(new ShortAnimation(this.x, this.y, 'spawn_puff'));
+        GAME.anims.push(new ShortAnimation(this.x, this.y, 'spawn_puff2'));
         delete GAME.instance.getPlayersData()[this.id];
     };
 }

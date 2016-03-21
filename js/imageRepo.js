@@ -32,7 +32,7 @@ GAME.urlDict = {
   'blood_hit': {src: 'img/blood_hit.png', spriteX: 32, spriteY: 32, spriteN: 7},
   'blood_hit1': {src: 'img/blood_hit1.png', spriteX: 32, spriteY: 32, spriteN: 7},
   'spawn_puff': {src: 'img/spawn_puff.png', spriteX: 32, spriteY: 32, spriteN: 8},
-  'spawn_puff_2': {src: 'img/spawn_puff_2.png', spriteX: 32, spriteY: 32, spriteN: 7},
+  'spawn_puff2': {src: 'img/spawn_puff_2.png', spriteX: 32, spriteY: 32, spriteN: 7},
   'bubba': {src: 'img/mobs/bubba.png', spriteX: 64, spriteY: 64, spriteN: 4},
   'skill_sword': {src: 'img/skills/skill_tiles/skill_sword.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'skill_sword_cd': {src: 'img/skills/skill_tiles/skill_sword_cd.png', spriteX: 32, spriteY: 32, spriteN: 1},

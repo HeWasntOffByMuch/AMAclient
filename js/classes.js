@@ -212,9 +212,9 @@ function peerJsTools() {
         }, function(stream) {
             call.answer(stream); // Answer the call with an A/V stream.
             call.on('stream', function(remoteStream) {
-                // var audioContext = new AudioContext();
-                // var audioStream = audioContext.createMediaStreamSource(remoteStream);
-                // audioStream.connect(audioContext.destination);
+                var audioContext = new AudioContext();
+                var audioStream = audioContext.createMediaStreamSource(remoteStream);
+                audioStream.connect(audioContext.destination);
             });
         }, function(err) {
             console.log('Failed to get local stream', err);
