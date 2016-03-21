@@ -12,6 +12,7 @@ function Mob(gameState, data){
     this.name = data.name;
     this.x = data.x;
     this.y = data.y;
+    GAME.anims.push(new ShortAnimation(this.x, this.y, 'spawn_puff'));
     this.tx = data.tx;
     this.ty = data.ty;
     map.occupySpot(this.tx, this.ty); //occupy on creation.
@@ -79,6 +80,12 @@ function Mob(gameState, data){
     };
     this.showDamageAmmount = function(damage) {
         GAME.popupManager.newDamagePopup(this.tx, this.ty, damage, 1000);
+    };
+    this.drawHitAnimation = function(damage){
+        if(damage >= 10)
+            GAME.anims.push(new ShortAnimation(this.tx, this.ty, 'blood_hit'));
+        else
+            GAME.anims.push(new ShortAnimation(this.tx, this.ty, 'blood_hit1'));
     };
     this.showHealAmmount = function(val) {
         GAME.popupManager.newHealPopup(this.tx, this.ty, val, 1000);

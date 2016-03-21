@@ -1,13 +1,57 @@
-function GameLayout() {
+function GameLayout(ctx) {
 	var gh = gameState.tileSize
-	this.draw = function(ctx) {
+    activeCallTabs = {};
+    curId = 0;
+	this.draw = function() {
 		// DRAW PLAYER COMBAT ICON
 		if(GAME.player.inCombat)
 			ctx.drawImage(GAME.allImages['combat_icon'], GAME.canvas.width - 2*gh, gh, gh, gh);
 		
 	};
-}
+    this.incomingCallTab = function(player_id, player_name, peer_id) {
+        var tab = new incomingCallTab({
+            id: player_id,
+            text: player_name,
+            peerId: peer_id
+        });
+        activeCallTabs[player_id] = tab;
+    };
+    this.activeCallTab = function(player_id, player_name, peer_id) {
+        var tab = new phoneTab({
+            text: player_name,
+            id: player_id
+        });
+        activeCallTabs[player_id] = tab;
+    };
+    this.callingNowTab = function(player_id, player_name, peer_id) {
+        var tab = new callingNowTab({
+            text: player_name,
+            id: player_id
+        });
+        activeCallTabs[player_id] = tab;
+    };
+    this.removePhoneTabById = function(id) {
+        activeCallTabs[id].close();
+    };
+    this.changeIntoActiveCallTabById = function(id) {
+        activeCallTabs[id].changeIntoActiveCallTab();
+    };
 
+
+    this.openEntity = function(data) {
+        if(data.type == 'corpse'){
+            newLootWindow(data);
+        }
+        else if(data.type == 'container'){
+            newContainerWindow(data);
+        }
+    };
+
+    this.setSkillLevelAfterLeveling = function(branch, name, level) {
+        $('#' + name).text(level);
+        GAME.player.skillTree[branch][name] = level;
+    };
+}
 function makeAllOfThemWindowsNow(playerData) {
 
 
@@ -27,7 +71,7 @@ function makeBackpackWindow(playerData) {
         title: "BACKPACK",
         icon: "bp.gif",
         onclose: function() {
-            this.hide();
+            $('#backpack').toggle({duration: 150});
         },
         position: { y: 20, x: 20 },
         content: ['<div id=' + serverBackpack.name + ' class="slot bp" size_x=' + serverBackpack.w + ' size_y=' + serverBackpack.h + '></div>']
@@ -41,15 +85,7 @@ function makeBackpackWindow(playerData) {
             if(serverBackpack.contents[i][j]){
                 var item = serverBackpack.contents[i][j];
                 var img = GAME.allImages[item.name] || GAME.allImages['placeholder'];
-                var itemEl = new itemElement(1, 1, bp, i, j, item.id, img.src, {
-                    name: item.name,
-                    desc: item.desc,
-                    attackCooldown: item.attackCooldown,
-                    damageMin: item.damageMin,
-                    damageMax: item.damageMax,
-                    range: item.range,
-                    type: item.type
-                });
+                var itemEl = new itemElement(1, 1, bp, i, j, item.id, img.src, item);
             }
         }
     }
@@ -61,7 +97,7 @@ function makeEquipmentWindow(playerData) {
         title: "EQ",
         icon: "items/phantom_ganon.gif",
         onclose: function() {
-            this.hide();
+            $('#equipment').toggle({duration: 150});
         },
         position: { y: 20, x: 182 },
         content: [
@@ -83,34 +119,67 @@ function makeEquipmentWindow(playerData) {
         var item = playerData.equipment[div.attr('id')].contents[0][0];
         if(item){
             var img = GAME.allImages[item.name] || GAME.allImages['placeholder'];
-            itemEl = new itemElement(1, 1, div, 0, 0, item.id, img.src, {
-                name: item.name,
-                desc: item.desc,
-                attackCooldown: item.attackCooldown,
-                damageMin: item.damageMin,
-                damageMax: item.damageMax,
-                range: item.range,
-                type: item.type
-            });
+            itemEl = new itemElement(1, 1, div, 0, 0, item.id, img.src, item);
         }
     });
 }
 function makeCharacterWindow(playerData) {
     WIN_STATS = new guiWindow({
-        width: 200,
-        height: 256 - 37,
-        title: 'YO STATS NIGGA',
+        width: 496 - 12,
+        height: 375 - 37,
+        title: 'SKILLS',
         icon: "player_icon.png",
-        position: { y: 20, x: 1324 },
-        onclose: function() {
-            this.hide();
-        }
+        resizable: false,
+        position: { y: 20, x: 1096 }
     });
+    var talent_icons_path = '../img/skills/talents_resized/'
+    var talent_icons = {
+        accuracy: 'accuracy.jpg',
+        armorEfficiency: 'armor_efficiency.jpg',
+        attackDamage: 'attack_damage.jpg',
+        attackSpeed: 'attack_speed.jpg',
+        blocking: 'blocking.jpg',
+        criticalHits: 'critical_hits.jpg',
+        dualWielding: 'dual_wielding.jpg',
+        evasion: 'evasion.jpg',
+        healingMagic: 'healing_magic.jpg',
+        healthPool: 'health_pool.jpg',
+        magicResistance: 'magic_resistance.jpg',
+        manaPool: 'mana_pool.jpg',
+        offensiveCurses: 'curse_offensive_magic.jpg',
+        offensiveInstant: 'instant_offensive_magic.jpg',
+        parry: 'parry.jpg',
+        physicalResistance: 'physical_resistance.jpg',
+        protectionMagic: 'protection_magic.jpg',
+        rangedCombat: 'ranged_combat.jpg',
+        supportiveBuffs: 'supportive_buff_magic.jpg',
+        supportiveUtility: 'supportive_utility_magic.jpg',
+        useHeavyWeapons: 'use_heavier_weapons.jpg',
+        weightCapacity: 'weight_capacity.jpg'
+    };
     WIN_STATS.setId('stats');
-
-
-    WIN_STATS.appendHTML("<div style='position: absolute; top: 20px; font-size: 15px; font-weight:bold; margin-left: 6px;'><p>  LEVEL</p></div>");
-
+    WIN_STATS.close = function() {
+        $('#stats').toggleClass('hidden-right');
+    };
+    // $('#stats').addClass('hidden-right');
+    var charWindow = $('#stats .gui-window-content')[0];
+    // var branches = [];
+    // branches.push( $( document.createElement("div") ).addClass("talent_tree_agility").appendTo(charWindow).attr('id', 'agility_branch' + i) );
+    var progressionTree = playerData.skillTree.tree;
+    for(var i in progressionTree){
+        for(var j in progressionTree[i]){
+            var container = $( document.createElement("div") ).addClass("talent-container").appendTo(charWindow).attr('id', 'talent_container ' + j);
+            var icon = $( document.createElement("div") ).addClass("talent-icon").appendTo(container);
+            icon.data('name', {branch: i, name: j});
+            icon.css('background-image', 'url(' + talent_icons_path + talent_icons[j] + ')');
+            var levelIndicator = $( document.createElement('div') ).addClass('talent-level').appendTo(icon).attr('id', j);
+            levelIndicator.append( document.createTextNode( progressionTree[i][j]) );
+        }
+    }
+    $('.talent-icon').click(function() {
+        var data = $(this).data('name');
+        GAME.player.requestSkillLevelUp(data);
+    });
 }
 function makeDeathWindow() {
     WIN_DEATH = new guiWindow({
@@ -137,6 +206,7 @@ function makeRightclickContextMenus () {
         $("#ctx_menu_mob").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_attack_mob').text('target'));
     var ctxMenuPlayer = $( document.createElement("ul") ).addClass("ctx_menu").appendTo(document.body).attr('id', 'ctx_menu_player').hide();
         $("#ctx_menu_player").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_attack_player').text('target'));
+        $("#ctx_menu_player").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_talk_to_player').text('talk to'));
     var ctxMenuItem = $( document.createElement("ul") ).addClass("ctx_menu").addClass("ctx_dark_border").appendTo(document.body).attr('id', 'ctx_menu_item').hide();
         $("#ctx_menu_item").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_use').text('use'));
         $("#ctx_menu_item").append($( document.createElement("li") ).addClass("ctx_item").attr('id', 'ctx_use_with').text('use with...'));
@@ -149,15 +219,15 @@ function makeRightclickContextMenus () {
 }
 function newLootWindow(entity) {
     console.log(entity);
-    $('#' + entity.id).parent().parent().remove();
+    $('#' + entity.id).parent().parent().remove(); // remove window when opened again.
     var size = Object.keys(entity.loot).length || 1;
     var WIN_LOOT = new guiWindow({
-        width: 130,
-        height: 45,
-        title: 'LOOT',
+        width: 128,
+        height: Math.ceil(size/4) * 32,
+        title: entity.type,
         icon: "player_icon.png",
         position: { y: 220, x: 20 },
-        content: ['<div id=' + entity.id + ' class="slot entity" size_x=' + 4 + ' size_y=' + Math.ceil(size/4) + '></div>']
+        content: ['<div id=' + entity.id + ' class="slot corpse" size_x=' + 4 + ' size_y=' + Math.ceil(size/4) + '></div>']
     });
     WIN_LOOT.setId('loot');
     var eq = $('#' + entity.id + '.slot').makeContainer();
@@ -166,18 +236,41 @@ function newLootWindow(entity) {
     //add client side entity/contents
 
     for(var i in entity.loot){
-            if(entity.loot[i]){
-                var item = entity.loot[i];
+        if(entity.loot[i]){
+            var item = entity.loot[i];
+            var img = GAME.allImages[item.name] || GAME.allImages['placeholder'];
+            var itemEl = new itemElement(1, 1, eq, i % 4, Math.floor(i/4), item.id, img.src, item);
+        }
+    }
+}
+function newContainerWindow(entity) { //expected content is 2dArray
+    console.log(entity);
+    $('#' + entity.id).parent().parent().remove(); // remove window when opened again.
+
+    var width = entity.loot.length;
+    var height = entity.loot[0].length;
+    var WIN_LOOT = new guiWindow({
+        width: width * 32,
+        height: height * 32,
+        title: entity.type,
+        icon: "player_icon.png",
+        position: { y: 300, x: 20 },
+        content: ['<div id=' + entity.id + ' class="slot container" size_x=' + width + ' size_y=' + height + '></div>']
+    });
+    WIN_LOOT.setId('loot');
+    var eq = $('#' + entity.id + '.slot').makeContainer();
+
+    GAME.entityManager.getEntities()[entity.id].contents = entity.loot;
+    //add client side entity/contents
+
+
+    for(var i = 0; i < width; i++){
+        for(var j = 0; j < height; j++){
+            if(entity.loot[i][j]){
+                var item = entity.loot[i][j];
                 var img = GAME.allImages[item.name] || GAME.allImages['placeholder'];
-                var itemEl = new itemElement(1, 1, eq, i % 4, Math.floor(i/4), item.id, img.src, {
-                    name: item.name,
-                    desc: item.desc,
-                    attackCooldown: item.attackCooldown,
-                    damageMin: item.damageMin,
-                    damageMax: item.damageMax,
-                    range: item.range,
-                    type: item.type
-                });
+                var itemEl = new itemElement(1, 1, eq, i, j, item.id, img.src, item);
             }
         }
+    }
 }

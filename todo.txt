@@ -15,14 +15,15 @@ TO DO:
 - port range combat - DONE
 - fix astar on player conrners. - DONE
 - drop loot - DONE
+- finish item mana cost & range - DONE
 
 
 
 
-- start thinking about characted progression
+- start thinking about character progression
 
 
-! IMPORTANT - clean up all the getData()'s - this is touched in a couple of places like entities/
+! IMPORTANT - clean up all the getData()'s - this is touched in a couple of places like entities
 
 
 
@@ -39,9 +40,13 @@ TO DO:
 
 - typechecking on items serverside
 
-- finish item mana cost & range !
-
 - get rid of usesLeft for quantity to take its place
+
+- fix not updating player when invisible, item changes not taking place client side. custom events?
+
+- do containers in game and possible in player backpack
+
+- do buff/debuff queue
 
 CLIENTSIDE:
 
@@ -65,7 +70,7 @@ CLIENTSIDE:
 
 - draw xp bar
 - write animations
-	- unit
+	- unit -DONE
 	- entity
 	- short - DONE
 	- attack -DONE
@@ -98,3 +103,4 @@ CLIENTSIDE:
 
 - trading 
 
+- detecting animation end fail on callend

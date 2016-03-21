@@ -189,6 +189,67 @@ function PopupManager() {
 
 }
 
+function peerJsTools() {
+	var allAudioCalls = {};
+	var playerPeer = new Peer({key: 'lwjd5qra8257b9'});
+
+	var playerPeerId;
+	this.getPeerId = function() {
+		return playerPeerId;
+	};
+	navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+    playerPeer.on('open', function(id) {
+        console.log('My peer ID is: ' + id);
+        playerPeerId = id;
+    });
+
+    playerPeer.on('call', function(call) {
+    	console.log('incoming call detected')
+		navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+        navigator.getUserMedia({
+            video: false,
+            audio: true
+        }, function(stream) {
+            call.answer(stream); // Answer the call with an A/V stream.
+            call.on('stream', function(remoteStream) {
+                // var audioContext = new AudioContext();
+                // var audioStream = audioContext.createMediaStreamSource(remoteStream);
+                // audioStream.connect(audioContext.destination);
+            });
+        }, function(err) {
+            console.log('Failed to get local stream', err);
+        });
+    });
+
+    this.initiatePeerAudioCall = function(id, peerId) {
+		navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+        navigator.getUserMedia({
+                video: false,
+                audio: true
+            }, function(stream) {
+                var call = playerPeer.call(peerId, stream);
+                allAudioCalls[id] = call;
+                call.on('stream', function(remoteStream) {
+                    var audioContext = new AudioContext();
+                    var audioStream = audioContext.createMediaStreamSource(remoteStream);
+                    audioStream.connect(audioContext.destination);
+                });
+            }, function(err) {
+                console.log('Failed to get local stream', err);
+            }
+        );
+    };
+
+    this.endActiveCall = function(id) {
+        if(allAudioCalls[id]){
+        	console.log('ending active call');
+        	allAudioCalls[id].close();
+        }
+        else{
+        	console.log('stopping call attempt');
+        }
+    };
+}
 
 // GAME ON DIVS. MAYBE USE SOME OF IT FOR CERTAIN ELEMENTS. NOT NOW THO.
 

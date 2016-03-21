@@ -2,7 +2,8 @@ GAME.urlDict = {
   'placeholder': {src: 'img/placeholder.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Bat': { src: 'img/mobs/bat_sprite.png', spriteX: 32, spriteY: 32, spriteN: 8 },
   'BatDead': { src: 'img/mobs/bat_sprite_dead.png', spriteX: 32, spriteY: 32, spriteN: 1 },
-  'BigBat': { src: 'img/mobs/bat_sprite_big.png', spriteX: 32, spriteY: 21, spriteN: 8 },
+  'Big Bat': { src: 'img/mobs/bat_sprite_big.png', spriteX: 32, spriteY: 21, spriteN: 8 },
+  'Big BatDead': { src: 'img/mobs/bat_sprite_big_dead.png', spriteX: 32, spriteY: 32, spriteN: 1 },
   'Dummy': {src: 'img/mobs/target_dummy.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Fly_right': {src: 'img/mobs/fly_run_right.png', spriteX: 32, spriteY: 32, spriteN: 4},
   'Fly_left': {src: 'img/mobs/fly_run_left.png', spriteX: 32, spriteY: 32, spriteN: 4},
@@ -29,6 +30,7 @@ GAME.urlDict = {
   'explosion': {src: 'img/explo.png', spriteX: 84, spriteY: 84, spriteN: 7},
   'arrow_hit': {src: 'img/arrow_hit.png', spriteX: 32, spriteY: 32, spriteN: 7},
   'blood_hit': {src: 'img/blood_hit.png', spriteX: 32, spriteY: 32, spriteN: 7},
+  'blood_hit1': {src: 'img/blood_hit1.png', spriteX: 32, spriteY: 32, spriteN: 7},
   'spawn_puff': {src: 'img/spawn_puff.png', spriteX: 32, spriteY: 32, spriteN: 8},
   'spawn_puff_2': {src: 'img/spawn_puff_2.png', spriteX: 32, spriteY: 32, spriteN: 7},
   'bubba': {src: 'img/mobs/bubba.png', spriteX: 64, spriteY: 64, spriteN: 4},
@@ -54,6 +56,7 @@ GAME.urlDict = {
   'Potato' : {src: 'img/items/potato.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Epee' : {src: 'img/items/epee.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Cleaver' : {src: 'img/items/cleaver.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Claymore' : {src: 'img/items/claymore.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Bread Knife' : {src: 'img/items/bread_knife.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Hunting Knife' : {src: 'img/items/hunting_knife.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Shortbow' : {src: 'img/items/bow.png', spriteX: 32, spriteY: 32, spriteN: 1},
@@ -65,6 +68,11 @@ GAME.urlDict = {
   'Gold' : {src: 'img/items/cursed_gold.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Resurrection Scroll' : {src: 'img/items/scroll.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Heal Stick' : {src: 'img/items/heal_stick.gif', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Generic Boots' : {src: 'img/items/generic_boots.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Top Hat' : {src: 'img/items/top_hat.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Leather Armor' : {src: 'img/items/leather_armor.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Crate' : {src: 'img/items/crate1.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Trash Bag' : {src: 'img/items/trash_bag.png', spriteX: 32, spriteY: 32, spriteN: 1},
 
   //SKILLS
   'skill_sword': {src: 'img/skills/skill_tiles/skill_sword.png', spriteX: 32, spriteY: 32, spriteN: 1},
@@ -74,6 +82,10 @@ GAME.urlDict = {
   'skill_bleeding': {src: 'img/skills/skill_tiles/skill_sword.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'skill_heal': {src: 'img/skills/skill_tiles/skill_sword.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Quick Slashes': {src: 'img/skills/quick_slashes.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Passive Damage Amp': {src: 'img/skills/sever_artery.jpg', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Passive Speed': {src: 'img/skills/speed_boost.jpg', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Healer Boon': {src: 'img/skills/healer_boon.jpg', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Mistery Box': {src: 'img/items/box.png', spriteX: 32, spriteY: 32, spriteN: 1},
   //SPRITES
   'base_tiles': {src: 'img/tiles/base_tiles.png', spriteX: 32, spriteY: 32, tilesW: 16, tilesH: 16}
 }
