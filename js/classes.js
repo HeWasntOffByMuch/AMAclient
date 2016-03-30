@@ -191,7 +191,7 @@ function PopupManager() {
 
 function peerJsTools() {
 	var allAudioCalls = {};
-	var playerPeer = new Peer({key: 'lwjd5qra8257b9'});
+	var playerPeer = new Peer({key: 'lwjd5qra8257b9'}); // MOVE PEERJS API KEY TO NETWORK SETTINGS
 
 	var playerPeerId;
 	this.getPeerId = function() {
@@ -212,9 +212,13 @@ function peerJsTools() {
         }, function(stream) {
             call.answer(stream); // Answer the call with an A/V stream.
             call.on('stream', function(remoteStream) {
-                var audioContext = new AudioContext();
-                var audioStream = audioContext.createMediaStreamSource(remoteStream);
-                audioStream.connect(audioContext.destination);
+            	console.log('PEERJS: incoming audio stream', remoteStream);
+            	// WEBAUDIO API BELOW - DOESN'T WORK IN CHROME?
+                // var audioContext = new AudioContext();
+                // var audioStream = audioContext.createMediaStreamSource(remoteStream);
+                // audioStream.connect(audioContext.destination);
+				  var audio = $('<audio autoplay />').appendTo('body');
+				  audio[0].src = (URL || webkitURL || mozURL).createObjectURL(remoteStream);
             });
         }, function(err) {
             console.log('Failed to get local stream', err);
@@ -228,11 +232,17 @@ function peerJsTools() {
                 audio: true
             }, function(stream) {
                 var call = playerPeer.call(peerId, stream);
+
+                console.log('PEERJS: calling', peerId, 'with', stream);
+
                 allAudioCalls[id] = call;
                 call.on('stream', function(remoteStream) {
-                    var audioContext = new AudioContext();
-                    var audioStream = audioContext.createMediaStreamSource(remoteStream);
-                    audioStream.connect(audioContext.destination);
+                	console.log('PEERJS: got an answer back');
+                    // var audioContext = new AudioContext();
+                    // var audioStream = audioContext.createMediaStreamSource(remoteStream);
+                    // audioStream.connect(audioContext.destination);
+					  var audio = $('<audio autoplay />').appendTo('body');
+					  audio[0].src = (URL || webkitURL || mozURL).createObjectURL(remoteStream);
                 });
             }, function(err) {
                 console.log('Failed to get local stream', err);
