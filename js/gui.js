@@ -435,12 +435,11 @@
           }
 
 
-          for(var i = 0; i < size.x; i ++){ // ok so this is for item sized more than 1x1 apparently
-            for(var j = 0; j < size.y; j ++) {
-              console.log('some weird shit')
-              div[0].data[pos.left+i][pos.top+j] = 1;
-            }
-          }
+          // for(var i = 0; i < size.x; i ++){ // ok so this is for item sized more than 1x1 apparently
+          //   for(var j = 0; j < size.y; j ++) {
+          //     div[0].data[pos.left+i][pos.top+j] = 1;
+          //   }
+          // }
         }
         ev.preventDefault();
       };

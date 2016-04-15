@@ -50,7 +50,7 @@ GAME.urlDict = {
 
   //ITEMS
   'sword' : {src: 'img/items/epee.png', spriteX: 32, spriteY: 32, spriteN: 1},
-  'armor' : {src: 'img/items/armor.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Shovel' : {src: 'img/items/shovel.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Lightsaber' : {src: 'img/items/green_jedi_sword.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Potato' : {src: 'img/items/potato.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Epee' : {src: 'img/items/epee.png', spriteX: 32, spriteY: 32, spriteN: 1},
@@ -73,6 +73,7 @@ GAME.urlDict = {
   'Divine Shield' : {src: 'img/items/divine_shield.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Crate' : {src: 'img/items/crate1.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Trash Bag' : {src: 'img/items/trash_bag.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Conjuring Wand' : {src: 'img/items/banana.png', spriteX: 32, spriteY: 32, spriteN: 1},
 
   //SKILLS
   'skill_sword': {src: 'img/skills/skill_tiles/skill_sword.png', spriteX: 32, spriteY: 32, spriteN: 1},
@@ -92,6 +93,7 @@ GAME.urlDict = {
   'SD Projectile': {src: 'img/skills/sudden_death_projectile.png', spriteX: 32, spriteY: 32, spriteN: 7},
   'SD Explosion': {src: 'img/skills/sudden_death_explosion.png', spriteX: 32, spriteY: 32, spriteN: 7},
   'Passive Damage Amp': {src: 'img/skills/sever_artery.jpg', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Sudden Death': {src: 'img/skills/sudden_death_rune.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Passive Speed': {src: 'img/skills/speed_boost.jpg', spriteX: 32, spriteY: 32, spriteN: 1},
   'Healer Boon': {src: 'img/skills/healer_boon.jpg', spriteX: 32, spriteY: 32, spriteN: 1},
   'Mistery Box': {src: 'img/items/box.png', spriteX: 32, spriteY: 32, spriteN: 1},
