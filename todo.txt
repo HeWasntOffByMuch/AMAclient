@@ -65,6 +65,7 @@ CLIENTSIDE:
 - close loot windows when players moves from the vicinity - DONE
 - need a way to use items on client - DONE
 - removing items from client gui-windows - DONE
+- clientside pathfinding spam causes client desynchronization. fix MovementQueue in utils.js ??? - DONE
 
 
 
@@ -97,10 +98,10 @@ CLIENTSIDE:
 
 - add stacking items to match the server logic
 
-- loot windows appearing behind previous - thats new!!
+- loot windows appearing behind previous when player moved
 
 - containers you can put stuff in - synch between clients?
 
 - trading 
 
-- detecting animation end fail on callend
+- detecting animation end fail on callend -- peerJS related. possibly fixed

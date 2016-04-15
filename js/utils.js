@@ -69,13 +69,16 @@ function MovementQueue(map) {
         this.currentPath = [
             [x, y]
         ];
-    }
+    };
     this.getLength = function() {
         return this.currentPath.length;
-    }
+    };
     this.getMove = function() {
         return this.currentPath.shift();
-    }
+    };
+    this.getCurrentPath = function() {
+      return this.currentPath;
+    };
 }
 function calcLineOfSight (start_x, start_y, end_x, end_y) {
   var coordinatesArray = [];

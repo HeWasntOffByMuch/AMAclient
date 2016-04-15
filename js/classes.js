@@ -1,4 +1,4 @@
-function MovementCheck(player){
+function MovementCheck(player){ //not used right now
 	var serverMoves = [];
 	var clientMoves = [];
 	this.log = function() {
@@ -260,7 +260,15 @@ function peerJsTools() {
         }
     };
 }
-
+var presetMessages = {
+	onDeath: {message: 'R.I.P.', color: '#616161', time: 3000},
+	onRespawn: function(x, y){
+		return {message: 'You respawned at ' + x + ', ' + y + ' coordinates', color: '#616161', time: 3000}
+	},
+	onLevelUp: function(level){
+		return {message: 'You advanced to level ' + level, color: 'green', time: 3000}
+	}
+};
 function StatusMessage(canvas) { //client only
 	var defaultOptions = {
 		message: 'unhandled message',
@@ -283,7 +291,7 @@ function StatusMessage(canvas) { //client only
     this.elem.style.color = defaultOptions.color;
     this.elem.style.textAlign = "center";
     this.elem.innerHTML = this.message;
-    this.elem.style.textShadow = "0 0 5px black, 0 0 5px black, 0 0 5px black";
+    this.elem.style.textShadow = "0 0 2px black, 0 0 2px black, 0 0 2px black";
     $(".game-container")[0].appendChild(this.elem);
 
 
@@ -296,7 +304,6 @@ function StatusMessage(canvas) { //client only
 
     this.showMessage = function(opts) {
     	var options = $.extend({}, defaultOptions, opts);
-    	console.log(options);
         this.message = options.message;
         this.elem.style.color = options.color
         this.elem.innerHTML = this.message;

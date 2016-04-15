@@ -1,13 +1,21 @@
 function GameLayout(ctx) {
 	var gh = gameState.tileSize
-    activeCallTabs = {};
-    curId = 0;
+    var activeCallTabs = {};
+    var curId = 0;
 	this.draw = function() {
-		// DRAW PLAYER COMBAT ICON
-		if(GAME.player.inCombat)
-			ctx.drawImage(GAME.allImages['combat_icon'], GAME.canvas.width - 2*gh, gh, gh, gh);
-		
+	   this.drawCombatIcon();
+       this.drawPlayerManaBar();
 	};
+    this.drawCombatIcon = function() {
+        if(GAME.player.inCombat)
+            ctx.drawImage(GAME.allImages['combat_icon'], GAME.canvas.width - 2*gh, gh, gh, gh);
+    };
+    this.drawPlayerManaBar = function() {
+        ctx.strokeStyle = 'black';
+        ctx.strokeRect(130, 30, 150, 25);
+        ctx.fillStyle = 'blue';
+        ctx.fillRect(130, 30, 150 * (GAME.player.manaCur / GAME.player.manaMax), 25);
+    };
     this.incomingCallTab = function(player_id, player_name, peer_id) {
         var tab = new incomingCallTab({
             id: player_id,
@@ -227,6 +235,7 @@ function newLootWindow(entity) {
         title: entity.type,
         icon: "player_icon.png",
         position: { y: 220, x: 20 },
+        'z-index': _globalZIndex++,
         content: ['<div id=' + entity.id + ' class="slot corpse" size_x=' + 4 + ' size_y=' + Math.ceil(size/4) + '></div>']
     });
     WIN_LOOT.setId('loot');
