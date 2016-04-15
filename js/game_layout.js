@@ -15,6 +15,8 @@ function GameLayout(ctx) {
         ctx.strokeRect(130, 30, 150, 25);
         ctx.fillStyle = 'blue';
         ctx.fillRect(130, 30, 150 * (GAME.player.manaCur / GAME.player.manaMax), 25);
+        ctx.font="20px Georgia";
+        ctx.fillText(GAME.player.manaCur + ' / ' + GAME.player.manaMax, 200, 50);
     };
     this.incomingCallTab = function(player_id, player_name, peer_id) {
         var tab = new incomingCallTab({
