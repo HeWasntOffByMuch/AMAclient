@@ -18,6 +18,7 @@ function Player(parentElement, gameState, playerData){
     this.speedCur = playerData.speedCur; // +
   	this.moveQ = new MovementQueue(map.getCollisions());
     this.movingToTarget = false;
+    this.level = playerData.level;
   	this.healthCur = playerData.healthCur; // +
   	this.healthMax = playerData.healthMax; // +
     this.manaCur = playerData.manaCur; // +
@@ -78,6 +79,8 @@ function Player(parentElement, gameState, playerData){
                     nextMove = this.moveQ.getMove();
                 }
                 if (nextMove && map.isValid(nextMove[0], nextMove[1])) {
+                    var dx = nextMove[0] - this.tx;
+                    var dy = nextMove[1] - this.ty;
                     socket.emit('player-input-move', {
                         dx: nextMove[0] - this.tx,
                         dy: nextMove[1] - this.ty
@@ -154,11 +157,23 @@ function Player(parentElement, gameState, playerData){
         ctx.fillText(this.name, 512 - ctx.measureText(this.name).width/2 + 16, 240 - 5);
         ctx.restore();
     };
+    this.drawCurrentPath = function(ctx) {
+        if(gameState.dev.drawPlayerPath){
+            var path = this.moveQ.getCurrentPath();
+            for (var i = 0; i < path.length; i++) {
+                ctx.fillStyle = 'rgba(0, 0, 210, 0.3)';
+                var x = (path[i][0]-this.ax - this.x + 16);
+                var y = (path[i][1]-this.ay - this.y + 8);
+                ctx.fillRect(x*32, y*32, 32, 32);
+            }
+        }
+    };
     this.draw = function(ctx) {
         if(!this.isDead){
             this.drawPlayerCharacter(ctx);
             this.drawHealthBar(ctx);
             this.drawName(ctx);
+            this.drawCurrentPath(ctx);
     	}
     };
     this.attack = function(target) {
@@ -210,7 +225,9 @@ function Player(parentElement, gameState, playerData){
         var item = GAME.entityManager.getEntities()[from.id].contents[from.pos];  // wow jackass
         this.equipment[to.id].contents[to.x][to.y] = item;
         //do checks if objects exist
-        delete GAME.entityManager.getEntities()[from.id].contents[from.pos]; // nice chain nigga
+        var entity = GAME.entityManager.getEntities();
+        var loot = entity[from.id].contents[from.pos];
+        delete loot; // nice chain nigga
 
     };
     this.handleContainerItemMoving = function(from, to) {
@@ -285,6 +302,7 @@ function Player(parentElement, gameState, playerData){
     };
     this.levelUp = function() {
         this.level++;
+        GAME.statusMessage.showMessage(presetMessages.onLevelUp(this.level))
     };
     this.requestSkillLevelUp = function(data) {
         GAME.socket.emit('player-skill-request', data);
@@ -303,6 +321,7 @@ function Player(parentElement, gameState, playerData){
     		$('.canvas').removeClass('grayscale');
     	}, 500);
     	WIN_DEATH.hide();
+        GAME.statusMessage.showMessage(presetMessages.onRespawn(x, y));
     	this.x = x;
     	this.y = y;
     	this.tx = x;

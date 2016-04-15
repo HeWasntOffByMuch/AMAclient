@@ -5,7 +5,7 @@
   var _globalDragAnchor = null;
   var _globalResizeDir = null;
   var _globalDraggedItem = null;
-  var _globalZIndex = 999;
+  _globalZIndex = 999;
   var _globalFakeItem = $(document.createElement("div")).addClass("globalFakeItem");
   var _globalItemAnchor = null;
   var _globalTooltip = $(document.createElement("div")).addClass("globalTooltip").appendTo(document.body).hide();
@@ -19,6 +19,7 @@
     resizable: true,
     onclose: null,
     position: {x:100, y:100},
+    'z-index': 999,
     title: "New window",
     icon: null,
     onclose: function() {
@@ -171,7 +172,8 @@
       height: options.height + 38,
       width: options.width + 12,
       top: options.position.y,
-      left: options.position.x
+      left: options.position.x,
+      'z-index': options['z-index']
     });
     _globalWindows.push(div);
     
@@ -476,7 +478,8 @@
     damage: 'not provided',
     defense: 'shouldnt be here?',
     attackCooldown: 'N/A',
-    range: 'N/A'
+    range: 'N/A',
+    onEquip: []
   };
     
 
@@ -499,23 +502,17 @@
         var tableRowWeight = "<tr><td align=left width=130>Weight</td><td align=right style='color:#00ff00;font-weight:bold;'>" + options.weight/1000 + " kg</td></tr>";
         var tableRowRange = "<tr><td align=left width=130>Range</td><td align=right style='color:#ff0000;font-weight:bold;'>"+ Math.floor(options.range) +"</td></tr>";
         var tableRowValue = "<tr><td align=left width=130>Use value</td><td align=right style='color:#ff0000;font-weight:bold;'>"+ options.useValue +"</td></tr>";
-        var rarityColor;
-        switch (options.rarity){
-          case 'common':
-            rarityColor = '#676a5a';
-            break;
-          case 'uncommon':
-            rarityColor = '#60446E';
-            break;
-          case 'rare':
-            rarityColor = 'purple';
-            break;
-          case 'legendary':
-            rarityColor = 'gold';
-            break;
-          case 'set':
-            rarityColor = 'green';
-            break;
+        
+        var tableRowEffect, allEffects = "", effectName, effectValue;
+        if(options.onEquip){ // something gets fucked in creating equipment window(?) and sets it to null when its empty
+          for (var i = 0; i < options.onEquip.length; i++) {
+            effectName = options.onEquip[i].name;
+            effectValue = options.onEquip[i].value;
+            if(!effectValue)
+              effectValue = '';
+            tableRowEffect = "<tr><td align=left width=130>" + effectName + "</td><td align=right style='color:#ffffff;font-weight:bold;'>"+ effectValue +"</td></tr>";
+            allEffects += tableRowEffect;
+          }
         }
 
         switch (type) {
@@ -525,6 +522,7 @@
                                         tablePrefix +
                                             tableRowDamage +
                                             tableRowAtkSpeed +
+                                            allEffects +
                                             tableRowWeight +
                                         tableSuffix
                                     );
@@ -536,6 +534,7 @@
                                             tableRowDamage +
                                             tableRowAtkSpeed +
                                             tableRowRange +
+                                            allEffects +
                                             tableRowWeight +
                                         tableSuffix
                                     );
@@ -544,7 +543,7 @@
                 _globalTooltip.html(    divNameAndRarity +
                                         divDescription + 
                                         tablePrefix +
-                                            tableRowValue +
+                                            allEffects +
                                             tableRowWeight +
                                         tableSuffix
                                         );
@@ -553,7 +552,8 @@
                 _globalTooltip.html(    divNameAndRarity +
                                         divDescription +
                                         tablePrefix +
-                                            tableRowValue +
+                                            allEffects +
+                                            allEffects +
                                             tableRowWeight +
                                         tableSuffix);
                 break;
@@ -562,6 +562,7 @@
                                         divDescription +
                                         tablePrefix +
                                             tableRowRange +
+                                            allEffects +
                                             tableRowWeight +
                                         tableSuffix
                                     );
@@ -570,7 +571,7 @@
                 _globalTooltip.html(    divNameAndRarity +
                                         divDescription +
                                         tablePrefix +
-
+                                            allEffects +
                                             tableRowWeight +
                                         tableSuffix);
                 break;
@@ -578,7 +579,7 @@
                 _globalTooltip.html(    divNameAndRarity +
                                         divDescription +
                                         tablePrefix +
-
+                                            allEffects +
                                             tableRowWeight +
                                         tableSuffix);
                 break;
@@ -586,7 +587,7 @@
                 _globalTooltip.html(    divNameAndRarity +
                                         divDescription +
                                         tablePrefix +
-
+                                            allEffects +
                                             tableRowWeight +
                                         tableSuffix);
                 break;
@@ -594,7 +595,7 @@
                 _globalTooltip.html(    divNameAndRarity +
                                         divDescription +
                                         tablePrefix +
-
+                                            allEffects +
                                             tableRowWeight +
                                         tableSuffix);
                 break;
@@ -602,7 +603,7 @@
                 _globalTooltip.html(    divNameAndRarity +
                                         divDescription +
                                         tablePrefix +
-
+                                            allEffects +
                                             tableRowWeight +
                                         tableSuffix);
             break;

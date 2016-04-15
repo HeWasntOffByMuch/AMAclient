@@ -1,4 +1,4 @@
-function MovementCheck(player){
+function MovementCheck(player){ //not used right now
 	var serverMoves = [];
 	var clientMoves = [];
 	this.log = function() {
@@ -191,7 +191,7 @@ function PopupManager() {
 
 function peerJsTools() {
 	var allAudioCalls = {};
-	var playerPeer = new Peer({key: 'lwjd5qra8257b9'});
+	var playerPeer = new Peer({key: 'lwjd5qra8257b9'}); // MOVE PEERJS API KEY TO NETWORK SETTINGS
 
 	var playerPeerId;
 	this.getPeerId = function() {
@@ -215,6 +215,13 @@ function peerJsTools() {
                 var audioContext = new AudioContext();
                 var audioStream = audioContext.createMediaStreamSource(remoteStream);
                 audioStream.connect(audioContext.destination);
+            	console.log('PEERJS: incoming audio stream', remoteStream);
+            	// WEBAUDIO API BELOW - DOESN'T WORK IN CHROME?
+                // var audioContext = new AudioContext();
+                // var audioStream = audioContext.createMediaStreamSource(remoteStream);
+                // audioStream.connect(audioContext.destination);
+				  var audio = $('<audio autoplay />').appendTo('body');
+				  audio[0].src = (URL || webkitURL || mozURL).createObjectURL(remoteStream);
             });
         }, function(err) {
             console.log('Failed to get local stream', err);
@@ -228,11 +235,17 @@ function peerJsTools() {
                 audio: true
             }, function(stream) {
                 var call = playerPeer.call(peerId, stream);
+
+                console.log('PEERJS: calling', peerId, 'with', stream);
+
                 allAudioCalls[id] = call;
                 call.on('stream', function(remoteStream) {
-                    var audioContext = new AudioContext();
-                    var audioStream = audioContext.createMediaStreamSource(remoteStream);
-                    audioStream.connect(audioContext.destination);
+                	console.log('PEERJS: got an answer back');
+                    // var audioContext = new AudioContext();
+                    // var audioStream = audioContext.createMediaStreamSource(remoteStream);
+                    // audioStream.connect(audioContext.destination);
+					  var audio = $('<audio autoplay />').appendTo('body');
+					  audio[0].src = (URL || webkitURL || mozURL).createObjectURL(remoteStream);
                 });
             }, function(err) {
                 console.log('Failed to get local stream', err);
@@ -250,7 +263,59 @@ function peerJsTools() {
         }
     };
 }
+var presetMessages = {
+	onDeath: {message: 'R.I.P.', color: '#616161', time: 3000},
+	onRespawn: function(x, y){
+		return {message: 'You respawned at ' + x + ', ' + y + ' coordinates', color: '#616161', time: 3000}
+	},
+	onLevelUp: function(level){
+		return {message: 'You advanced to level ' + level, color: 'green', time: 3000}
+	}
+};
+function StatusMessage(canvas) { //client only
+	var defaultOptions = {
+		message: 'unhandled message',
+		time: 3000,
+		color: '#fff'
+	}
+    //initial message
+    this.message = "";
+    this.messageTime = gameState.frameTime + defaultOptions.time;
+    this.active = true;
 
+    this.canvas = canvas;
+    this.elem = document.createElement("div");
+
+    this.elem.style.position = "absolute";
+    this.elem.style.left = "0px";
+    this.elem.style.top = canvas.height - 50 + "px";
+    this.elem.style.height = "20px";
+    this.elem.style.width = canvas.width + "px";
+    this.elem.style.color = defaultOptions.color;
+    this.elem.style.textAlign = "center";
+    this.elem.innerHTML = this.message;
+    this.elem.style.textShadow = "0 0 2px black, 0 0 2px black, 0 0 2px black";
+    $(".game-container")[0].appendChild(this.elem);
+
+
+    this.update = function() {
+        if (gameState.frameTime > this.messageTime && this.active) {
+            $(this.elem).fadeOut();
+            this.active = false;
+        }
+    }
+
+    this.showMessage = function(opts) {
+    	var options = $.extend({}, defaultOptions, opts);
+        this.message = options.message;
+        this.elem.style.color = options.color
+        this.elem.innerHTML = this.message;
+        this.messageTime = gameState.frameTime + options.time;
+        if (!this.active)
+            $(this.elem).fadeIn();
+        this.active = true;
+    }
+}
 // GAME ON DIVS. MAYBE USE SOME OF IT FOR CERTAIN ELEMENTS. NOT NOW THO.
 
 // function repositionTile() { // deprecated

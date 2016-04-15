@@ -109,6 +109,7 @@ function OtherPlayer(gameState, data) {
                 this.direction = 'right';
                 break;
         }
+        console.log(this.direction)
     };
 
     this.attack = function(target, type, isClear) {

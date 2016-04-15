@@ -1,13 +1,15 @@
-function ProjectileAnimation(caller_x, caller_y, target_x, target_y, type1, type2){
+function ProjectileAnimation(caller_x, caller_y, target_x, target_y, type1, type2, options){
+  if(!options) options = {};
   var gh = gameState.tileSize;
   var x = caller_x;
   var y = caller_y;
   var tx = target_x;
   var ty = target_y;
   var animStart = gameState.frameTime;
-  var speed = 30*dist({tx: x, ty: y}, {tx: tx, ty: ty});
+  var projectileSpeed = options.projectileSpeed || 120;
+  var speed = projectileSpeed + 3*dist({tx: x, ty: y}, {tx: tx, ty: ty});
   var state = 1;
-  var animationSpeed = 80;
+  var animationSpeed = options.animationSpeed || 80;
   var angle = Math.atan2(ty-y,tx-x) + Math.PI/2;
   var ax, ay;
 
@@ -41,11 +43,15 @@ function ProjectileAnimation(caller_x, caller_y, target_x, target_y, type1, type
     // target.takeDamage(player1.data, this.damage);
   }
 }
-function ShortAnimation(x, y, img_name) {
+var animationDefaults = {
+  speed: 90
+}
+function ShortAnimation(x, y, img_name, options) {
+    var options = $.extend({}, animationDefaults, options);
     var img = GAME.allImages[img_name];
     var gh = gameState.tileSize;
     var animStart = gameState.frameTime;
-    var animationSpeed = 90;
+    var animationSpeed = options.speed;
     var animationFrame;
     this.update = function() {
         animationFrame = Math.floor((gameState.frameTime - animStart) / animationSpeed);

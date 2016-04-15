@@ -5,9 +5,11 @@ function Game(playerData, map_size, chunkSize) {
         frameTime: new Date().getTime(),
         lastFrameTime: Date.now(),
         tileSize: 32,
-        mapSize: map_size
+        mapSize: map_size,
+        dev: {
+            drawPlayerPath: true
+        }
     }
-    
 
     this.acceptConnectionAndCall = function(id, peerId) {
         socket.emit('player-call-accept', id);
@@ -28,6 +30,11 @@ function Game(playerData, map_size, chunkSize) {
     var player = GAME.player = new Player(null, gameState, playerData);
     makeAllOfThemWindowsNow(playerData);
 
+    this.ping = function(a) {
+        socket.emit('ping', a);
+    }
+
+    var statusMessage = GAME.statusMessage = new StatusMessage(canvas);
     var movementCheck = new MovementCheck(playerData);
     var entityManager = GAME.entityManager = new EntityManager();
     var popupManager = GAME.popupManager = new PopupManager();
@@ -218,9 +225,11 @@ function Game(playerData, map_size, chunkSize) {
         player.useItemOnSelf(itemData);
     };
     function ctxMenuUseOnTargetHandler() {
+        console.log('RCI', rightClickedItem.style.backgroundImage)
         if(!rightClickedItem) return;
         targetingWithItem = true;
-        document.body.style.cursor = rightClickedItem.style.backgroundImage + ", auto";
+        // document.body.style.cursor = rightClickedItem.style.backgroundImage + ", auto";
+        document.body.style.cursor = 'crosshair';
     };
     function ctxMenuOpenHandler() {
         GAME.targetedEntity = null;
@@ -301,6 +310,7 @@ function Game(playerData, map_size, chunkSize) {
         movementCheck.update();
         popupManager.update();
         anims.update();
+        statusMessage.update();
         entityManager.update();
         // map.update(player);
         // entities.update();
@@ -340,9 +350,8 @@ function Game(playerData, map_size, chunkSize) {
         if (key == "65") {
              GAME.player.move(-1, 0);
         }
-        if (key == "117") {
-            var a = prompt();
-             socket.emit('ping', a);
+        if (key == "117") { // F6
+            this.ping();
         }
         if (key == "49") { //1
             if(GAME.targetedUnit)
@@ -510,6 +519,10 @@ function Game(playerData, map_size, chunkSize) {
                     player.speedCur = data[p].speedCur;
                     player.isVisible = data[p].isVisible;
                     player.attackSpeed = data[p].attackSpeed;
+                    // obviously a player will be off by a fraction. use this to log if position is wrong by a whole number
+                    // if(!player.moving && ( player.tx != data[p].tx || player.ty != data[p].ty )){
+                    //     GAME.statusMessage.showMessage({message: 'Player position out of sync', color: 'green', time: 1000});
+                    // }
                     continue; // that means dont create nor update otherPlayer for GAME.player
                 }
                 if(!players_data.hasOwnProperty(id)){
@@ -544,6 +557,7 @@ function Game(playerData, map_size, chunkSize) {
         player.y = data.y;
         player.tx = data.x;
         player.ty = data.y
+        player.moveQ.currentPath = [];
     });
     socket.on('you-have-died', function() {
         console.log('player died')
@@ -620,5 +634,11 @@ function Game(playerData, map_size, chunkSize) {
     socket.on('other-player-toggled-invisibility', function(data) {
         if(data.id != player.id)
             players_data[data.id].toggleInvisibility();
+    });
+    socket.on('server-message', function(data) {
+        statusMessage.showMessage(data);
+    });
+    socket.on('spell-effect-triggered', function(data) {
+        GAME.animationFunctions[data.name](data);
     });
 }
