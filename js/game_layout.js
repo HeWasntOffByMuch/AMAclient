@@ -4,20 +4,38 @@ function GameLayout(ctx) {
     var curId = 0;
 	this.draw = function() {
 	   this.drawCombatIcon();
+       this.drawPlayerHealthBar();
        this.drawPlayerManaBar();
+       this.drawExperienceBar();
 	};
     this.drawCombatIcon = function() {
         if(GAME.player.inCombat)
             ctx.drawImage(GAME.allImages['combat_icon'], GAME.canvas.width - 2*gh, gh, gh, gh);
     };
-    this.drawPlayerManaBar = function() {
+    this.drawPlayerHealthBar = function() {
         ctx.strokeStyle = 'black';
-        ctx.strokeRect(130, 30, 150, 25);
-        ctx.fillStyle = 'blue';
-        ctx.fillRect(130, 30, 150 * (GAME.player.manaCur / GAME.player.manaMax), 25);
+        ctx.strokeRect(130, 30, 180, 25);
+        ctx.fillStyle = 'red';
+        ctx.fillRect(130, 30, 180 * (GAME.player.healthCur / GAME.player.healthMax), 25);
         ctx.font="20px Tibia Font";
         ctx.fillStyle = 'black';
-        ctx.fillText(GAME.player.manaCur + ' / ' + GAME.player.manaMax, 145, 50);
+        ctx.fillText(GAME.player.healthCur + ' / ' + GAME.player.healthMax, 145, 50);
+    };
+    this.drawPlayerManaBar = function() {
+        ctx.strokeStyle = 'black';
+        ctx.strokeRect(330, 30, 180, 25);
+        ctx.fillStyle = 'blue';
+        ctx.fillRect(330, 30, 180 * (GAME.player.manaCur / GAME.player.manaMax), 25);
+        ctx.font="20px Tibia Font";
+        ctx.fillStyle = 'black';
+        ctx.fillText(GAME.player.manaCur + ' / ' + GAME.player.manaMax, 345, 50);
+    };
+    this.drawExperienceBar = function() {
+        ctx.fillStyle = '#454BFF';
+        ctx.fillRect(0, GAME.canvas.height - 4, GAME.canvas.width, 4);
+        ctx.fillStyle = '#FFDD00';
+        ctx.fillRect(0, GAME.canvas.height - 4, GAME.canvas.width * GAME.player.expPercent.toFixed(2), 4);
+
     };
     this.incomingCallTab = function(player_id, player_name, peer_id) {
         var tab = new incomingCallTab({

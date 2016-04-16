@@ -18,14 +18,16 @@ function Player(parentElement, gameState, playerData){
     this.speedCur = playerData.speedCur; // +
   	this.moveQ = new MovementQueue(map.getCollisions());
     this.movingToTarget = false;
-    this.level = playerData.level;
-  	this.healthCur = playerData.healthCur; // +
-  	this.healthMax = playerData.healthMax; // +
+    this.healthCur = playerData.healthCur; // +
+    this.healthMax = playerData.healthMax; // +
     this.manaCur = playerData.manaCur; // +
     this.manaMax = playerData.manaMax; // +
-  	this.isDead = false;
+    this.isDead = false;
     this.isVisible = playerData.isVisible;
 
+    this.level = playerData.level;
+    this.experience = playerData.experience;
+    this.expPercent = (this.experience - expTable[this.level]) / (expTable[this.level+1] - expTable[this.level]);
     this.skillTree = playerData.skillTree.tree;
     this.unusedSkillPoints = playerData.skillTree.unusedSkillPoints;
 
@@ -299,6 +301,11 @@ function Player(parentElement, gameState, playerData){
     };
     this.gainExperience = function(exp) {
         GAME.popupManager.newExpPopup(this.tx, this.ty, exp, 1000);
+        this.experience += exp;
+        while(this.experience >= expTable[this.level+1]){
+            this.levelUp();
+        }
+        this.expPercent = (this.experience - expTable[this.level]) / (expTable[this.level+1] - expTable[this.level]);
     };
     this.levelUp = function() {
         this.level++;

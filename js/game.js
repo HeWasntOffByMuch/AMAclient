@@ -600,7 +600,7 @@ function Game(playerData, map_size, chunkSize) {
         player.gainExperience(data);
     });
     socket.on('player-level-up', function() {
-        player.levelUp();
+        // player.levelUp();
     });
     socket.on('player-attack-melee', function(data) {
         if(players_data.hasOwnProperty(data.id)){

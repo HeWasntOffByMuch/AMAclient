@@ -305,7 +305,7 @@ $(function() {
         SOCKET = null;
         console.log('disconnected from socket');
         if(GAME && GAME.statusMessage)
-            GAME.statusMessage.showMessage({message: 'You have been disconnected, refresh the page.', color: 'red', time: 20000})
+            GAME.statusMessage.showMessage({message: 'You have been disconnected, refresh the page.', color: 'red', time: 2000000})
     });
     SOCKET.on('login-failed', function() {
         WIN_NO.show();
