@@ -38,7 +38,6 @@ function OtherPlayer(gameState, data) {
         this.y += Math.sign(this.ty - this.y) * Math.min((gameState.frameTime - this.lastTime) / this.speedCur, Math.abs(this.ty - this.y));
         
         if (this.tx != this.x || this.ty != this.y) {
-            if(this.moving == false)
                 this.setDirection(Math.round(this.tx - this.x), Math.round(this.ty - this.y));
             this.moving = true;
         }
@@ -109,7 +108,6 @@ function OtherPlayer(gameState, data) {
                 this.direction = 'right';
                 break;
         }
-        console.log(this.direction)
     };
 
     this.attack = function(target, type, isClear) {
@@ -121,7 +119,6 @@ function OtherPlayer(gameState, data) {
         switch(type){
             case 'melee':
                 // melee animation
-                console.log('222')
                 GAME.anims.push(new AttackAnimation(this, target, type));
                 break;
             case 'ranged':

@@ -143,6 +143,9 @@ function Game(playerData, map_size, chunkSize) {
                         y: parseInt(itemElement.css('top'), 10)/gh,
                         parentId: itemElement.parent().attr('id')
                     };
+                    console.log('itemElement', itemElement)
+                    console.log('itemData', itemData)
+                    console.log('rightClickedItem', rightClickedItem)
                     // use current right clciked item on whatever is clicked
                     player.useItemOnMob(itemData, enemy);
                     return;
@@ -225,7 +228,6 @@ function Game(playerData, map_size, chunkSize) {
         player.useItemOnSelf(itemData);
     };
     function ctxMenuUseOnTargetHandler() {
-        console.log('RCI', rightClickedItem.style.backgroundImage)
         if(!rightClickedItem) return;
         targetingWithItem = true;
         // document.body.style.cursor = rightClickedItem.style.backgroundImage + ", auto";
