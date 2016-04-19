@@ -23,7 +23,7 @@ $(function() {
     // F.className = 'foreground';
     // gameContainer.appendChild(F);
 
-    gameContainer.appendChild((t = document.createElement("img"), t.src = "./img/gradient_border.png", t.className = 'game-container-filter', t));
+    // gameContainer.appendChild((t = document.createElement("img"), t.src = "./img/gradient_border.png", t.className = 'game-container-filter', t));
 
 
     // 2. login screen and logic

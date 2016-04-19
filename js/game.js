@@ -7,7 +7,7 @@ function Game(playerData, map_size, chunkSize) {
         tileSize: 32,
         mapSize: map_size,
         dev: {
-            drawPlayerPath: true
+            drawPlayerPath: false
         }
     }
 
@@ -230,6 +230,9 @@ function Game(playerData, map_size, chunkSize) {
     function ctxMenuUseOnTargetHandler() {
         if(!rightClickedItem) return;
         targetingWithItem = true;
+        // check right clicked item use type to check self use etc.
+        // add use type
+
         // document.body.style.cursor = rightClickedItem.style.backgroundImage + ", auto";
         document.body.style.cursor = 'crosshair';
     };
@@ -403,13 +406,13 @@ function Game(playerData, map_size, chunkSize) {
         $(document).keydown(function(e) {
             lastKeyEvent = e;
         });
-        $('.game-container-filter').mousemove(function(e){
+        $('.game-container').mousemove(function(e){
             var canvasX = canvas.width/$('.canvas').width();
             var canvasY = canvas.height/$('.canvas').height();
             mousepos = {x: (e.clientX - canvas.getBoundingClientRect().left)*canvasX, y:(e.clientY - canvas.getBoundingClientRect().top)*canvasY};
         });
-        $('.game-container-filter').on('dragstart', function(event) { event.preventDefault(); });
-        $('.game-container-filter').mouseup(handleLeftClick);
+        $('.game-container').on('dragstart', function(event) { event.preventDefault(); });
+        $('.game-container').mouseup(handleLeftClick);
         
         //disable context menu on all gui windows.
         $(document).on('contextmenu', '.gui-window', function(e) {
@@ -425,7 +428,7 @@ function Game(playerData, map_size, chunkSize) {
         $('.gui-window').click(function(e) {
             $('.ctx_menu').hide();
         })
-        $(".game-container-filter")[0].oncontextmenu = function(e){
+        $(".game-container")[0].oncontextmenu = function(e){
             e.preventDefault();
             $('.ctx_menu').hide();
 

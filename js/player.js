@@ -38,15 +38,9 @@ function Player(parentElement, gameState, playerData){
     this.direction = 'down';
     this.animationFrame = 0;
 
-    this.equipment = playerData.equipment || { // +
-        primary: {type: 'sword', range: 1.5},
-        secondary: 0,
-        body: 0,
-        legs: 0,
-        boots: 0,
-        head: 0,
-        backpack: 0
-    };
+    this.equipment = playerData.equipment;
+
+    
     this.move = function(dx, dy) {
     	if(!this.isDead){
 		    if (map.isValid(this.tx + dx, this.ty + dy)) {
