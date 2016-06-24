@@ -1,6 +1,7 @@
 // server_address = 'https://94jzlodc.apps.lair.io:9876';
 // server_address = 'localhost:8000';
-server_address = '89.75.75.210:8000'; //DMZ BOLESLAWICKA
+	server_address = 'ama-baszakrpg.rhcloud.com:3000'
+// server_address = '89.75.75.210:8000'; //DMZ BOLESLAWICKA
 // server_address = '192.168.0.5:8000'; //LOCALHOST BOLESLAWICKA
 // server_address = '192.168.0.10:8000'; //LOCALHOST KAROLINA
 // server_address = '192.168.0.16:8000'; //LOCALHOST KAROLINA
