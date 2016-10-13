@@ -4,19 +4,19 @@ function Player(parentElement, gameState, playerData){
     var map = GAME.map;
     var socket = GAME.socket;
 
- 	this.id = playerData._id; // +
- 	this.name = playerData.name; // +
- 	this.type = enums.objType.PLAYER; // +
-	this.x = playerData.x; // +
-	this.y = playerData.y; // +
-	this.tx = this.x; // +
-	this.ty = this.y; // +
-	this.ax = 0;
-	this.ay = 0;
+    this.id = playerData._id; // +
+    this.name = playerData.name; // +
+    this.type = enums.objType.PLAYER; // +
+    this.x = playerData.x; // +
+    this.y = playerData.y; // +
+    this.tx = this.x; // +
+    this.ty = this.y; // +
+    this.ax = 0;
+    this.ay = 0;
     this.moveTime = false;
     this.moving = false;
     this.speedCur = playerData.speedCur; // +
-  	this.moveQ = new MovementQueue(map.getCollisions());
+    this.moveQ = new MovementQueue(map.getCollisions());
     this.movingToTarget = false;
     this.healthCur = playerData.healthCur; // +
     this.healthMax = playerData.healthMax; // +
@@ -31,8 +31,8 @@ function Player(parentElement, gameState, playerData){
     this.skillTree = playerData.skillTree.tree;
     this.unusedSkillPoints = playerData.skillTree.unusedSkillPoints;
 
-  	this.lastAttack = gameState.frameTime;
-  	this.attackSpeed = playerData.attackSpeed;
+    this.lastAttack = gameState.frameTime;
+    this.attackSpeed = playerData.attackSpeed;
     this.inCombat = playerData.inCombat || false;
 
     this.direction = 'down';
@@ -266,6 +266,11 @@ function Player(parentElement, gameState, playerData){
     this.useItemOnMob = function(item_data, mob) {
         var item = this.equipment[item_data.parentId].contents[item_data.x][item_data.y];
         GAME.socket.emit('player-use-item-on-target', {id: item_data.parentId, x: item_data.x, y: item_data.y, targetId: mob.id, targetType: enums.objType.MOB});
+    };
+    this.useItemOnEntity = function(item_data, entity) {
+        var item = this.equipment[item_data.parentId].contents[item_data.x][item_data.y];
+        console.log('item used on entity', item);
+        GAME.socket.emit('player-use-item-on-target', {id: item_data.parentId, x: item_data.x, y: item_data.y, targetId: entity.id, targetType: enums.objType.ENTITY});
     };
     this.removeItem = function(data) {
         var parentID = data.parentId;

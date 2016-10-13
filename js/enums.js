@@ -42,11 +42,12 @@ var enums = {
 
   objType : {
     PLAYER: 0,
-    MOB: 1
+    MOB: 1,
+    ENTITY: 2
   },
   valueType : {
     STATIC: 0,
-    PERCENT: 1,
+    PERCENT: 1
   },
 
   itemType : {
@@ -63,8 +64,8 @@ var enums = {
     BACKPACK: 10,
     GOLD: 11,
     SKILL: 12
-  },
-}
+  }
+};
 
 
 if(Object.freeze){

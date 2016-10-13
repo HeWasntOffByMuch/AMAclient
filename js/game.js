@@ -43,11 +43,11 @@ function Game(playerData, map_size, chunkSize) {
     var gameLayout = GAME.layout = new GameLayout(ctx);
     var peerTools = GAME.peerTools = new peerJsTools();
     /* GAME OBJECTS */
-    var players_data = {};
+    var mobs_data = {};
     this.getMobsData = function() {
         return mobs_data;
     };
-    var mobs_data = {};
+    var players_data = {};
     this.getPlayersData = function() {
         return players_data;
     };
@@ -115,16 +115,20 @@ function Game(playerData, map_size, chunkSize) {
 
 
 
-        if(!player.isDead){
-            player.moveQ.findPath(player.tx, player.ty, destX, destY);
-            player.movingToTarget = false;
+        if(!player.isDead && targetingWithItem){
+            // this condition is residual piece of code from when viewport moved when player went close to the edges, can rewrite to static rectangle check
             if (0 < mpos_x - (player.x + player.ax) && mpos_x - (player.x + player.ax) < 1 && 0 < mpos_y - (player.y + player.ay) && mpos_y - (player.y + player.ay) < 1){
-                if(targetingWithItem){
-                    targetingWithItem = false;
-                    document.body.style.cursor = 'default';
-                    ctxMenuUseHandler();
-                    return;
-                }
+                targetingWithItem = false;
+                document.body.style.cursor = 'default';
+                var itemElement = $('#' + rightClickedItem.id );
+                var itemData = {
+                    x: parseInt(itemElement.css('left'), 10)/gh,
+                    y: parseInt(itemElement.css('top'), 10)/gh,
+                    parentId: itemElement.parent().attr('id')
+                };
+
+                player.useItemOnSelf(itemData);
+                return;
             }
 
         }
@@ -133,7 +137,7 @@ function Game(playerData, map_size, chunkSize) {
             var enemy = mobs_data[i];
             if (0 < mpos_x - enemy.x && mpos_x - enemy.x < 1 && 0 < mpos_y - enemy.y && mpos_y - enemy.y < 1) {
                 player.moveQ.currentPath = [];
-                //if currently targeting
+
                 if(targetingWithItem){
                     targetingWithItem = false;
                     document.body.style.cursor = 'default';
@@ -143,9 +147,9 @@ function Game(playerData, map_size, chunkSize) {
                         y: parseInt(itemElement.css('top'), 10)/gh,
                         parentId: itemElement.parent().attr('id')
                     };
-                    console.log('itemElement', itemElement)
-                    console.log('itemData', itemData)
-                    console.log('rightClickedItem', rightClickedItem)
+                    console.log('itemElement', itemElement);
+                    console.log('itemData', itemData);
+                    console.log('rightClickedItem', rightClickedItem);
                     // use current right clciked item on whatever is clicked
                     player.useItemOnMob(itemData, enemy);
                     return;
@@ -189,17 +193,38 @@ function Game(playerData, map_size, chunkSize) {
 
         //if currently targeting and no player nor mob has been selected as target
         //so those would be using items on ground/entities/water/etc.
+        console.log('didnt click mob nor player nor self');
 
-        // if(targetingWithItem){
-        //     targetingWithItem = false;
-        //     document.body.style.cursor = 'default';
-        //     // use current right clciked item on whatever is clicked
-        //     player.useItemOnSomethingElse(rightClickedItem, somethingelse);
-        //     return;
-        // }
+        if(targetingWithItem){
+            const allEntities = entityManager.getEntities();
+            console.log(allEntities)
+            for(var entity in allEntities) {
+                var entitoso = allEntities[entity];
+                // better check (~~mpos_x === entitoso.x && ~~mpos_y === entitoso.y) see if works
+                if (0 < mpos_x - entitoso.x && mpos_x - entitoso.x < 1 && 0 < mpos_y - entitoso.y && mpos_y - entitoso.y < 1) {
+                    targetingWithItem = false;
+                    document.body.style.cursor = 'default';
+                    var itemElement = $('#' + rightClickedItem.id );
+                    var itemData = {
+                        x: parseInt(itemElement.css('left'), 10)/gh,
+                        y: parseInt(itemElement.css('top'), 10)/gh,
+                        parentId: itemElement.parent().attr('id')
+                    };
+                    console.log(entitoso)
+                    player.useItemOnEntity(itemData, entitoso);
+                    return;
+                }
+            }
+            // place for consecutive checks for water ground etc.
+        } else { // didn't click anything and not targeting
+            console.log('click on ground')
+            player.moveQ.findPath(player.tx, player.ty, destX, destY);
+            player.movingToTarget = false;
+        }
 
 
-    };
+
+    }
     function ctxMenuInspectHandler() {
         console.log('inspect function')
     };
@@ -227,7 +252,7 @@ function Game(playerData, map_size, chunkSize) {
         };
         player.useItemOnSelf(itemData);
     };
-    function ctxMenuUseOnTargetHandler() {
+    function ctxMenuUseOnTargetHandler() { //this actually couples ctxMenu 'use on' with keyboard shortcuts, change name plz
         if(!rightClickedItem) return;
         targetingWithItem = true;
         // check right clicked item use type to check self use etc.

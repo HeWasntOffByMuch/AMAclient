@@ -6,7 +6,7 @@
   var _globalResizeDir = null;
   var _globalDraggedItem = null;
   _globalZIndex = 999;
-  var _globalFakeItem = $(document.createElement("div")).addClass("globalFakeItem");
+  // var _globalFakeItem = $(document.createElement("div")).addClass("globalFakeItem");
   var _globalItemAnchor = null;
   var _globalTooltip = $(document.createElement("div")).addClass("globalTooltip").appendTo(document.body).hide();
   var _globalTooltipTO;
@@ -458,13 +458,13 @@
         else for(var i = 0; i < size.x; i ++) for(var j = 0; j < size.y; j ++) {
           if (pos.left+i >= size_x || pos.top+j >= size_y || div[0].data[pos.left+i][pos.top+j]) valid = 0;
         }
-        _globalFakeItem.appendTo(div).show().css({
-          backgroundColor: valid?'green':'red',
-          left: pos.left*32,
-          top: pos.top*32,
-          width: size.x * 32,
-          height: size.y * 32
-        });
+        // _globalFakeItem.appendTo(div).show().css({
+        //   backgroundColor: valid?'green':'red',
+        //   left: pos.left*32,
+        //   top: pos.top*32,
+        //   width: size.x * 32,
+        //   height: size.y * 32
+        // });
         if(valid) ev.preventDefault();
       };
     });
@@ -645,11 +645,11 @@
         _globalTooltip.hide();
       }
       div[0].ondragend = function(ev) {
-        _globalFakeItem.hide();
-        for(var i = 0; i < size_x; i ++) for(var j = 0; j < size_y; j ++) {
-          var pos_old = div.position();
-          div.parent()[0].data[pos_old.left/32+i][pos_old.top/32+j] = 1;
-        }
+        // _globalFakeItem.hide();
+        // for(var i = 0; i < size_x; i ++) for(var j = 0; j < size_y; j ++) {
+        //   var pos_old = div.position();
+        //   div.parent()[0].data[pos_old.left/32+i][pos_old.top/32+j] = 1;
+        // }
       }
       div.mouseover(function(ev){
         clearTimeout(_globalTooltipTO);
