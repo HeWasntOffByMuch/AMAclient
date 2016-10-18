@@ -92,12 +92,14 @@ function PopupManager() {
 	var defaultDecayTime = 3000;
 	var gh = gameState.tileSize;
 
-	this.newDamagePopup = function(x, y, number, decay_time) {
+	this.newDamagePopup = function(x, y, number, effectsArray, decay_time) {
+		console.log('effectsarray', effectsArray)
 		allPopups[curId++] = {
 			x: x,
 			y: y,
 			type: 'damage',
-			value: number,
+			effect: effectsArray[0],
+			value: (effectsArray.includes(enums.damageEffect.CRITICAL) ? number + '!' : number),
 			creationTime: new Date().getTime(),
 			decayTime: decay_time || defaultDecayTime
 		}
@@ -154,12 +156,20 @@ function PopupManager() {
 	                    ctx.font = "13px Tibia Font";
 	                }
                 	ctx.strokeStyle = '#000';
-					ctx.lineWidth = 0.5;
-                    ctx.fillStyle = 'rgba(210, 0, 0, 1)';
-                    ctx.fillText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 12);
-                    ctx.strokeText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 12);
-                    ctx.lineWidth = 1;
-                    break;
+									ctx.lineWidth = 0.5;
+									switch(p.effect) {
+										case enums.damageEffect.BLOCKED:
+											ctx.fillStyle = 'rgba(245, 245, 0, 1)';
+											break;
+										case enums.damageEffect.EVADED:
+											ctx.fillStyle = 'rgba(194, 194, 194, 1)';
+											break;
+									}
+									ctx.fillStyle = 'rgba(210, 0, 0, 1)';
+									ctx.fillText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 12);
+									ctx.strokeText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 12);
+									ctx.lineWidth = 1;
+									break;
                 case 'heal':
                     ctx.font = "12px Tibia Font";
 	                if (p.value >= 100) {
@@ -168,21 +178,21 @@ function PopupManager() {
 	                    ctx.font = "13px Tibia Font";
 	                }
                 	ctx.strokeStyle = '#000';
-					ctx.lineWidth = 0.5;
-                    ctx.fillStyle = 'rgba(0, 210, 0, 1)';
-                    ctx.fillText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 18);
-                    ctx.strokeText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 18);
-                    ctx.lineWidth = 1;
-                    break;
+									ctx.lineWidth = 0.5;
+									ctx.fillStyle = 'rgba(0, 210, 0, 1)';
+									ctx.fillText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 18);
+									ctx.strokeText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 18);
+									ctx.lineWidth = 1;
+									break;
                 case 'exp':
                 	ctx.font = "12px Tibia Font";
-                    // ctx.strokeStyle = '#000';
-					// ctx.lineWidth = 0.5;
-                    ctx.fillStyle = '#fff';
-                    ctx.fillText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 24);
-                    // ctx.strokeText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 24);
-                    ctx.lineWidth = 1;
-                    break;
+									// ctx.strokeStyle = '#000';
+									// ctx.lineWidth = 0.5;
+									ctx.fillStyle = '#fff';
+									ctx.fillText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 24);
+									// ctx.strokeText(p.value, (p.x - GAME.player.x - GAME.player.ax+16) * gh - ctx.measureText(p.value).width/2 + 16, (p.y - GAME.player.y - GAME.player.ay+8) *gh - 24);
+									ctx.lineWidth = 1;
+									break;
             }
 		}
 	};

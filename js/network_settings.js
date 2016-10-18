@@ -1,5 +1,5 @@
 // server_address = 'https://94jzlodc.apps.lair.io:9876';
-server_address = '172.17.16.75:8000';
+  server_address = 'localhost:8000';
 	// server_address = '172.17.0.200:3000';
 // server_address = '89.75.75.210:8000'; //DMZ BOLESLAWICKA
 // server_address = '192.168.0.5:8000'; //LOCALHOST BOLESLAWICKA

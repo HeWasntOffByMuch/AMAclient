@@ -110,7 +110,7 @@ function OtherPlayer(gameState, data) {
         }
     };
 
-    this.attack = function(target, type, isClear) {
+    this.attack = function(target, type, isClear, damage) {
         var type_ammo = 'arrow_new',
             type_hit = 'blood_hit',
             type_miss = 'arrow_hit';
@@ -126,9 +126,10 @@ function OtherPlayer(gameState, data) {
                 GAME.anims.push(new ProjectileAnimation(this.tx, this.ty, target.x, target.y, type_ammo, type_hit));
                 break;
         }
+        GAME.popupManager.newDamagePopup(target.x, target.y, damage.value, damage.effect, 1000);
     };
-    this.showDamageAmmount = function(damage) {
-            GAME.popupManager.newDamagePopup(this.tx, this.ty, damage, 1000);
+    this.showDamageAnimation = function(damage) {
+            // GAME.popupManager.newDamagePopup(this.tx, this.ty, damage, 1000);
         if(damage >= 10)
             GAME.anims.push(new ShortAnimation(this.tx, this.ty, 'blood_hit'));
         else
@@ -140,7 +141,7 @@ function OtherPlayer(gameState, data) {
     this.updateHealth = function(healthCurUpdate) {
         if (this.healthCur != healthCurUpdate) {
             if(this.healthCur > healthCurUpdate)
-                this.showDamageAmmount(this.healthCur - healthCurUpdate);
+                this.showDamageAnimation(this.healthCur - healthCurUpdate);
             else if(this.healthCur < healthCurUpdate)
                 this.showHealAmmount(healthCurUpdate - this.healthCur);
             this.healthCur = healthCurUpdate;
@@ -153,9 +154,9 @@ function OtherPlayer(gameState, data) {
             GAME.targetedUnit = null;
         }
         map.freeSpot(this.tx, this.ty);
-        GAME.popupManager.newDamagePopup(this.tx, this.ty, this.healthCur, 1500)
+        GAME.popupManager.newDamagePopup(this.tx, this.ty, this.healthCur, [], 1500);
         delete GAME.instance.getPlayersData()[this.id];
-    }
+    };
     this.toggleInvisibility = function() {
         this.isVisible = false;
         if(this == GAME.targetedUnit){

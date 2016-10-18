@@ -64,6 +64,13 @@ var enums = {
     BACKPACK: 10,
     GOLD: 11,
     SKILL: 12
+  },
+  damageEffect: {
+    NORMAL: 0,
+    EVADED: 1,
+    BLOCKED: 2,
+    PARRIED: 3,
+    CRITICAL: 4
   }
 };
 

@@ -632,12 +632,16 @@ function Game(playerData, map_size, chunkSize) {
     });
     socket.on('player-attack-melee', function(data) {
         if(players_data.hasOwnProperty(data.id)){
-            players_data[data.id].attack(data.target, 'melee');
+            players_data[data.id].attack(data.target, 'melee', data.damage);
         }
     });
     socket.on('player-attack-range', function(data) {
         if(players_data.hasOwnProperty(data.id)){
-            players_data[data.id].attack(data.target, 'ranged', data.hit);
+            players_data[data.id].attack(data.target, 'ranged', data.hit, data.damage);
+        }
+        if(data.id === player.id){
+            console.log('thats me attacking, and that came from the server');
+            player.showDamageWithStatesLocally(data);
         }
     });
     socket.on('entity-content-response', function(data) {

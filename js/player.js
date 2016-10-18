@@ -199,8 +199,12 @@ function Player(parentElement, gameState, playerData){
             }
         }
     };
+    this.showDamageWithStatesLocally = function(data) {
+        console.log(data)
+        GAME.popupManager.newDamagePopup(data.target.x, data.target.y, data.damage.value, data.damage.effect, 1000);
+    };
     this.takeDamage = function(damage) {
-    	GAME.popupManager.newDamagePopup(this.tx, this.ty, damage, 1000);
+    	// GAME.popupManager.newDamagePopup(this.tx, this.ty, damage, 1000); // that's now handles by other players functions
         if(damage >= 10)
             GAME.anims.push(new ShortAnimation(this.tx, this.ty, 'blood_hit'));
         else
