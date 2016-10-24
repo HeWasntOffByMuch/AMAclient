@@ -349,6 +349,7 @@
 
         // START SLOT VALIDITY CHECKING
         var itemDroppedType = $('#' + data).attr('type');
+        console.log(typeof(itemDroppedType), itemDroppedType);
 
         if(latterSlot.hasClass('primary')){
           if(itemDroppedType != 'melee' && itemDroppedType != 'ranged') valid = 0;
@@ -369,7 +370,12 @@
           if(itemDroppedType != 'off-hand') valid = 0;
         }
         else if(latterSlot.hasClass('skill')){
-          if(itemDroppedType != 'skill') valid = 0;
+          console.log('hasclass skill')
+          if(itemDroppedType === 'skill' || itemDroppedType === 'non-consumable'){
+
+          } else {
+            valid = 0;
+          }
         }
 
         
@@ -609,7 +615,9 @@
         }
     }
   function itemElement(size_x, size_y, parent, pos_x, pos_y, id, src, options) {
-    var options = $.extend({}, itemDefaults, options);
+    console.log('options b4', options);
+    var options = Object.assign({}, itemDefaults, options);
+    console.log('options after', options)
       var div = $( document.createElement("div") ).addClass("item").appendTo(parent).css({
         left: (pos_x||0)*32,
         top: (pos_y||0)*32

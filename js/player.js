@@ -272,6 +272,10 @@ function Player(parentElement, gameState, playerData){
         console.log('item used on entity', item);
         GAME.socket.emit('player-use-item-on-target', {id: item_data.parentId, x: item_data.x, y: item_data.y, targetId: entity.id, targetType: enums.objType.ENTITY});
     };
+    this.useItemOnGround = (item_data, target) => {
+        // possible additional ground types in the future
+        GAME.socket.emit('player-use-item-on-target', {id: item_data.parentId, x: item_data.x, y: item_data.y, targetPos: target, targetType: enums.objType.GROUND});
+    };
     this.removeItem = function(data) {
         var parentID = data.parentId;
         var id = data.id;

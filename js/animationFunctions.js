@@ -49,3 +49,16 @@ GAME.animationFunctions = {
 		GAME.anims.push( new ProjectileAnimation(origin_x, origin_y, target_x, target_y, type_ammo, type_hit, options));
 	}
 }
+
+GAME.entityAnimationFunctions = {
+	placeSymbol: (data) => {
+		const entity = GAME.entityManager.getEntities()[data.id];
+		const callback = () => {
+			if(entity) {
+				entity.initialAnimPlayed = true
+			}
+		};
+		const options = Object.assign(data, {speed: 80, callback});
+		GAME.anims.push(new ShortAnimation(data.x, data.y, 'Basic Symbol Intro', options));
+	}
+}

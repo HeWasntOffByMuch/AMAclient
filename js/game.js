@@ -216,14 +216,21 @@ function Game(playerData, map_size, chunkSize) {
                 }
             }
             // place for consecutive checks for water ground etc.
+            targetingWithItem = false;
+                document.body.style.cursor = 'default';
+                var itemElement = $('#' + rightClickedItem.id );
+                var itemData = {
+                    x: parseInt(itemElement.css('left'), 10)/gh,
+                    y: parseInt(itemElement.css('top'), 10)/gh,
+                    parentId: itemElement.parent().attr('id')
+                };
+            player.useItemOnGround(itemData, {x: Math.floor(mpos_x), y: Math.floor(mpos_y)});
+
         } else { // didn't click anything and not targeting
             console.log('click on ground')
             player.moveQ.findPath(player.tx, player.ty, destX, destY);
             player.movingToTarget = false;
         }
-
-
-
     }
     function ctxMenuInspectHandler() {
         console.log('inspect function')
@@ -662,8 +669,10 @@ function Game(playerData, map_size, chunkSize) {
         player.toggleInvisibility(data);
     });
     socket.on('other-player-toggled-invisibility', function(data) {
-        if(data.id != player.id)
+        if(data.id != player.id){
+            console.log('something with invis toggled by other player')
             players_data[data.id].toggleInvisibility();
+        }
     });
     socket.on('server-message', function(data) {
         statusMessage.showMessage(data);

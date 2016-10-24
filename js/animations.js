@@ -55,8 +55,12 @@ function ShortAnimation(x, y, img_name, options) {
     var animationFrame;
     this.update = function() {
         animationFrame = Math.floor((gameState.frameTime - animStart) / animationSpeed);
-        if (animationFrame > img.spriteN)
+        if (animationFrame > img.spriteN) {
+            if(options.callback) {
+              options.callback();
+            }
             delete GAME.anims[this.id];
+        }
     };
     this.draw = function(ctx) {
         ctx.drawImage(img, animationFrame * img.spriteX, 0, img.spriteX, img.spriteY, (x - GAME.player.x - GAME.player.ax + 16) * gh, (y - GAME.player.y - GAME.player.ay + 8) * gh, gh, gh)

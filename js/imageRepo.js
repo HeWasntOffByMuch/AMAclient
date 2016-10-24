@@ -89,13 +89,15 @@ GAME.urlDict = {
   'Fireball': {src: 'img/skills/fireball_skill.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Fireball Projectile': {src: 'img/skills/fireball_projectile.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Fireball Explosion': {src: 'img/skills/fireball_explosion.png', spriteX: 84, spriteY: 84, spriteN: 12},
-  'SD Projectile': {src: 'img/skills/sudden_death_projectile.png', spriteX: 32, spriteY: 32, spriteN: 7},
-  'SD Explosion': {src: 'img/skills/sudden_death_explosion.png', spriteX: 32, spriteY: 32, spriteN: 7},
+  'SD Projectile': {src: 'img/skills/sudden_death_projectile.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'SD Explosion': {src: 'img/skills/sudden_death_explosion.png', spriteX: 32, spriteY: 32, spriteN: 12},
   'Passive Damage Amp': {src: 'img/skills/sever_artery.jpg', spriteX: 32, spriteY: 32, spriteN: 1},
   'Sudden Death': {src: 'img/skills/sudden_death_rune.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Passive Speed': {src: 'img/skills/speed_boost.jpg', spriteX: 32, spriteY: 32, spriteN: 1},
   'Healer Boon': {src: 'img/skills/healer_boon.jpg', spriteX: 32, spriteY: 32, spriteN: 1},
   'Mistery Box': {src: 'img/items/box.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Basic Symbol': {src: 'img/rune.png', spriteX: 32, spriteY: 32, spriteN: 8},
+  'Basic Symbol Intro': {src: 'img/fading_in_rune.png', spriteX: 32, spriteY: 32, spriteN: 7},
   //SPRITES
   'base_tiles': {src: 'img/tiles/base_tiles.png', spriteX: 32, spriteY: 32, tilesW: 16, tilesH: 16}
 }

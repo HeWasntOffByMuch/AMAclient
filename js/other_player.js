@@ -162,6 +162,7 @@ function OtherPlayer(gameState, data) {
             this.isTargeted = false;
             GAME.targetedUnit = null;
         }
+        map.freeSpot(this.tx, this.ty);
         GAME.anims.push(new ShortAnimation(this.x, this.y, 'spawn_puff'));
         delete GAME.instance.getPlayersData()[this.id];
     };

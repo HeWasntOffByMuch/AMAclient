@@ -51,6 +51,10 @@ function EntityManager() {
 
 	this.addEntity = function(id, entity) {
 		allEntities[id] = entity;
+		if(entity.type ==='symbol') {
+			const options = Object.assign(entity)
+			GAME.entityAnimationFunctions.placeSymbol(options);
+		}
 	};
 	this.removeEntity = function(id) {
 		delete allEntities[id];
@@ -69,9 +73,14 @@ function EntityManager() {
 	};
 	this.draw = function(ctx) {
 		var img;
+		var entity;
         for (var i in allEntities) {
-        	img = GAME.allImages[allEntities[i].name] || GAME.allImages['placeholder'];
-        	ctx.drawImage(img, (allEntities[i].x-GAME.player.x-GAME.player.ax+16)*gh, (allEntities[i].y-GAME.player.y-GAME.player.ay+8)*gh, img.spriteX, img.spriteY);
+        	if(allEntities[i].type === 'symbol' && !allEntities[i].initialAnimPlayed) {
+        		continue;
+        	}
+        	entity = allEntities[i];
+        	img = GAME.allImages[entity.name] || GAME.allImages['placeholder'];
+        	ctx.drawImage(img, (entity.x-GAME.player.x-GAME.player.ax+16)*gh, (entity.y-GAME.player.y-GAME.player.ay+8)*gh, img.spriteX, img.spriteY);
         }
 	};
 	this.getEntities = function() {

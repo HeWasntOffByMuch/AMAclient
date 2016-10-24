@@ -44,14 +44,16 @@ function Map(x, y, gameState){
 				ctx.drawImage(tilesSprite, x_pos*32, y_pos*32, 32, 32, Math.floor((i-ax)*32), Math.floor((j-ay)*32), 32, 32);
 
 				// DRAW COLLIDING TILES GRAYISH
-				// if(mapCollisions[GAME.player.x - 16 + i][GAME.player.y - 8 + j] === 0.5){
-				// 	ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-				// 	ctx.fillRect(Math.floor((i-ax)*32), Math.floor((j-ay)*32), 32, 32);
-				// }
-				// else if(mapCollisions[GAME.player.x - 16 + i][GAME.player.y - 8 + j] === 1){
-				// 	ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-				// 	ctx.fillRect(Math.floor((i-ax)*32), Math.floor((j-ay)*32), 32, 32);
-				// }
+				if(window.DEBUG_MODE) {
+					if(mapCollisions[GAME.player.x - 16 + i][GAME.player.y - 8 + j] === 0.5){
+						ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+						ctx.fillRect(Math.floor((i-ax)*32), Math.floor((j-ay)*32), 32, 32);
+					}
+					else if(mapCollisions[GAME.player.x - 16 + i][GAME.player.y - 8 + j] === 1){
+						ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+						ctx.fillRect(Math.floor((i-ax)*32), Math.floor((j-ay)*32), 32, 32);
+					}
+				}
 			}
 		}
 	};
