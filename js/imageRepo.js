@@ -45,6 +45,10 @@ GAME.urlDict = {
 
   //LAYOUT
   'combat_icon': {src: 'img/combat_icon.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'empty_bars' : {src: 'img/actionbar/new/health-mana-xp-bar-empty.png', spriteX: 256, spriteY: 64, spriteN: 1},
+  'health_full': {src: 'img/actionbar/new/health-bar-full.png', spriteX: 256, spriteY: 64, spriteN: 1},
+  'mana_full': {src: 'img/actionbar/new/mana-bar-full.png', spriteX: 256, spriteY: 64, spriteN: 1},
+  'xp_full': {src: 'img/actionbar/new/xp-bar-full.png', spriteX: 256, spriteY: 64, spriteN: 1},
 
   //ITEMS
   'sword' : {src: 'img/items/epee.png', spriteX: 32, spriteY: 32, spriteN: 1},
@@ -96,8 +100,8 @@ GAME.urlDict = {
   'Passive Speed': {src: 'img/skills/speed_boost.jpg', spriteX: 32, spriteY: 32, spriteN: 1},
   'Healer Boon': {src: 'img/skills/healer_boon.jpg', spriteX: 32, spriteY: 32, spriteN: 1},
   'Mistery Box': {src: 'img/items/box.png', spriteX: 32, spriteY: 32, spriteN: 1},
-  'Basic Symbol': {src: 'img/rune.png', spriteX: 32, spriteY: 32, spriteN: 8},
-  'Basic Symbol Intro': {src: 'img/fading_in_rune.png', spriteX: 32, spriteY: 32, spriteN: 7},
+  'Basic Symbol': {src: 'img/rune_erosion.png', spriteX: 32, spriteY: 32, spriteN: 8},
+  'Basic Symbol Intro': {src: 'img/fading_in_rune_erosion.png', spriteX: 32, spriteY: 32, spriteN: 7},
   //SPRITES
   'base_tiles': {src: 'img/tiles/base_tiles.png', spriteX: 32, spriteY: 32, tilesW: 16, tilesH: 16}
 }
