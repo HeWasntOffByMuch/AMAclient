@@ -51,7 +51,7 @@ GAME.animationFunctions = {
 }
 
 GAME.entityAnimationFunctions = {
-	placeSymbol: (data) => {
+	symbol: (data) => {
 		const entity = GAME.entityManager.getEntities()[data.id];
 		const callback = () => {
 			if(entity) {
@@ -60,5 +60,13 @@ GAME.entityAnimationFunctions = {
 		};
 		const options = Object.assign(data, {speed: 80, callback});
 		GAME.anims.push(new ShortAnimation(data.x, data.y, 'Basic Symbol Intro', options));
+	},
+	pumpkin: (data) => {
+		const entity = GAME.entityManager.getEntities()[data.id];
+
+		entity.initialAnimPlayed = true
+
+		const options = Object.assign(data, {speed: 80});
+		GAME.anims.push(new ShortAnimation(data.x, data.y, 'Pumpkin', options));
 	}
 }

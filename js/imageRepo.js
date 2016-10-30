@@ -8,7 +8,7 @@ GAME.urlDict = {
   'Fly_right': {src: 'img/mobs/fly_run_right.png', spriteX: 32, spriteY: 32, spriteN: 4},
   'Fly_left': {src: 'img/mobs/fly_run_left.png', spriteX: 32, spriteY: 32, spriteN: 4},
   'PlayerDead': {src: 'img/player/player_rayman_dead.png', spriteX: 32, spriteY: 48, spriteN: 1, offsetY: 16},
-  'Grave': {src: 'img/tombstone-icon-big.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Grave': {src: 'img/grave_dst.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Rayman_right': {src: 'img/player/player_rayman_right.png', spriteX: 32, spriteY: 48, spriteN: 1},
   'Rayman_left': {src: 'img/player/player_rayman_left.png', spriteX: 32, spriteY: 48, spriteN: 1},
   'Rayman_down': {src: 'img/player/player_rayman_down.png', spriteX: 32, spriteY: 48, spriteN: 1},
@@ -73,9 +73,11 @@ GAME.urlDict = {
   'Top Hat' : {src: 'img/items/top_hat.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Leather Armor' : {src: 'img/items/leather_armor.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Divine Shield' : {src: 'img/items/divine_shield.png', spriteX: 32, spriteY: 32, spriteN: 1},
-  'Crate' : {src: 'img/items/crate1.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Chest' : {src: 'img/items/chest_dst.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Trash Bag' : {src: 'img/items/trash_bag.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Conjuring Wand' : {src: 'img/items/banana.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Pumpkin Seed' : {src: 'img/items/pumpkin_seed.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Pumpkin' : {src: 'img/items/pumpkin.png', spriteX: 32, spriteY: 32, spriteN: 1},
 
   //SKILLS
   'skill_sword': {src: 'img/skills/skill_tiles/skill_sword.png', spriteX: 32, spriteY: 32, spriteN: 1},

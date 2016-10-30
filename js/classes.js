@@ -53,7 +53,7 @@ function EntityManager() {
 		allEntities[id] = entity;
 		if(entity.type ==='symbol') {
 			const options = Object.assign(entity)
-			GAME.entityAnimationFunctions.placeSymbol(options);
+			GAME.entityAnimationFunctions[entity.type](options);
 		}
 	};
 	this.removeEntity = function(id) {
