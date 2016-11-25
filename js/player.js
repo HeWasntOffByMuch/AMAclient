@@ -189,6 +189,7 @@ function Player(parentElement, gameState, playerData){
                         target_y = los.obstacle.y;
                         type_hit = type_miss;
                     }
+                    console.log({target_x, target_y})
                     GAME.anims.push(new ProjectileAnimation(this.tx, this.ty, target_x, target_y, type_ammo, type_hit));
                 }
                 if(this.equipment.primary.contents[0][0].type == 'melee'){
@@ -216,16 +217,42 @@ function Player(parentElement, gameState, playerData){
         
         this.equipment[to.id].contents[to.x][to.y] = item;
     };
+    this.stackInventoryItems = function(from, to) {
+        var item1 = GAME.player.equipment[from.id].contents[from.x][from.y];
+        var item2 = GAME.player.equipment[to.id].contents[to.x][to.y];
+
+        item2.quantity += item1.quantity;
+        GAME.player.equipment[from.id].contents[from.x][from.y] = 0;
+
+
+        GAME.socket.emit('stack-items-request', {from: from, to: to});
+    }
     this.lootEntity = function(from, to) {
         GAME.socket.emit('player-loot-entity', {from: from, to: to});
-        var item = GAME.entityManager.getEntities()[from.id].contents[from.pos];  // wow jackass
-        this.equipment[to.id].contents[to.x][to.y] = item;
+        var entity = GAME.entityManager.getEntities()[from.id];
+        var item1 = entity.contents[from.pos];  // wow jackass
+        var item2 = this.equipment[to.id].contents[to.x][to.y];
+        if(item1.stackable && item1.name === item2.name) {
+            item2.quantity += item1.quantity;
+        } else {
+            this.equipment[to.id].contents[to.x][to.y] = item1;
+        }
         //do checks if objects exist
-        var entity = GAME.entityManager.getEntities();
-        var loot = entity[from.id].contents[from.pos];
+        var loot = entity.contents[from.pos];
         delete loot; // nice chain nigga
 
     };
+    this.handleContainerItemStacking = (from, to) => {
+        if(from.type == 'container'){
+            if(to.type == 'container'){
+                this.stackItemsInsideContainer(from, to);
+            } else{
+                this.stackItemFromContainer(from, to);
+            }
+        } else{
+            this.stackItemIntoContainer(from, to);
+        }
+    }
     this.handleContainerItemMoving = function(from, to) {
         if(from.type == 'container'){
             if(to.type == 'container'){
@@ -237,26 +264,89 @@ function Player(parentElement, gameState, playerData){
             this.putItemIntoContainer(from, to);
         }
     };
-    this.takeItemFromContainer = function(from, to) {
+    this.takeItemFromContainer = function(from, to) { //stack check
         GAME.socket.emit('container-take-request', {from: from, to: to});
+
         var item = GAME.entityManager.getEntities()[from.id].contents[from.x][from.y];
         this.equipment[to.id].contents[to.x][to.y] = item;
+        GAME.entityManager.getEntities()[from.id].contents[from.x][from.y] = 0;
     };
     this.putItemIntoContainer = function(from, to) {
         GAME.socket.emit('container-put-request', {from: from, to: to});
+
+        var item = this.equipment[from.id].contents[from.x][from.y];
+        GAME.entityManager.getEntities()[to.id].contents[to.x][to.y] = item;
         this.equipment[from.id].contents[from.x][from.y] = 0;
+    };
+    this.stackItemsInsideContainer = function(from, to) {
+        GAME.socket.emit('container-stack-inside-request', {from: from, to: to});
+
+        var item1 = GAME.entityManager.getEntities()[from.id].contents[from.x][from.y];
+        var item2 = GAME.entityManager.getEntities()[to.id].contents[to.x][to.y];
+        if (item1.stackable && item1.name === item2.name) {
+            item2.quantity += item1.quantity;
+            $('#' + item1.id).remove();
+            var countEl = document.createElement('div');
+            countEl.className = 'quantity-text';
+            countEl.innerText = item2.quantity;
+            $('#' + item2.id).empty().append(countEl);
+
+            GAME.entityManager.getEntities()[from.id].contents[from.x][from.y] =  0;
+        }
+    }
+    this.stackItemFromContainer = (from, to) => {
+        GAME.socket.emit('container-take-stack-request', {from: from, to: to});
+
+        var item1 = GAME.entityManager.getEntities()[from.id].contents[from.x][from.y];
+        var item2 = this.equipment[to.id].contents[to.x][to.y];
+
+        if(item1.stackable && item1.name === item2.name) {
+            item2.quantity += item1.quantity;
+            $('#' + item1.id).remove();
+            var countEl = document.createElement('div');
+            countEl.className = 'quantity-text';
+            countEl.innerText = item2.quantity;
+            $('#' + item2.id).empty().append(countEl);
+
+            GAME.entityManager.getEntities()[from.id].contents[from.x][from.y] = 0;
+        }
+    };
+    this.stackItemIntoContainer = (from, to) => { // write backend
+        GAME.socket.emit('container-put-stack-request', {from: from, to: to});
+
+        var item1 = this.equipment[from.id].contents[from.x][from.y];
+        var item2 = GAME.entityManager.getEntities()[to.id].contents[to.x][to.y];
+
+        if (item1.stackable && item1.name === item2.name) {
+            item2.quantity += item1.quantity;
+            $('#' + item1.id).remove();
+            var countEl = document.createElement('div');
+            countEl.className = 'quantity-text';
+            countEl.innerText = item2.quantity;
+            $('#' + item2.id).empty().append(countEl);
+
+            this.equipment[from.id].contents[from.x][from.y] = 0;
+        }
     };
     this.moveItemInsideContainer = function(from, to) {
         GAME.socket.emit('container-move-inside-request', {from: from, to: to});
-        
+        var item1 = GAME.entityManager.getEntities()[from.id].contents[from.x][from.y];
+        var item2 = GAME.entityManager.getEntities()[to.id].contents[to.x][to.y];
+        if (item1.stackable && item1.name === item2.name) {
+            item2.quantity += item1.quantity;
+            $('#' + item1.id).remove();
+            var countEl = document.createElement('div');
+            countEl.className = 'quantity-text';
+            countEl.innerText = item1.quantity + item2.quantity;
+            $('#' + item2.id).empty().append(countEl);
+
+            GAME.entityManager.getEntities()[from.id].contents[from.x][from.y] =  0;
+        }
     };
     this.useItemOnSelf = function(item_data) {
         var item = this.equipment[item_data.parentId].contents[item_data.x][item_data.y];
         GAME.socket.emit('player-use-item-on-self', {id: item_data.parentId, x: item_data.x, y: item_data.y});
-        if(item.type == 'consumable' && --item.usesLeft === 0){  
-            //remove that item
-            //nevermind that is actually handled by server response
-        }
+        
     };
     this.useItemOnPlayer = function(item_data, other_player) {
         var item = this.equipment[item_data.parentId].contents[item_data.x][item_data.y];
@@ -276,15 +366,18 @@ function Player(parentElement, gameState, playerData){
         // possible additional ground types in the future
         GAME.socket.emit('player-use-item-on-target', {id: item_data.parentId, x: item_data.x, y: item_data.y, targetPos: target, targetType: enums.objType.GROUND});
     };
-    this.removeItem = function(data) {
+    this.useItem = function(data) {
+        console.log(data)
         var parentID = data.parentId;
         var id = data.id;
         var container = this.equipment[parentID];
         for(var i = 0; i < container.w; i++){
             for(var j = 0; j < container.h; j++){
-                if(container.contents[i][j].id == id){
+                if(container.contents[i][j].id === id && container.contents[i][j].quantity > 1) { // decrement quantity
+                    $('#' + id)[0].children[0].innerText = --container.contents[i][j].quantity;
+                } else if(container.contents[i][j].id == id){
                     container.contents[i][j] = 0;
-                    $('#' + parentID + ' .slot')[0].data[i][j] = 0;
+                    $('#' + parentID + '.slot')[0].data[i][j] = 0;
                     $('#' + id).remove();
                 }
             }

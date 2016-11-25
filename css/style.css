@@ -640,3 +640,16 @@ button.anim-alt:hover {
   border: 1px solid transparent;
   background-clip: content-box;
 }
+
+.quantity-text {
+  position: absolute;
+  font-size: 12px;
+  color: #fff;
+  right: 0px;
+  bottom: 0px;
+  height: 16px;
+  min-width: 16px;
+  width: auto;
+  border-top-left-radius: 4px;
+  text-align: center;
+}

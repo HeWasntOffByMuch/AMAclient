@@ -97,6 +97,9 @@ function Map(x, y, gameState){
 	this.occupySpot = function(x, y) {
 		mapCollisions[x][y] = 0.5;
 	};
+	this.occupySpotBlocking = function(x, y) {
+		mapCollisions[x][y] = 1;
+	};
 	this.freeSpot = function(x, y) {
 		mapCollisions[x][y] = 0;
 	};

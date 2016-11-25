@@ -339,7 +339,7 @@
         var valid = 1;
 
         var data = ev.dataTransfer.getData("text"); //item id apparently
-        var parentId = ev.dataTransfer.getData("parent_id"); // items previous parent element id
+        var originId = ev.dataTransfer.getData("parent_id"); // items previous parent element id
 
 
         var size = {x: $("#"+data).attr("size_x"), y: $("#"+data).attr("size_y")};
@@ -371,7 +371,7 @@
         }
         else if(latterSlot.hasClass('skill')){
           console.log('hasclass skill')
-          if(itemDroppedType === 'skill' || itemDroppedType === 'non-consumable'){
+          if(itemDroppedType === 'skill' || itemDroppedType === 'non-consumable' || itemDroppedType === 'consumable'){
 
           } else {
             valid = 0;
@@ -387,17 +387,21 @@
           valid = 0;
         }
         else{
-          for(var i = 0; i < size.x; i ++){
-            for(var j = 0; j < size.y; j ++) {
-              if (pos.left+i >= size_x || pos.top+j >= size_y || div[0].data[pos.left+i][pos.top+j])
-                valid = 0;
-            }
+          // for(var i = 0; i < size.x; i ++){
+          //   for(var j = 0; j < size.y; j ++) {
+          //     if (pos.left+i >= size_x || pos.top+j >= size_y || div[0].data[pos.left+i][pos.top+j])
+          //       valid = 0;
+          //   }
+          // }
+          if(div[0].data[pos.left][pos.top]) {
+            valid = 0;
           }
         }
+        console.log('valid', valid)
         // VALIDITY CHECKING DONE
         if (valid) {
           // adding and removing slot image
-          $('#' + parentId).addClass(parentId);
+          $('#' + originId).addClass(originId);
           $(this).removeClass(div[0].id);
           $("#"+data).appendTo(div).css({
             left: pos.left*32,
@@ -405,22 +409,21 @@
           });
           // console.log($("#"+data).parent().attr('id'));
 
-          if($('#' + parentId).hasClass('corpse')){
+          if($('#' + originId).hasClass('corpse')){
             //items inside entities are indexed from 0 in {}. no [][].
             var x = pos_old.left / 32;
             var y = pos_old.top / 32;
             var obj_pos = (y*4) + x;
-            var from = {id: parentId, pos: obj_pos};
+            var from = {id: originId, pos: obj_pos};
             // this is player inventory - atandard array
             var to = {id: div[0].id, x: pos.left, y: pos.top};
             
             GAME.player.lootEntity(from, to);
           }
-          else if($('#' + parentId).hasClass('container')){
-            console.log('taking from container', parentId);
+          else if($('#' + originId).hasClass('container')){
             var x = pos_old.left / 32;
             var y = pos_old.top / 32;
-            var from = {id: parentId, x: x, y: y};
+            var from = {id: originId, x: x, y: y};
             from.type = 'container';
             var to = {id: div[0].id, x: pos.left, y: pos.top};
             if($('#' + div[0].id).hasClass('container')){
@@ -429,24 +432,74 @@
             GAME.player.handleContainerItemMoving(from, to);
           }
           else{ //if not looting corpse || container
-            var from = {id: parentId, x: pos_old.left / 32, y: pos_old.top / 32};
+            var from = {id: originId, x: pos_old.left / 32, y: pos_old.top / 32};
             var to = {id: div[0].id, x: pos.left, y: pos.top};
             if($('#' + div[0].id).hasClass('container')){ //if putting item into a container
               to.type = 'container';
               GAME.player.handleContainerItemMoving(from, to);
             }
-            else{
+            else{ // moving items within players inventory
               GAME.player.moveInventoryItem(from, to);
             }
           }
 
+           div[0].data[pos.left][pos.top] = 1;
 
-          // for(var i = 0; i < size.x; i ++){ // ok so this is for item sized more than 1x1 apparently
-          //   for(var j = 0; j < size.y; j ++) {
-          //     div[0].data[pos.left+i][pos.top+j] = 1;
-          //   }
-          // }
+        } else {  //slot taken -> check for stackability
+          if ($('#' + originId).hasClass('corpse')){
+            var x = pos_old.left / 32;
+            var y = pos_old.top / 32;
+            var obj_pos = (y*4) + x;
+            var from = {id: originId, pos: obj_pos};
+            var to = {id: div[0].id, x: pos.left, y: pos.top};
+
+            var item1 = GAME.entityManager.getEntities()[from.id].contents[from.pos];
+            var item2 = GAME.player.equipment[to.id].contents[to.x][to.y];
+            if(item1.stackable && item1.name === item2.name) {
+              $('#' + data).remove();
+              var countEl = document.createElement('div');
+              countEl.className = 'quantity-text';
+              countEl.innerText = item1.quantity + item2.quantity;
+              $('#' + item2.id).empty().append(countEl)
+
+              GAME.player.lootEntity(from, to);
+            }
+
+          }else if($('#' + originId).hasClass('container') || $('#' + div[0].id).hasClass('container')){
+            var x = pos_old.left / 32;
+            var y = pos_old.top / 32;
+            var from = {id: originId, x: x, y: y};
+            if($('#' + originId).hasClass('container')) {
+              from.type = 'container';
+            }
+            var to = {id: div[0].id, x: pos.left, y: pos.top};
+            if($('#' + div[0].id).hasClass('container')){
+              to.type = 'container';
+            }
+            console.log('stack in container')
+            GAME.player.handleContainerItemStacking(from, to);
+          } else {
+            var from = {id: originId, x: pos_old.left / 32, y: pos_old.top / 32};
+            var to = {id: div[0].id, x: pos.left, y: pos.top};
+            var item1 = GAME.player.equipment[from.id].contents[from.x][from.y];
+            var item2 = GAME.player.equipment[to.id].contents[to.x][to.y];
+            console.log('stack check');
+            if(item1.stackable && item1.name === item2.name) {
+              // for now assume only moving items within players inv
+              console.log('stackability check', item1, item2);
+              //  remove item div;
+              $('#' + data).remove();
+              // append tesxt to item
+              var countEl = document.createElement('div');
+              countEl.className = 'quantity-text';
+              countEl.innerText = item1.quantity + item2.quantity;
+              $('#' + item2.id).empty().append(countEl)
+
+              GAME.player.stackInventoryItems(from, to);
+            }
+          }
         }
+
         ev.preventDefault();
       };
       div[0].ondragover = function(ev){
@@ -459,11 +512,13 @@
         var size = {x: $("#"+data).attr("size_x"), y: $("#"+data).attr("size_y")};
         
         var pos = {left: Math.floor((position.left-_globalItemAnchor.left) / 32), top: Math.floor((position.top-_globalItemAnchor.top) / 32)};
-        var valid = 1;
-        if (pos.left < 0 || pos.top < 0) valid = 0;
-        else for(var i = 0; i < size.x; i ++) for(var j = 0; j < size.y; j ++) {
-          if (pos.left+i >= size_x || pos.top+j >= size_y || div[0].data[pos.left+i][pos.top+j]) valid = 0;
-        }
+        // var valid = 1;
+        // if (pos.left < 0 || pos.top < 0) valid = 0;
+        // else if (div[0].data[pos.left][pos.top]) {
+        //   valid = 0;
+        // }
+        // console.log(pos, div[0].data[pos.left][pos.top])
+
         // _globalFakeItem.appendTo(div).show().css({
         //   backgroundColor: valid?'green':'red',
         //   left: pos.left*32,
@@ -471,7 +526,7 @@
         //   width: size.x * 32,
         //   height: size.y * 32
         // });
-        if(valid) ev.preventDefault();
+        ev.preventDefault();
       };
     });
     return this;
@@ -615,9 +670,7 @@
         }
     }
   function itemElement(size_x, size_y, parent, pos_x, pos_y, id, src, options) {
-    console.log('options b4', options);
     var options = Object.assign({}, itemDefaults, options);
-    console.log('options after', options)
       var div = $( document.createElement("div") ).addClass("item").appendTo(parent).css({
         left: (pos_x||0)*32,
         top: (pos_y||0)*32
@@ -625,6 +678,13 @@
       div.prop("draggable", true);
       div.attr("size_x", size_x);
       div.attr("size_y", size_y);
+      div.attr("quantity", options.quantity);
+      if (options.quantity > 1) {
+        var quantityText = document.createElement('div');
+        quantityText.innerText = options.quantity;
+        quantityText.className = 'quantity-text';
+        div.append(quantityText);
+      }
       div.css({
         width: size_x*32,
         height: size_y*32
@@ -654,10 +714,10 @@
       }
       div[0].ondragend = function(ev) {
         // _globalFakeItem.hide();
-        // for(var i = 0; i < size_x; i ++) for(var j = 0; j < size_y; j ++) {
-        //   var pos_old = div.position();
-        //   div.parent()[0].data[pos_old.left/32+i][pos_old.top/32+j] = 1;
-        // }
+          var pos_old = div.position();
+          if(div.parent()[0]){
+            div.parent()[0].data[pos_old.left/32][pos_old.top/32] = 1;
+          }
       }
       div.mouseover(function(ev){
         clearTimeout(_globalTooltipTO);

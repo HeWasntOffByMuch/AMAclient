@@ -66,9 +66,10 @@ GAME.urlDict = {
   'Sawed-Off Shotgun' : {src: 'img/items/sawed_off.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Health Potion' : {src: 'img/items/health_potion_full.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Mana Potion' : {src: 'img/items/mana_potion_full.png', spriteX: 32, spriteY: 32, spriteN: 1},
-  'Gold' : {src: 'img/items/cursed_gold.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Gold' : {src: 'img/items/dubloons.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Silver' : {src: 'img/items/silver_dubloons.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Resurrection Scroll' : {src: 'img/items/scroll.png', spriteX: 32, spriteY: 32, spriteN: 1},
-  'Heal Stick' : {src: 'img/items/heal_stick.gif', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Heal Stick' : {src: 'img/items/green_staff.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Generic Boots' : {src: 'img/items/generic_boots.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Top Hat' : {src: 'img/items/top_hat.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Leather Armor' : {src: 'img/items/leather_armor.png', spriteX: 32, spriteY: 32, spriteN: 1},
@@ -78,6 +79,7 @@ GAME.urlDict = {
   'Conjuring Wand' : {src: 'img/items/banana.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Pumpkin Seed' : {src: 'img/items/pumpkin_seed.png', spriteX: 32, spriteY: 32, spriteN: 1},
   'Pumpkin' : {src: 'img/items/pumpkin.png', spriteX: 32, spriteY: 32, spriteN: 1},
+  'Stone Wall' : {src: 'img/items/stone_wall.png', spriteX: 32, spriteY: 32, spriteN: 1},
 
   //SKILLS
   'skill_sword': {src: 'img/skills/skill_tiles/skill_sword.png', spriteX: 32, spriteY: 32, spriteN: 1},

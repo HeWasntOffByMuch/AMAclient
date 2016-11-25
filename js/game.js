@@ -643,6 +643,7 @@ function Game(playerData, map_size, chunkSize) {
         }
     });
     socket.on('player-attack-range', function(data) {
+        console.log(data)
         if(players_data.hasOwnProperty(data.id)){
             players_data[data.id].attack(data.target, 'ranged', data.hit);
         }
@@ -651,7 +652,7 @@ function Game(playerData, map_size, chunkSize) {
         GAME.layout.openEntity(data);
     });
     socket.on('player-used-item', function(data) {
-        player.removeItem(data);
+        player.useItem(data);
     });
     socket.on('player-call-incoming', function(data) {
         GAME.layout.incomingCallTab(data.callerId, data.callerName, data.peerId);

@@ -55,8 +55,14 @@ function EntityManager() {
 			const options = Object.assign(entity)
 			GAME.entityAnimationFunctions[entity.type](options);
 		}
+		if(entity.blocking){
+			GAME.map.occupySpotBlocking(entity.x, entity.y);
+		}
 	};
 	this.removeEntity = function(id) {
+		if(allEntities[id].blocking) {
+			GAME.map.freeSpot(allEntities[id].x, allEntities[id].y);
+		}
 		delete allEntities[id];
 		// remove loot window
 		$('#' + id).parent().parent().remove();
@@ -223,9 +229,9 @@ function peerJsTools() {
             call.on('stream', function(remoteStream) {
             	console.log('PEERJS: incoming audio stream', remoteStream);
             	// WEBAUDIO API BELOW - DOESN'T WORK IN CHROME?
-                // var audioContext = new AudioContext();
-                // var audioStream = audioContext.createMediaStreamSource(remoteStream);
-                // audioStream.connect(audioContext.destination);
+                var audioContext = new AudioContext();
+                var audioStream = audioContext.createMediaStreamSource(remoteStream);
+                audioStream.connect(audioContext.destination);
 				  var audio = $('<audio autoplay />').appendTo('body');
 				  audio[0].src = (URL || webkitURL || mozURL).createObjectURL(remoteStream);
             });
